@@ -47,5 +47,7 @@ export default async (req: Request, res: Response) => {
 
     // 5. Handle the request
   }
-  cachedApp(req, res);
+  if (cachedApp) {
+    await cachedApp(req, res);
+  }
 };
