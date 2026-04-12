@@ -1,10 +1,10 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from '../src/app.module';
-import { Express } from 'express';
+import { Express, Request, Response } from 'express';
 import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
-export default async () => {
+export default async (req: Request, res: Response) => {
   const app = await NestFactory.create(AppModule);
 
   // 1. Apply the EXACT same middleware as main.ts
@@ -41,5 +41,5 @@ export default async () => {
   const instance = app.getHttpAdapter().getInstance() as Express;
 
   // 5. Handle the request
-  return instance;
+  instance(req, res);
 };
