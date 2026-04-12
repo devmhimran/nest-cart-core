@@ -16,7 +16,7 @@ async function bootstrap() {
   });
 
   const config = new DocumentBuilder()
-    .setTitle('Nest Nexus')
+    .setTitle('Nest Cart Core')
     .setDescription('Documentation for Nest Nexus API')
     .setVersion('1.0')
     .addTag('nest-nexus')
@@ -33,11 +33,8 @@ async function bootstrap() {
     ],
   });
 
-  // if (process.env.RUNTIME !== 'serverless') {
-  //   const port = process.env.PORT ?? 5000;
-  //   await app.listen(port);
-  //   console.log(`🚀 Server running on http://localhost:${port}/api/v1`);
-  // }
   await app.listen(process.env.PORT ?? 5000);
 }
-bootstrap();
+bootstrap().catch((err) => {
+  console.error('💥 Error during bootstrap:', err);
+});
