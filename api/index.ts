@@ -10,17 +10,15 @@ export default async (req: Request, res: Response) => {
   if (!cachedApp) {
     const app = await NestFactory.create(AppModule);
 
-    // 1. Apply the EXACT same middleware as main.ts
     app.useGlobalPipes(
       new ValidationPipe({ whitelist: true, transform: true }),
     );
     app.setGlobalPrefix('api/v1');
     app.enableCors({
-      origin: ['http://localhost:3000', 'http://localhost:5173'], // Add production domains here too
+      origin: ['http://localhost:3000', 'http://localhost:5173'],
       credentials: true,
     });
 
-    // 2. Swagger Setup (Necessary if you want docs in production)
     const config = new DocumentBuilder()
       .setTitle('Nest Cart Core')
       .setDescription('Documentation for Nest Nexus API')
@@ -39,13 +37,9 @@ export default async (req: Request, res: Response) => {
       ],
     });
 
-    // 3. Initialize the Nest context
     await app.init();
 
-    // 4. Get the underlying Express instance
     cachedApp = app.getHttpAdapter().getInstance() as Express;
-
-    // 5. Handle the request
   }
   if (cachedApp) {
     await cachedApp(req, res);
