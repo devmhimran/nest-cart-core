@@ -47,8 +47,16 @@ export class AuthService {
   private async issueSessionTokens(
     userId: number,
     role: UserRole,
+    req: Request,
     res: ResponseWithCookie,
   ) {
+    const forwardedFor = req.headers['x-forwarded-for'];
+    const ipAddress =
+      typeof forwardedFor === 'string'
+        ? forwardedFor.split(',')[0]?.trim() || req.ip
+        : req.ip;
+    const userAgent = req.headers['user-agent'];
+
     const sessionId = randomUUID();
     const { accessToken, refreshToken } = await this.tokenService.generateToken(
       userId,
@@ -61,6 +69,8 @@ export class AuthService {
       id: sessionId,
       userId,
       refreshToken: hashedRefreshToken,
+      ipAddress,
+      userAgent,
     });
 
     res.cookie('refreshToken', refreshToken, refreshTokenCookieOptions);
@@ -68,7 +78,7 @@ export class AuthService {
     return { accessToken };
   }
 
-  async signIn(signInDto: SignInDto, res: ResponseWithCookie) {
+  async signIn(signInDto: SignInDto, req: Request, res: ResponseWithCookie) {
     const { email, password } = signInDto;
     const existingUser = await this.userService.findByEmail(email);
     if (!existingUser) {
@@ -95,13 +105,14 @@ export class AuthService {
     const { accessToken } = await this.issueSessionTokens(
       existingUser.id,
       existingUser.role,
+      req,
       res,
     );
 
     return { message: 'Signed in successfully', accessToken };
   }
 
-  async signUp(signUpDto: SignUpDto, res: ResponseWithCookie) {
+  async signUp(signUpDto: SignUpDto, req: Request, res: ResponseWithCookie) {
     const existingUser = await this.userService.findByEmail(signUpDto.email);
 
     if (existingUser) {
@@ -120,6 +131,7 @@ export class AuthService {
     const { accessToken } = await this.issueSessionTokens(
       user.id,
       user.role,
+      req,
       res,
     );
 

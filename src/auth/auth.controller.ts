@@ -12,18 +12,20 @@ export class AuthController {
   @Post('signin')
   signin(
     @Body() signinDto: SignInDto,
+    @Req() req: Request,
     @Res({ passthrough: true }) res: ResponseWithCookie,
   ) {
-    const response = this.authService.signIn(signinDto, res);
+    const response = this.authService.signIn(signinDto, req, res);
     return response;
   }
 
   @Post('signup')
   signup(
     @Body() signupDto: SignUpDto,
+    @Req() req: Request,
     @Res({ passthrough: true }) res: ResponseWithCookie,
   ) {
-    const response = this.authService.signUp(signupDto, res);
+    const response = this.authService.signUp(signupDto, req, res);
     return response;
   }
 
