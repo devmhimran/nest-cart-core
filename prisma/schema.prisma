@@ -53,9 +53,23 @@ model User {
   notifications Notification[]
   auditLogs     AuditLog[]
   orders        Order[]
+  sessions      UserSession[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model UserSession {
+  id           String   @id
+  userId       Int
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  refreshToken String   @db.Text
+  userAgent    String?
+  ipAddress    String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([userId])
 }
 
 // --- MEDIA LIBRARY (Upload first, then select) ---

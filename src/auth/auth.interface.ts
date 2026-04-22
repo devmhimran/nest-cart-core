@@ -1,4 +1,4 @@
-import { Request } from 'express';
+import { Request, Response } from 'express';
 import { IncomingHttpHeaders } from 'http';
 
 export interface RequestWithCookies extends Request {

@@ -7,8 +7,8 @@ import { jwtConstants } from '../constants';
 export class TokenService {
   constructor(private readonly jwtService: JwtService) {}
 
-  async generateToken(userId: number, role: UserRole) {
-    const payload = { sub: userId, role };
+  async generateToken(userId: number, role: UserRole, sessionId: string) {
+    const payload = { sub: userId, role, sid: sessionId };
     const accessOption: JwtSignOptions = {
       secret: jwtConstants.accessSecret,
       expiresIn: '45m' as const,
@@ -27,10 +27,17 @@ export class TokenService {
     return { accessToken, refreshToken };
   }
 
-  async verifyRefreshToken(token: string): Promise<{ sub: number }> {
-    const result = await this.jwtService.verifyAsync<{ sub: number }>(token, {
+  async verifyRefreshToken(token: string): Promise<{
+    sub: number;
+    role: UserRole;
+    sid: string;
+  }> {
+    return this.jwtService.verifyAsync<{
+      sub: number;
+      role: UserRole;
+      sid: string;
+    }>(token, {
       secret: jwtConstants.refreshSecret,
     });
-    return result;
   }
 }
