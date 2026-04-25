@@ -4,12 +4,14 @@ import { AuthService } from './auth.service';
 import type { ResponseWithCookie } from './auth.interface';
 import { SignUpDto } from './dto/signup.dto';
 import type { Request } from 'express';
+import { Public } from '../common/decorators/public.decorator';
 
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
   @Post('signin')
+  @Public()
   signin(
     @Body() signinDto: SignInDto,
     @Req() req: Request,
@@ -20,6 +22,7 @@ export class AuthController {
   }
 
   @Post('signup')
+  @Public()
   signup(
     @Body() signupDto: SignUpDto,
     @Req() req: Request,
@@ -30,6 +33,7 @@ export class AuthController {
   }
 
   @Post('refresh')
+  @Public()
   async refresh(
     @Req() req: Request,
     @Res({ passthrough: true }) res: ResponseWithCookie,

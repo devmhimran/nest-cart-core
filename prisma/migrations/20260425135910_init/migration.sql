@@ -23,6 +23,19 @@ CREATE TABLE "User" (
 );
 
 -- CreateTable
+CREATE TABLE "UserSession" (
+    "id" TEXT NOT NULL,
+    "userId" INTEGER NOT NULL,
+    "refreshToken" TEXT NOT NULL,
+    "userAgent" TEXT,
+    "ipAddress" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "UserSession_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "MediaLibrary" (
     "id" SERIAL NOT NULL,
     "fileUrl" TEXT NOT NULL,
@@ -48,13 +61,36 @@ CREATE TABLE "Category" (
 );
 
 -- CreateTable
+CREATE TABLE "Color" (
+    "id" SERIAL NOT NULL,
+    "name" TEXT NOT NULL,
+    "hex" TEXT,
+
+    CONSTRAINT "Color_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Size" (
+    "id" SERIAL NOT NULL,
+    "name" TEXT NOT NULL,
+
+    CONSTRAINT "Size_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "Product" (
     "id" SERIAL NOT NULL,
     "title" TEXT NOT NULL,
     "slug" TEXT NOT NULL,
     "description" TEXT,
+    "shortDescription" TEXT,
+    "additionalDescription" TEXT,
+    "metaTitle" TEXT,
+    "metaDescription" TEXT,
+    "metaKeywords" TEXT,
     "basePrice" DOUBLE PRECISION NOT NULL,
     "discountPrice" DOUBLE PRECISION,
+    "isNew" BOOLEAN NOT NULL DEFAULT false,
     "isDelete" BOOLEAN NOT NULL DEFAULT false,
     "isActive" BOOLEAN NOT NULL DEFAULT true,
     "mainImageId" INTEGER,
@@ -71,8 +107,8 @@ CREATE TABLE "Product" (
 CREATE TABLE "ProductVariant" (
     "id" SERIAL NOT NULL,
     "productId" INTEGER NOT NULL,
-    "size" TEXT,
-    "color" TEXT,
+    "colorId" INTEGER,
+    "sizeId" INTEGER,
     "price" DOUBLE PRECISION NOT NULL,
     "stock" INTEGER NOT NULL DEFAULT 0,
     "isDelete" BOOLEAN NOT NULL DEFAULT false,
@@ -94,11 +130,19 @@ CREATE TABLE "Order" (
     "id" SERIAL NOT NULL,
     "orderId" TEXT NOT NULL,
     "total" DOUBLE PRECISION NOT NULL,
+    "subtotal" DOUBLE PRECISION NOT NULL,
     "status" "OrderStatus" NOT NULL DEFAULT 'PENDING',
     "paymentStatus" "PaymentStatus" NOT NULL DEFAULT 'INCOMPLETE',
     "isDelete" BOOLEAN NOT NULL DEFAULT false,
-    "userId" INTEGER NOT NULL,
+    "name" TEXT,
+    "region" TEXT,
+    "city" TEXT,
+    "district" TEXT,
+    "address" TEXT,
+    "phone" TEXT,
+    "email" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "Order_pkey" PRIMARY KEY ("id")
 );
@@ -111,6 +155,8 @@ CREATE TABLE "OrderItem" (
     "variantId" INTEGER,
     "quantity" INTEGER NOT NULL,
     "price" DOUBLE PRECISION NOT NULL,
+    "color" TEXT,
+    "size" TEXT,
 
     CONSTRAINT "OrderItem_pkey" PRIMARY KEY ("id")
 );
@@ -158,8 +204,36 @@ CREATE TABLE "Banner" (
     CONSTRAINT "Banner_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "PromoCode" (
+    "id" SERIAL NOT NULL,
+    "code" TEXT NOT NULL,
+    "title" TEXT NOT NULL,
+    "amount" DOUBLE PRECISION NOT NULL,
+    "startDate" TIMESTAMP(3) NOT NULL,
+    "endDate" TIMESTAMP(3) NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "PromoCode_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "forgot_passwords" (
+    "id" SERIAL NOT NULL,
+    "code" TEXT NOT NULL,
+    "is_valid" BOOLEAN NOT NULL DEFAULT true,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "email" TEXT,
+
+    CONSTRAINT "forgot_passwords_pkey" PRIMARY KEY ("id")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
+
+-- CreateIndex
+CREATE INDEX "UserSession_userId_idx" ON "UserSession"("userId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "MediaLibrary_fileName_key" ON "MediaLibrary"("fileName");
@@ -168,13 +242,28 @@ CREATE UNIQUE INDEX "MediaLibrary_fileName_key" ON "MediaLibrary"("fileName");
 CREATE UNIQUE INDEX "Category_slug_key" ON "Category"("slug");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "Color_name_key" ON "Color"("name");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Size_name_key" ON "Size"("name");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "Product_slug_key" ON "Product"("slug");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "ProductVariant_productId_size_color_key" ON "ProductVariant"("productId", "size", "color");
+CREATE UNIQUE INDEX "ProductVariant_productId_colorId_sizeId_key" ON "ProductVariant"("productId", "colorId", "sizeId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Order_orderId_key" ON "Order"("orderId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "PromoCode_code_key" ON "PromoCode"("code");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "forgot_passwords_code_key" ON "forgot_passwords"("code");
+
+-- AddForeignKey
+ALTER TABLE "UserSession" ADD CONSTRAINT "UserSession_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "MediaLibrary" ADD CONSTRAINT "MediaLibrary_createdById_fkey" FOREIGN KEY ("createdById") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
@@ -198,13 +287,16 @@ ALTER TABLE "Product" ADD CONSTRAINT "Product_createdById_fkey" FOREIGN KEY ("cr
 ALTER TABLE "ProductVariant" ADD CONSTRAINT "ProductVariant_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Product"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "ProductVariant" ADD CONSTRAINT "ProductVariant_colorId_fkey" FOREIGN KEY ("colorId") REFERENCES "Color"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ProductVariant" ADD CONSTRAINT "ProductVariant_sizeId_fkey" FOREIGN KEY ("sizeId") REFERENCES "Size"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "ProductGallery" ADD CONSTRAINT "ProductGallery_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Product"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "ProductGallery" ADD CONSTRAINT "ProductGallery_mediaId_fkey" FOREIGN KEY ("mediaId") REFERENCES "MediaLibrary"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Order" ADD CONSTRAINT "Order_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "OrderItem" ADD CONSTRAINT "OrderItem_orderId_fkey" FOREIGN KEY ("orderId") REFERENCES "Order"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

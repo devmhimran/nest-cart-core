@@ -9,8 +9,17 @@ export interface ResponseWithCookie extends Response {
   cookie(name: string, value: string, options?: any): this;
 }
 
+import { UserRole } from '../../generated/prisma/enums';
+
+export interface AuthUser {
+  id: number | string;
+  role: UserRole;
+  [key: string]: any;
+}
+
 export interface RequestWithAuth extends Request {
   headers: {
     authorization?: string;
   } & IncomingHttpHeaders;
+  user?: AuthUser;
 }
