@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { IncomingHttpHeaders } from 'http';
+import { UserRole } from '../../generated/prisma/enums';
 
 export interface RequestWithCookies extends Request {
   cookies: { [key: string]: string };
@@ -8,8 +9,6 @@ export interface RequestWithCookies extends Request {
 export interface ResponseWithCookie extends Response {
   cookie(name: string, value: string, options?: any): this;
 }
-
-import { UserRole } from '../../generated/prisma/enums';
 
 export interface AuthUser {
   id: number;
