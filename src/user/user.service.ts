@@ -75,4 +75,16 @@ export class UserService {
       data: { refreshToken },
     });
   }
+
+  async findUserSessionByUserId(userId: number) {
+    return this.prismaService.userSession.findMany({
+      where: { userId },
+    });
+  }
+
+  async deleteUserSessionById(sessionId: string) {
+    await this.prismaService.userSession.delete({
+      where: { id: sessionId },
+    });
+  }
 }

@@ -10,12 +10,14 @@ import { Request } from 'express';
 import { UserRole } from '../../../generated/prisma/enums';
 import { Reflector } from '@nestjs/core';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
+import { UserService } from '../../user/user.service';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
   constructor(
     private jwtService: JwtService,
     private reflector: Reflector,
+    private userService: UserService,
   ) {}
 
   private extractTokenFromHeader(request: RequestWithAuth): string | undefined {
@@ -35,22 +37,24 @@ export class AuthGuard implements CanActivate {
       context.getClass(),
     ]);
 
-    if (isPublic) {
-      return true;
-    }
+    if (isPublic) return true;
 
-    if (!token) {
-      throw new UnauthorizedException();
-    }
+    if (!token) throw new UnauthorizedException();
 
     try {
       const payload = await this.jwtService.verifyAsync<{
         sub: number;
         role: UserRole;
+        sid: string;
         iat?: number;
         exp?: number;
         [key: string]: any;
       }>(token);
+
+      const session = await this.userService.findUserSessionById(payload.sid);
+      if (!session) {
+        throw new UnauthorizedException('Session not found');
+      }
 
       request.user = {
         id: payload.sub,

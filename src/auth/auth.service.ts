@@ -192,4 +192,50 @@ export class AuthService {
       accessToken,
     };
   }
+
+  async listSessions(userId?: number) {
+    if (!userId) {
+      throw new UnauthorizedException('User ID is required to list sessions');
+    }
+    return this.userService.findUserSessionByUserId(userId);
+  }
+
+  async deleteSession(
+    userId?: number,
+    sessionId?: string,
+    currentSessionId?: string,
+  ) {
+    if (!sessionId) {
+      throw new UnauthorizedException(
+        'Session ID is required to delete session',
+      );
+    }
+
+    if (sessionId === currentSessionId) {
+      throw new ConflictException('Cannot remove current session');
+    }
+
+    const session = await this.userService.findUserSessionById(sessionId);
+    if (!session || session.userId !== userId) {
+      throw new UnauthorizedException(
+        'Session not found or does not belong to user',
+      );
+    }
+    await this.userService.deleteUserSessionById(sessionId);
+    return { message: 'Session deleted successfully' };
+  }
+
+  async signOut(session: string | undefined, res: ResponseWithCookie) {
+    if (!session) {
+      throw new UnauthorizedException('No active session found');
+    }
+    await this.userService.deleteUserSessionById(session);
+
+    res.cookie('refreshToken', '', {
+      ...refreshTokenCookieOptions,
+      maxAge: 0,
+    });
+
+    return { message: 'Signed out successfully' };
+  }
 }

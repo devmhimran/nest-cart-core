@@ -12,8 +12,9 @@ export interface ResponseWithCookie extends Response {
 import { UserRole } from '../../generated/prisma/enums';
 
 export interface AuthUser {
-  id: number | string;
+  id: number;
   role: UserRole;
+  sid: string;
   [key: string]: any;
 }
 
