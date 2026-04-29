@@ -9,9 +9,10 @@ import { TestController } from './test/test.controller';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './common/guards/auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
+import { SizeModule } from './size/size.module';
 
 @Module({
-  imports: [ConfigModule.forRoot(), AuthModule, UserModule],
+  imports: [ConfigModule.forRoot(), AuthModule, UserModule, SizeModule],
   controllers: [AppController, AuthController, TestController],
   providers: [
     AppService,

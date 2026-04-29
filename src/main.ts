@@ -11,7 +11,11 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
   app.setGlobalPrefix('api/v1');
   app.enableCors({
-    origin: ['http://localhost:3000', 'http://localhost:5173'],
+    origin: [
+      'http://localhost:3000',
+      'http://localhost:5173',
+      'https://hoppscotch.io/',
+    ],
     credentials: true,
   });
 

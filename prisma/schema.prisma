@@ -37,6 +37,26 @@ enum PaymentStatus {
   REFUNDED
 }
 
+enum AuditAction {
+  CREATE
+  UPDATE
+  DELETE
+  RESTORE
+  LOGIN
+  SIGNOUT
+}
+
+enum EntityType {
+  USER
+  SIZE
+  COLOR
+  PRODUCT
+  CATEGORY
+  ORDER
+  BANNER
+  PROMO_CODE
+}
+
 // --- USER & AUTH ---
 
 model User {
@@ -65,6 +85,8 @@ model UserSession {
   refreshToken String   @db.Text
   userAgent    String?
   ipAddress    String?
+  country      String?
+  city         String?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
@@ -233,8 +255,8 @@ model AuditLog {
   userId Int?
   user   User? @relation(fields: [userId], references: [id])
 
-  action   String
-  entity   String
+  action   AuditAction
+  entity   EntityType
   entityId Int
   oldData  Json?
   newData  Json?
