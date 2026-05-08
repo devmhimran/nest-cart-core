@@ -3,6 +3,8 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateSizeDto } from './dto/create-size.dto';
 import { UpdateSizeDto } from './dto/update-size.dto';
 import { PrismaService } from '../prisma.service';
+import { PaginationQueryDto } from '../common/pagination/dto/pagination-query.dto';
+import { paginate } from '../common/pagination/paginate.util';
 
 @Injectable()
 export class SizeService {
@@ -29,8 +31,10 @@ export class SizeService {
     });
   }
 
-  findAll() {
-    return `This action returns all size`;
+  findAll(query: PaginationQueryDto) {
+    return paginate(this.prismaService.size, query, {
+      orderBy: { id: 'desc' },
+    });
   }
 
   findOne(id: number) {
