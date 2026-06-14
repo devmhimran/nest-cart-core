@@ -1,85 +1,22 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Post,
-  Req,
-  Res,
-  UseGuards,
-} from '@nestjs/common';
-import { SignInDto } from './dto/signin.dto';
-import { AuthService } from './auth.service';
-import type { RequestWithAuth, ResponseWithCookie } from './auth.interface';
-import { SignUpDto } from './dto/signup.dto';
-import type { Request } from 'express';
-import { Public } from '../common/decorators/public.decorator';
-import { AuthGuard } from '../common/guards/auth.guard';
+// src/auth/auth.controller.ts
+import { Controller, All, Req, Res } from '@nestjs/common';
+import type { Request, Response } from 'express';
+import { toNodeHandler } from 'better-auth/node';
+import { auth } from './auth.config';
+import { ApiExcludeController } from '@nestjs/swagger';
 
-@Controller('auth')
+@ApiExcludeController()
+@Controller('auth') // Matches /api/v1/auth
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  @All('*')
+  handleAuth(@Req() req: Request, @Res() res: Response) {
+    // 1. Grab the wildcard path parameter (e.g., "sign-in/email")
+    const subPath = req.params[0] || '';
+    console.log({ tb: process.env.JWT_ACCESS_SECRET });
+    // 2. Rewrite req.url so Better Auth sees its standard root layout structure
+    req.url = `/api/auth/${subPath}`;
 
-  @Post('signin')
-  @Public()
-  signin(
-    @Body() signinDto: SignInDto,
-    @Req() req: Request,
-    @Res({ passthrough: true }) res: ResponseWithCookie,
-  ) {
-    const response = this.authService.signIn(signinDto, req, res);
-    return response;
-  }
-
-  @Post('signup')
-  @Public()
-  signup(
-    @Body() signupDto: SignUpDto,
-    @Req() req: Request,
-    @Res({ passthrough: true }) res: ResponseWithCookie,
-  ) {
-    const response = this.authService.signUp(signupDto, req, res);
-    return response;
-  }
-
-  @Post('refresh')
-  @Public()
-  async refresh(
-    @Req() req: Request,
-    @Res({ passthrough: true }) res: ResponseWithCookie,
-  ) {
-    const response = this.authService.refreshToken(req, res);
-    return response;
-  }
-
-  @Get('sessions')
-  @UseGuards(AuthGuard)
-  getSessions(@Req() req: RequestWithAuth) {
-    const user = req.user;
-    return this.authService.listSessions(user?.id);
-  }
-
-  @Delete('sessions/:id')
-  @UseGuards(AuthGuard)
-  deleteSession(@Req() req: RequestWithAuth, @Param('id') sessionId: string) {
-    const user = req.user;
-    const currentSessionId = user?.sid;
-
-    return this.authService.deleteSession(
-      user?.id,
-      sessionId,
-      currentSessionId,
-    );
-  }
-
-  @Post('signout')
-  @UseGuards(AuthGuard)
-  async signout(
-    @Req() req: RequestWithAuth,
-    @Res({ passthrough: true }) res: ResponseWithCookie,
-  ) {
-    const user = req.user;
-    return this.authService.signOut(user?.sid, res);
+    // 3. Now the official node handler can read the path perfectly!
+    return toNodeHandler(auth)(req, res);
   }
 }

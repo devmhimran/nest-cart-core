@@ -60,38 +60,100 @@ enum EntityType {
 // --- USER & AUTH ---
 
 model User {
-  id       Int      @id @default(autoincrement())
-  name     String?
-  email    String   @unique
-  password String
-  role     UserRole @default(CUSTOMER)
-  isDelete Boolean  @default(false)
-  isActive Boolean  @default(true)
+  id            String    @id @default(cuid())
+  name          String?
+  email         String   @unique
+  emailVerified Boolean  @default(false)
+  image         String?
+  password      String?
+  role          UserRole @default(CUSTOMER)
+  isDelete      Boolean  @default(false)
+  isActive      Boolean  @default(true)
+
+  sessions Session[]
+  accounts Account[]
+
+  customerProfile CustomerProfile?
 
   products      Product[]      @relation("ProductCreatedBy")
   mediaUploaded MediaLibrary[] @relation("MediaUploadedBy")
   notifications Notification[]
   auditLogs     AuditLog[]
-  sessions      UserSession[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@map("user")
 }
 
-model UserSession {
-  id           String   @id
-  userId       Int
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  refreshToken String   @db.Text
-  userAgent    String?
-  ipAddress    String?
-  country      String?
-  city         String?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+model Session {
+  id        String   @id // Better Auth generates secure string tokens for IDs
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String   @unique
+  expiresAt DateTime
+
+  // Your custom session/client metadata fields preserved
+  userAgent String?
+  ipAddress String?
+  country   String?
+  city      String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([userId])
+  @@map("session")
 }
+
+model Account {
+  id                    String    @id @default(cuid())
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accountId             String
+  providerId            String
+  accessToken           String?   @db.Text
+  refreshToken          String?   @db.Text
+  idToken               String?   @db.Text
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id @default(cuid())
+  identifier String
+  token      String   @unique
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("verification")
+}
+
+model CustomerProfile {
+  id     String @id @default(cuid())
+  userId String    @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  stripeCustomerId String? @unique
+  loyaltyPoints    Int     @default(0)
+
+  orders Order[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("customer_profile")
+}
+
+// --- MEDIA SYSTEM ---
 
 model MediaLibrary {
   id               Int              @id @default(autoincrement())
@@ -100,7 +162,7 @@ model MediaLibrary {
   fileType         String?
   fileSize         Int?
   isDelete         Boolean          @default(false)
-  createdById      Int?
+  createdById      String?
   createdBy        User?            @relation("MediaUploadedBy", fields: [createdById], references: [id], onDelete: SetNull)
   productMain      Product[]        @relation("MainImage")
   productSecondary Product[]        @relation("SecondaryImage")
@@ -166,7 +228,7 @@ model Product {
   categoryId Int?
   category   Category? @relation(fields: [categoryId], references: [id])
 
-  createdById Int?
+  createdById String?
   createdBy   User? @relation("ProductCreatedBy", fields: [createdById], references: [id])
 
   variants   ProductVariant[]
@@ -205,7 +267,7 @@ model ProductGallery {
   media     MediaLibrary @relation(fields: [mediaId], references: [id], onDelete: Cascade)
 }
 
-// --- ORDER & LOGGING ---
+// --- ORDER SYSTEM ---
 
 model Order {
   id      Int    @id @default(autoincrement())
@@ -217,6 +279,11 @@ model Order {
   paymentStatus PaymentStatus @default(INCOMPLETE)
   isDelete      Boolean       @default(false)
 
+  // Explicitly associated to Customer Profile if they are registered users
+  customerProfileId String?
+  customerProfile   CustomerProfile? @relation(fields: [customerProfileId], references: [id], onDelete: SetNull)
+
+  // Billing & Guest Checkout Fields
   name     String?
   region   String?
   city     String?
@@ -252,7 +319,7 @@ model OrderItem {
 
 model AuditLog {
   id     Int   @id @default(autoincrement())
-  userId Int?
+  userId String?
   user   User? @relation(fields: [userId], references: [id])
 
   action   AuditAction
@@ -266,7 +333,7 @@ model AuditLog {
 
 model Notification {
   id     Int  @id @default(autoincrement())
-  userId Int
+  userId String
   user   User @relation(fields: [userId], references: [id])
 
   title     String
@@ -282,7 +349,6 @@ model Banner {
   buttonText String?
   buttonLink String?
 
-  // Selection from Media Library
   mediaId Int
   media   MediaLibrary @relation(fields: [mediaId], references: [id])
 
@@ -304,14 +370,4 @@ model PromoCode {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-}
-
-model ForgotPassword {
-  id        Int      @id @default(autoincrement())
-  code      String   @unique
-  is_valid  Boolean  @default(true)
-  createdAt DateTime @default(now()) @map("created_at")
-  email     String?
-
-  @@map("forgot_passwords")
 }

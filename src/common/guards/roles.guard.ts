@@ -1,50 +1,49 @@
+// src/auth/role.guard.ts
 import {
+  Injectable,
   CanActivate,
   ExecutionContext,
   ForbiddenException,
-  Injectable,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { UserRole } from '../../../generated/prisma/enums';
 import { ROLES_KEY } from '../decorators/roles.decorator';
-import { AuthUser, RequestWithAuth } from '../../auth/auth.interface';
-import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
+import type { RequestWithAuth } from '../../auth/auth.interface';
 
 @Injectable()
-export class RolesGuard implements CanActivate {
+export class RoleGuard implements CanActivate {
   constructor(private reflector: Reflector) {}
 
   canActivate(context: ExecutionContext): boolean {
-    const requiredRoles = this.reflector.getAllAndOverride<UserRole[]>(
+    // 1. Get the required roles from the route handler metadata
+    const requiredRoles = this.reflector.getAllAndOverride<string[]>(
       ROLES_KEY,
       [context.getHandler(), context.getClass()],
     );
-    const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
-      context.getHandler(),
-      context.getClass(),
-    ]);
 
-    if (isPublic) {
+    // If no roles are required on this endpoint, let the request through
+    if (!requiredRoles || requiredRoles.length === 0) {
       return true;
     }
 
-    if (!requiredRoles) {
-      return true;
-    }
+    // 2. Grab the request object
+    const http = context.switchToHttp();
+    const request = http.getRequest<RequestWithAuth>();
 
-    const req = context.switchToHttp().getRequest<RequestWithAuth>();
-    const user: AuthUser | undefined = req.user;
+    const user = request.user; // Populated by BetterAuthGuard
 
-    if (!user || typeof user.role !== 'string') {
-      throw new ForbiddenException('User role not found');
-    }
-
-    const roles: UserRole[] = requiredRoles || [];
-    const hasPermission = roles.includes(user.role);
-
-    if (!hasPermission) {
+    // Safety check: If BetterAuthGuard wasn't applied, user won't exist
+    if (!user) {
       throw new ForbiddenException(
-        'You do not have permission to access this resource',
+        'User context not found. Ensure BetterAuthGuard is applied.',
+      );
+    }
+
+    // 3. Check if the user's role matches any of the allowed roles
+    const hasRole = user.role ? requiredRoles.includes(user.role) : false;
+
+    if (!hasRole) {
+      throw new ForbiddenException(
+        'You do not have permission to access this resource.',
       );
     }
 

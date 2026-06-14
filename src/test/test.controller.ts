@@ -1,8 +1,7 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
 import { Public } from '../common/decorators/public.decorator';
 
 @Controller('test')
-@UseGuards()
 export class TestController {
   @Public()
   @Get('test1')

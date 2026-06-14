@@ -1,6 +1,9 @@
 import { Request, Response } from 'express';
 import { IncomingHttpHeaders } from 'http';
-import { UserRole } from '../../generated/prisma/enums';
+import type {
+  Session as BetterAuthSession,
+  User as BetterAuthUser,
+} from 'better-auth/types';
 
 export interface RequestWithCookies extends Request {
   cookies: { [key: string]: string };
@@ -10,16 +13,19 @@ export interface ResponseWithCookie extends Response {
   cookie(name: string, value: string, options?: any): this;
 }
 
-export interface AuthUser {
-  id: number;
-  role: UserRole;
-  sid: string;
-  [key: string]: any;
-}
+export type AuthUser = BetterAuthUser &
+  Partial<{
+    role: string;
+    isActive: boolean;
+    isDelete: boolean;
+  }>;
+
+export type AuthSession = BetterAuthSession;
 
 export interface RequestWithAuth extends Request {
   headers: {
     authorization?: string;
   } & IncomingHttpHeaders;
   user?: AuthUser;
+  session?: AuthSession;
 }

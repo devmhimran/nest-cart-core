@@ -24,7 +24,7 @@ export class SizeController {
   @Post()
   create(@Body() createSizeDto: CreateSizeDto, @Req() req: RequestWithAuth) {
     const userId = req.user?.id;
-    return this.sizeService.create(createSizeDto, userId);
+    return {};
   }
 
   @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN, UserRole.MODERATOR)

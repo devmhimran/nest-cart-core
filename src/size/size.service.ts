@@ -10,7 +10,7 @@ import { paginate } from '../common/pagination/paginate.util';
 export class SizeService {
   constructor(private prismaService: PrismaService) {}
 
-  create(createSizeDto: CreateSizeDto, userId?: number) {
+  create(createSizeDto: CreateSizeDto, userId?: string) {
     return this.prismaService.$transaction(async (tx) => {
       const newSize = await tx.size.create({
         data: {
@@ -41,7 +41,7 @@ export class SizeService {
     return `This action returns a #${id} size`;
   }
 
-  update(id: number, updateSizeDto: UpdateSizeDto, userId?: number) {
+  update(id: number, updateSizeDto: UpdateSizeDto, userId?: string) {
     return this.prismaService.$transaction(async (tx) => {
       const oldSize = await tx.size.findUnique({ where: { id } });
       if (!oldSize) throw new NotFoundException(`Size with id ${id} not found`);
@@ -71,7 +71,7 @@ export class SizeService {
     });
   }
 
-  remove(id: number, userId?: number) {
+  remove(id: number, userId?: string) {
     return this.prismaService.$transaction(async (tx) => {
       const oldSize = await tx.size.findUnique({ where: { id } });
       if (!oldSize) throw new NotFoundException(`Size with id ${id} not found`);

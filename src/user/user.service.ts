@@ -22,7 +22,7 @@ export class UserService {
     return user;
   }
 
-  async findUserById(id: number) {
+  async findUserById(id: string) {
     const user = await this.prismaService.user.findUnique({
       where: { id },
     });
@@ -48,43 +48,6 @@ export class UserService {
         password: signUpDto.password,
         role,
       },
-    });
-  }
-
-  async createUserSession(data: CreateUserSessionInput) {
-    return this.prismaService.userSession.create({
-      data: {
-        id: data.id,
-        userId: data.userId,
-        refreshToken: data.refreshToken,
-        userAgent: data.userAgent,
-        ipAddress: data.ipAddress,
-      },
-    });
-  }
-
-  async findUserSessionById(sessionId: string) {
-    return this.prismaService.userSession.findUnique({
-      where: { id: sessionId },
-    });
-  }
-
-  async updateUserSessionRefreshToken(sessionId: string, refreshToken: string) {
-    await this.prismaService.userSession.update({
-      where: { id: sessionId },
-      data: { refreshToken },
-    });
-  }
-
-  async findUserSessionByUserId(userId: number) {
-    return this.prismaService.userSession.findMany({
-      where: { userId },
-    });
-  }
-
-  async deleteUserSessionById(sessionId: string) {
-    await this.prismaService.userSession.delete({
-      where: { id: sessionId },
     });
   }
 }
