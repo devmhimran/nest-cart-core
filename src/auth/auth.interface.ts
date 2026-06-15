@@ -29,3 +29,11 @@ export interface RequestWithAuth extends Request {
   user?: AuthUser;
   session?: AuthSession;
 }
+
+export interface BetterAuthInstance {
+  handler: (req: any, res: any) => Promise<void>;
+}
+
+export interface BetterAuthConfigShape {
+  handler: (request: globalThis.Request) => Promise<globalThis.Response>;
+}

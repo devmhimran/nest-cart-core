@@ -1,8 +1,6 @@
 import { createTransport } from 'nodemailer';
 import type { Transporter } from 'nodemailer';
 import { PrismaService } from '../prisma.service';
-import { betterAuth, APIError } from 'better-auth';
-import { prismaAdapter } from 'better-auth/adapters/prisma';
 
 const prisma = new PrismaService();
 const isDev = process.env.NODE_ENV === 'development' || !process.env.NODE_ENV;
@@ -24,80 +22,85 @@ const localOrigins = [
   'https://hoppscotch.io/',
 ];
 
-export const auth = betterAuth({
-  baseURL: process.env.BETTER_AUTH_URL,
-  basePath: '/api/v1/auth',
-  secret: process.env.BETTER_AUTH_SECRET,
-  trustedOrigins: isDev ? localOrigins : productionOrigins,
+export async function initializeAuth() {
+  const { betterAuth, APIError } = await import('better-auth');
+  const { prismaAdapter } = await import('better-auth/adapters/prisma');
 
-  advanced: {
-    disableOriginCheck: isDev,
-    disableCSRFCheck: isDev,
-  },
+  return betterAuth({
+    baseURL: process.env.BETTER_AUTH_URL,
+    basePath: '/api/v1/auth',
+    secret: process.env.BETTER_AUTH_SECRET,
+    trustedOrigins: isDev ? localOrigins : productionOrigins,
 
-  database: prismaAdapter(prisma, {
-    provider: 'postgresql',
-  }),
+    advanced: {
+      disableOriginCheck: isDev,
+      disableCSRFCheck: isDev,
+    },
 
-  hooks: {
-    before: async (ctx) => {
-      const requestUrl = ctx.request?.url;
+    database: prismaAdapter(prisma, {
+      provider: 'postgresql',
+    }),
 
-      if (requestUrl) {
-        const urlPath = requestUrl.startsWith('http')
-          ? new URL(requestUrl).pathname
-          : requestUrl;
+    hooks: {
+      before: async (ctx) => {
+        const requestUrl = ctx.request?.url;
 
-        if (urlPath.endsWith('/sign-in/email')) {
-          const body = ctx.body as { email?: string } | undefined;
-          const email = body?.email;
+        if (requestUrl) {
+          const urlPath = requestUrl.startsWith('http')
+            ? new URL(requestUrl).pathname
+            : requestUrl;
 
-          if (email) {
-            const user = await prisma.user.findUnique({
-              where: { email },
-            });
+          if (urlPath.endsWith('/sign-in/email')) {
+            const body = ctx.body as { email?: string } | undefined;
+            const email = body?.email;
 
-            if (user) {
-              if (user.isDelete) {
-                throw new APIError('FORBIDDEN', {
-                  message: 'This account has been removed.',
-                });
-              }
+            if (email) {
+              const user = await prisma.user.findUnique({
+                where: { email },
+              });
 
-              if (!user.isActive) {
-                throw new APIError('FORBIDDEN', {
-                  message: 'This account is currently inactive.',
-                });
+              if (user) {
+                if (user.isDelete) {
+                  throw new APIError('FORBIDDEN', {
+                    message: 'This account has been removed.',
+                  });
+                }
+
+                if (!user.isActive) {
+                  throw new APIError('FORBIDDEN', {
+                    message: 'This account is currently inactive.',
+                  });
+                }
               }
             }
           }
         }
-      }
 
-      return { context: ctx };
+        return { context: ctx };
+      },
     },
-  },
 
-  emailAndPassword: {
-    enabled: true,
-    sendResetPassword: async ({ user, url }) => {
-      const cleanUrl = url.split('?')[0];
-      const token = cleanUrl.substring(cleanUrl.lastIndexOf('/') + 1);
-      const frontendResetUrl = `${process.env.PASSWORD_RESET_URL}?token=${token}`;
+    emailAndPassword: {
+      enabled: true,
+      sendResetPassword: async ({ user, url }) => {
+        const cleanUrl = url.split('?')[0];
+        const token = cleanUrl.substring(cleanUrl.lastIndexOf('/') + 1);
+        const frontendResetUrl = `${process.env.PASSWORD_RESET_URL}?token=${token}`;
 
-      await transporter.sendMail({
-        from: `"Nest Cart" <${process.env.SMTP_USER}>`,
-        to: user.email,
-        subject: 'Reset Your Password',
-        html: `<p>Hi ${user.name}, reset your password here: <a href="${frontendResetUrl}">${frontendResetUrl}</a></p>`,
-      });
+        await transporter.sendMail({
+          from: `"Nest Cart" <${process.env.SMTP_USER}>`,
+          to: user.email,
+          subject: 'Reset Your Password',
+          html: `<p>Hi ${user.name}, reset your password here: <a href="${frontendResetUrl}">${frontendResetUrl}</a></p>`,
+        });
+      },
     },
-  },
-  user: {
-    additionalFields: {
-      role: { type: 'string', defaultValue: 'CUSTOMER' },
-      isActive: { type: 'boolean', defaultValue: true },
-      isDelete: { type: 'boolean', defaultValue: false },
+    user: {
+      additionalFields: {
+        role: { type: 'string', defaultValue: 'CUSTOMER' },
+        isActive: { type: 'boolean', defaultValue: true },
+        isDelete: { type: 'boolean', defaultValue: false },
+      },
     },
-  },
-});
+  });
+}

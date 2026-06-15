@@ -3,19 +3,31 @@ import {
   CanActivate,
   ExecutionContext,
   UnauthorizedException,
+  Inject,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { auth } from '../../auth/auth.config';
 import type {
   RequestWithAuth,
   AuthUser,
   AuthSession,
 } from '../../auth/auth.interface';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
+interface BetterAuthGuardInstance {
+  api: {
+    getSession: (options: { headers: Headers }) => Promise<{
+      user: Record<string, unknown>;
+      session: Record<string, unknown>;
+    } | null>;
+  };
+}
 
 @Injectable()
 export class BetterAuthGuard implements CanActivate {
-  constructor(private reflector: Reflector) {}
+  constructor(
+    private reflector: Reflector,
+    @Inject('BETTER_AUTH') private readonly auth: BetterAuthGuardInstance,
+  ) {}
+
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
       context.getHandler(),
@@ -35,7 +47,7 @@ export class BetterAuthGuard implements CanActivate {
       }
     }
 
-    const session = await auth.api.getSession({
+    const session = await this.auth.api.getSession({
       headers,
     });
 

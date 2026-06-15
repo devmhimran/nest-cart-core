@@ -1,20 +1,21 @@
 import 'dotenv/config';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from '../src/app.module';
-import { auth } from '../src/auth/auth.config';
 import { ValidationPipe } from '@nestjs/common';
-import { toNodeHandler } from 'better-auth/node';
 import { Express, Request, Response } from 'express';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AllExceptionsFilter } from '../src/common/filters/http-exception.filter';
+import { BetterAuthConfigShape } from '../src/auth/auth.interface';
+
+type NodeHandlerFunction = (
+  req: import('node:http').IncomingMessage,
+  res: import('node:http').ServerResponse,
+) => Promise<void>;
 
 let cachedApp: Express;
+let cachedBetterAuthHandler: NodeHandlerFunction;
 
 export default async (req: Request, res: Response) => {
-  if (req.url.startsWith('/api/v1/auth')) {
-    return toNodeHandler(auth)(req, res);
-  }
-
   if (!cachedApp) {
     const app = await NestFactory.create(AppModule);
 
@@ -48,8 +49,23 @@ export default async (req: Request, res: Response) => {
 
     await app.init();
 
+    const authInstance = app.get<unknown>('BETTER_AUTH');
+    const { toNodeHandler } = await import('better-auth/node');
+    cachedBetterAuthHandler = toNodeHandler(
+      authInstance as BetterAuthConfigShape,
+    );
+
     cachedApp = app.getHttpAdapter().getInstance() as Express;
   }
+
+  if (req.url.startsWith('/api/v1/auth')) {
+    await cachedBetterAuthHandler(
+      req as unknown as import('node:http').IncomingMessage,
+      res as unknown as import('node:http').ServerResponse,
+    );
+    return;
+  }
+
   if (cachedApp) {
     await cachedApp(req, res);
   }

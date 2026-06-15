@@ -1,12 +1,11 @@
 import 'dotenv/config';
 import { AppModule } from './app.module';
-import { auth } from './auth/auth.config';
 import { NestFactory } from '@nestjs/core';
-import { toNodeHandler } from 'better-auth/node';
 import { ConsoleLogger, ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { AllExceptionsFilter } from './common/filters/http-exception.filter';
+import { BetterAuthInstance } from './auth/auth.interface';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -18,8 +17,12 @@ async function bootstrap() {
     credentials: true,
   });
 
+  const authInstance = app.get<BetterAuthInstance>('BETTER_AUTH');
+  const { toNodeHandler } = await import('better-auth/node');
+  const betterAuthHandler = toNodeHandler(authInstance as any);
+
   app.use('/api/v1/auth', (req, res) => {
-    return toNodeHandler(auth)(
+    return betterAuthHandler(
       req as unknown as IncomingMessage,
       res as unknown as ServerResponse,
     );
