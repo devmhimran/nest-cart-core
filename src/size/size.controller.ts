@@ -10,14 +10,13 @@ import {
   Query,
 } from '@nestjs/common';
 import { SizeService } from './size.service';
+import { UserRole } from '../constants/enums';
 import { CreateSizeDto } from './dto/create-size.dto';
 import { UpdateSizeDto } from './dto/update-size.dto';
-
+import { AuthCtx } from '../user/decorators/user.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
 import type { AuthUser, RequestWithAuth } from '../auth/auth.interface';
 import { PaginationQueryDto } from '../common/pagination/dto/pagination-query.dto';
-import { AuthCtx } from '../user/decorators/user.decorator';
-import { UserRole } from '../constants/enums';
 
 @Controller('size')
 export class SizeController {
