@@ -1,6 +1,9 @@
 import { createTransport } from 'nodemailer';
+import { SignUpDto } from './dto/signup.dto';
 import type { Transporter } from 'nodemailer';
 import { PrismaService } from '../prisma.service';
+import { plainToInstance } from 'class-transformer';
+import { validateOrReject, ValidationError } from 'class-validator';
 
 const prisma = new PrismaService();
 const isDev = process.env.NODE_ENV === 'development' || !process.env.NODE_ENV;
@@ -49,6 +52,33 @@ export async function initializeAuth() {
           const urlPath = requestUrl.startsWith('http')
             ? new URL(requestUrl).pathname
             : requestUrl;
+          if (urlPath.endsWith('/sign-up/email')) {
+            const body = ctx.body as Record<string, any> | undefined;
+
+            if (body) {
+              try {
+                const signUpData = plainToInstance(SignUpDto, body);
+                await validateOrReject(signUpData);
+              } catch (error: unknown) {
+                if (
+                  Array.isArray(error) &&
+                  error.every((e) => e instanceof ValidationError)
+                ) {
+                  const errorMessages = error.flatMap((err) =>
+                    err.constraints ? Object.values(err.constraints) : [],
+                  );
+
+                  throw new APIError('BAD_REQUEST', {
+                    message: errorMessages.join(', '),
+                  });
+                }
+
+                throw new APIError('INTERNAL_SERVER_ERROR', {
+                  message: 'An unexpected error occurred during validation.',
+                });
+              }
+            }
+          }
 
           if (urlPath.endsWith('/sign-in/email')) {
             const body = ctx.body as { email?: string } | undefined;
