@@ -1,10 +1,14 @@
 import { PrismaService } from '../prisma.service';
 import { CreateSizeDto } from './dto/create-size.dto';
 import { UpdateSizeDto } from './dto/update-size.dto';
-import { paginate } from '../common/pagination/paginate.util';
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { PaginationQueryDto } from '../common/pagination/dto/pagination-query.dto';
 import { AuditAction, EntityType } from '../constants/enums';
+import { paginate } from '../common/pagination/paginate.util';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { PaginationQueryDto } from '../common/pagination/dto/pagination-query.dto';
 
 @Injectable()
 export class SizeService {
@@ -12,6 +16,16 @@ export class SizeService {
 
   create(createSizeDto: CreateSizeDto, userId?: string) {
     return this.prismaService.$transaction(async (tx) => {
+      const sizeExists = await tx.size.findUnique({
+        where: { name: createSizeDto.name },
+      });
+
+      if (sizeExists) {
+        throw new ConflictException(
+          `Size '${createSizeDto.name}' already exists.`,
+        );
+      }
+
       const newSize = await tx.size.create({
         data: {
           name: createSizeDto.name,
@@ -37,17 +51,33 @@ export class SizeService {
     });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} size`;
+  async findOne(name: string) {
+    const size = await this.prismaService.size.findUnique({ where: { name } });
+    if (!size) {
+      throw new NotFoundException(`Size with name '${name}' not found`);
+    }
+    return size;
   }
 
-  update(id: number, updateSizeDto: UpdateSizeDto, userId?: string) {
+  async update(name: string, updateSizeDto: UpdateSizeDto, userId?: string) {
+    const nameExists = await this.prismaService.size.findUnique({
+      where: { name: updateSizeDto.name },
+    });
+
+    if (nameExists) {
+      throw new ConflictException(
+        `Size '${updateSizeDto.name}' already exists.`,
+      );
+    }
+
     return this.prismaService.$transaction(async (tx) => {
-      const oldSize = await tx.size.findUnique({ where: { id } });
-      if (!oldSize) throw new NotFoundException(`Size with id ${id} not found`);
+      const oldSize = await tx.size.findUnique({ where: { name } });
+
+      if (!oldSize)
+        throw new NotFoundException(`Size with name '${name}' not found`);
 
       const updateSize = await tx.size.update({
-        where: { id },
+        where: { name },
         data: {
           name: updateSizeDto.name,
         },
@@ -58,37 +88,38 @@ export class SizeService {
           userId,
           action: AuditAction.UPDATE,
           entity: EntityType.SIZE,
-          entityId: id,
+          entityId: updateSize.id,
           oldData: JSON.stringify(oldSize),
           newData: JSON.stringify(updateSize),
         },
       });
 
       return {
-        message: `Successfully updated size with id ${id}`,
+        message: `Successfully updated size with name '${name}'`,
         data: updateSize.name,
       };
     });
   }
 
-  remove(id: number, userId?: string) {
+  remove(name: string, userId?: string) {
     return this.prismaService.$transaction(async (tx) => {
-      const oldSize = await tx.size.findUnique({ where: { id } });
-      if (!oldSize) throw new NotFoundException(`Size with id ${id} not found`);
+      const oldSize = await tx.size.findUnique({ where: { name } });
+      if (!oldSize)
+        throw new NotFoundException(`Size with name '${name}' not found`);
 
-      await tx.size.delete({ where: { id } });
+      await tx.size.delete({ where: { name } });
 
       await tx.auditLog.create({
         data: {
           userId,
           action: AuditAction.DELETE,
           entity: EntityType.SIZE,
-          entityId: id,
+          entityId: oldSize.id,
           oldData: JSON.stringify(oldSize),
         },
       });
 
-      return { message: `Successfully deleted size with id ${id}` };
+      return { message: `Successfully deleted size with name '${name}'` };
     });
   }
 }

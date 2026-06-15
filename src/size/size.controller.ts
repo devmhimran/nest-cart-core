@@ -22,7 +22,7 @@ import { PaginationQueryDto } from '../common/pagination/dto/pagination-query.dt
 export class SizeController {
   constructor(private readonly sizeService: SizeService) {}
 
-  @Roles(UserRole.SUPER_ADMIN)
+  @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN)
   @Post()
   create(
     @Body() createSizeDto: CreateSizeDto,
@@ -30,29 +30,31 @@ export class SizeController {
     @AuthCtx() user: AuthUser,
   ) {
     const userId = user?.id;
-    console.log({ user });
     return this.sizeService.create(createSizeDto, userId);
   }
 
   @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN, UserRole.MODERATOR)
   @Get()
-  findAll(@Query() query: PaginationQueryDto, @AuthCtx() user: AuthUser) {
-    console.log({ user });
+  findAll(@Query() query: PaginationQueryDto) {
     return this.sizeService.findAll(query);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.sizeService.findOne(+id);
+  @Get(':name')
+  findOne(@Param('name') name: string) {
+    return this.sizeService.findOne(name);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateSizeDto: UpdateSizeDto) {
-    return this.sizeService.update(+id, updateSizeDto);
+  @Patch(':name')
+  update(
+    @Param('name') name: string,
+    @Body() updateSizeDto: UpdateSizeDto,
+    @AuthCtx() user: AuthUser,
+  ) {
+    return this.sizeService.update(name, updateSizeDto, user?.id);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.sizeService.remove(+id);
+  @Delete(':name')
+  remove(@Param('name') name: string, @AuthCtx() user: AuthUser) {
+    return this.sizeService.remove(name, user?.id);
   }
 }

@@ -15,7 +15,7 @@ export interface ResponseWithCookie extends Response {
 
 export type AuthUser = BetterAuthUser &
   Partial<{
-    role: string;
+    role: number;
     isActive: boolean;
     isDelete: boolean;
   }>;

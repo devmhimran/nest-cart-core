@@ -18,7 +18,7 @@ model User {
   emailVerified Boolean @default(false)
   image         String?
   password      String?
-  role          Int     @default(2)
+  role          Int     @default(3)
   isDelete      Boolean @default(false)
   isActive      Boolean @default(true)
 

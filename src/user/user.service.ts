@@ -8,22 +8,32 @@ export class UserService {
   async getMeResponse(userId: string) {
     const baseUser = await this.prismaService.user.findUnique({
       where: { id: userId, isDelete: false, isActive: true },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        role: true,
+        createdAt: true,
+        updatedAt: true,
+        sessions: {
+          select: {
+            id: true,
+            ipAddress: true,
+            userAgent: true,
+            country: true,
+            city: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+        },
+      },
     });
 
     if (!baseUser) return null;
 
-    const sessionData = await this.prismaService.user.findUnique({
-      where: { id: userId },
-      select: {
-        sessions: { select: { ipAddress: true, userAgent: true } },
-      },
-    });
-
     return {
       ...baseUser,
-      authMetadata: {
-        activeSessionsCount: sessionData?.sessions.length || 0,
-      },
+      activeSessions: baseUser.sessions.length,
     };
   }
 }

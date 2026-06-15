@@ -97,9 +97,7 @@ export async function initializeAuth() {
     },
     user: {
       additionalFields: {
-        role: { type: 'string', defaultValue: 'CUSTOMER' },
-        isActive: { type: 'boolean', defaultValue: true },
-        isDelete: { type: 'boolean', defaultValue: false },
+        role: { type: 'number', defaultValue: 0 },
       },
     },
   });

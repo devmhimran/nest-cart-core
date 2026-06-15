@@ -1,8 +1,8 @@
 export enum UserRole {
   SUPER_ADMIN = 0,
   ADMIN = 1,
-  CUSTOMER = 2,
-  MODERATOR = 3,
+  MODERATOR = 2,
+  CUSTOMER = 3,
 }
 
 export enum OrderStatus {
