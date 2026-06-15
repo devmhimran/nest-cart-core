@@ -12,24 +12,33 @@ import {
 import { SizeService } from './size.service';
 import { CreateSizeDto } from './dto/create-size.dto';
 import { UpdateSizeDto } from './dto/update-size.dto';
-import { UserRole } from '../../generated/prisma/enums';
+
 import { Roles } from '../common/decorators/roles.decorator';
-import type { RequestWithAuth } from '../auth/auth.interface';
+import type { AuthUser, RequestWithAuth } from '../auth/auth.interface';
 import { PaginationQueryDto } from '../common/pagination/dto/pagination-query.dto';
+import { AuthCtx } from '../user/decorators/user.decorator';
+import { UserRole } from '../constants/enums';
 
 @Controller('size')
 export class SizeController {
   constructor(private readonly sizeService: SizeService) {}
 
+  @Roles(UserRole.SUPER_ADMIN)
   @Post()
-  create(@Body() createSizeDto: CreateSizeDto, @Req() req: RequestWithAuth) {
-    const userId = req.user?.id;
+  create(
+    @Body() createSizeDto: CreateSizeDto,
+    @Req() req: RequestWithAuth,
+    @AuthCtx() user: AuthUser,
+  ) {
+    const userId = user?.id;
+    console.log({ user });
     return this.sizeService.create(createSizeDto, userId);
   }
 
   @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN, UserRole.MODERATOR)
   @Get()
-  findAll(@Query() query: PaginationQueryDto) {
+  findAll(@Query() query: PaginationQueryDto, @AuthCtx() user: AuthUser) {
+    console.log({ user });
     return this.sizeService.findAll(query);
   }
 

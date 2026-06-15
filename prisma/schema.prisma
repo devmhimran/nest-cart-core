@@ -9,66 +9,18 @@ datasource db {
   provider = "postgresql"
 }
 
-// --- ENUMS ---
-
-enum UserRole {
-  SUPER_ADMIN
-  ADMIN
-  CUSTOMER
-  MODERATOR
-}
-
-enum OrderStatus {
-  PENDING
-  CONFIRMED
-  PROCESSING
-  SHIPPING
-  DELIVERED
-  COMPLETED
-  CANCELLED
-  RETURNED
-}
-
-enum PaymentStatus {
-  INCOMPLETE
-  PENDING
-  PAID
-  FAILED
-  REFUNDED
-}
-
-enum AuditAction {
-  CREATE
-  UPDATE
-  DELETE
-  RESTORE
-  LOGIN
-  SIGNOUT
-}
-
-enum EntityType {
-  USER
-  SIZE
-  COLOR
-  PRODUCT
-  CATEGORY
-  ORDER
-  BANNER
-  PROMO_CODE
-}
-
 // --- USER & AUTH ---
 
 model User {
-  id            String   @id @default(cuid())
+  id            String  @id @default(cuid())
   name          String?
-  email         String   @unique
-  emailVerified Boolean  @default(false)
+  email         String  @unique
+  emailVerified Boolean @default(false)
   image         String?
   password      String?
-  role          UserRole @default(CUSTOMER)
-  isDelete      Boolean  @default(false)
-  isActive      Boolean  @default(true)
+  role          Int     @default(2)
+  isDelete      Boolean @default(false)
+  isActive      Boolean @default(true)
 
   sessions Session[]
   accounts Account[]
@@ -288,9 +240,9 @@ model Order {
 
   total         Float
   subtotal      Float
-  status        OrderStatus   @default(PENDING)
-  paymentStatus PaymentStatus @default(INCOMPLETE)
-  isDelete      Boolean       @default(false)
+  status        Int     @default(0)
+  paymentStatus Int     @default(0)
+  isDelete      Boolean @default(false)
 
   // Explicitly associated to Customer Profile if they are registered users
   customerProfileId String?
@@ -342,8 +294,8 @@ model AuditLog {
   userId String?
   user   User?   @relation(fields: [userId], references: [id])
 
-  action   AuditAction
-  entity   EntityType
+  action   Int
+  entity   Int
   entityId Int
   oldData  Json?
   newData  Json?

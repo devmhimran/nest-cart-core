@@ -4,6 +4,7 @@ import { UpdateSizeDto } from './dto/update-size.dto';
 import { paginate } from '../common/pagination/paginate.util';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PaginationQueryDto } from '../common/pagination/dto/pagination-query.dto';
+import { AuditAction, EntityType } from '../constants/enums';
 
 @Injectable()
 export class SizeService {
@@ -20,8 +21,8 @@ export class SizeService {
       await tx.auditLog.create({
         data: {
           userId,
-          action: 'CREATE',
-          entity: 'SIZE',
+          action: AuditAction.CREATE,
+          entity: EntityType.SIZE,
           entityId: newSize.id,
           newData: JSON.stringify(newSize),
         },
@@ -55,8 +56,8 @@ export class SizeService {
       await tx.auditLog.create({
         data: {
           userId,
-          action: 'UPDATE',
-          entity: 'SIZE',
+          action: AuditAction.UPDATE,
+          entity: EntityType.SIZE,
           entityId: id,
           oldData: JSON.stringify(oldSize),
           newData: JSON.stringify(updateSize),
@@ -80,8 +81,8 @@ export class SizeService {
       await tx.auditLog.create({
         data: {
           userId,
-          action: 'DELETE',
-          entity: 'SIZE',
+          action: AuditAction.DELETE,
+          entity: EntityType.SIZE,
           entityId: id,
           oldData: JSON.stringify(oldSize),
         },
