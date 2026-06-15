@@ -60,7 +60,7 @@ enum EntityType {
 // --- USER & AUTH ---
 
 model User {
-  id            String    @id @default(cuid())
+  id            String   @id @default(cuid())
   name          String?
   email         String   @unique
   emailVerified Boolean  @default(false)
@@ -129,7 +129,7 @@ model Account {
 model Verification {
   id         String   @id @default(cuid())
   identifier String
-  token      String   @unique
+  value      String
   expiresAt  DateTime
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
@@ -139,7 +139,7 @@ model Verification {
 
 model CustomerProfile {
   id     String @id @default(cuid())
-  userId String    @unique
+  userId String @unique
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   stripeCustomerId String? @unique
@@ -171,6 +171,8 @@ model MediaLibrary {
   banners          Banner[]
 
   createdAt DateTime @default(now())
+
+  @@map("media_library")
 }
 
 // --- PRODUCT SYSTEM ---
@@ -185,6 +187,8 @@ model Category {
   image   MediaLibrary? @relation(fields: [imageId], references: [id])
 
   products Product[]
+
+  @@map("category")
 }
 
 model Color {
@@ -192,12 +196,16 @@ model Color {
   name     String           @unique
   hex      String?
   variants ProductVariant[]
+
+  @@map("color")
 }
 
 model Size {
   id       Int              @id @default(autoincrement())
   name     String           @unique
   variants ProductVariant[]
+
+  @@map("size")
 }
 
 model Product {
@@ -229,7 +237,7 @@ model Product {
   category   Category? @relation(fields: [categoryId], references: [id])
 
   createdById String?
-  createdBy   User? @relation("ProductCreatedBy", fields: [createdById], references: [id])
+  createdBy   User?   @relation("ProductCreatedBy", fields: [createdById], references: [id])
 
   variants   ProductVariant[]
   gallery    ProductGallery[]
@@ -237,6 +245,8 @@ model Product {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@map("product")
 }
 
 model ProductVariant {
@@ -257,6 +267,7 @@ model ProductVariant {
   orderItems OrderItem[]
 
   @@unique([productId, colorId, sizeId])
+  @@map("product_variant")
 }
 
 model ProductGallery {
@@ -265,6 +276,8 @@ model ProductGallery {
   product   Product      @relation(fields: [productId], references: [id], onDelete: Cascade)
   mediaId   Int
   media     MediaLibrary @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+
+  @@map("product_gallery")
 }
 
 // --- ORDER SYSTEM ---
@@ -295,6 +308,8 @@ model Order {
   items     OrderItem[]
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
+
+  @@map("order")
 }
 
 model OrderItem {
@@ -313,14 +328,19 @@ model OrderItem {
 
   color String?
   size  String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("order_item")
 }
 
 // --- HISTORY & NOTIFICATIONS ---
 
 model AuditLog {
-  id     Int   @id @default(autoincrement())
+  id     Int     @id @default(autoincrement())
   userId String?
-  user   User? @relation(fields: [userId], references: [id])
+  user   User?   @relation(fields: [userId], references: [id])
 
   action   AuditAction
   entity   EntityType
@@ -329,17 +349,21 @@ model AuditLog {
   newData  Json?
 
   createdAt DateTime @default(now())
+
+  @@map("audit_log")
 }
 
 model Notification {
-  id     Int  @id @default(autoincrement())
+  id     Int    @id @default(autoincrement())
   userId String
-  user   User @relation(fields: [userId], references: [id])
+  user   User   @relation(fields: [userId], references: [id])
 
   title     String
   message   String
   isRead    Boolean  @default(false)
   createdAt DateTime @default(now())
+
+  @@map("notification")
 }
 
 model Banner {
@@ -358,6 +382,8 @@ model Banner {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@map("banner")
 }
 
 model PromoCode {
@@ -370,4 +396,6 @@ model PromoCode {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@map("promo_code")
 }

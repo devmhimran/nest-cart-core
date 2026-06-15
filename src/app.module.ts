@@ -1,15 +1,14 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
+import { APP_GUARD } from '@nestjs/core';
 import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
-import { UserModule } from './user/user.module';
-import { TestController } from './test/test.controller';
-import { APP_GUARD } from '@nestjs/core';
-
 import { SizeModule } from './size/size.module';
-import { BetterAuthGuard } from './common/guards/auth.guard';
+import { UserModule } from './user/user.module';
+import { AppController } from './app.controller';
+import { TestController } from './test/test.controller';
 import { RoleGuard } from './common/guards/roles.guard';
+import { BetterAuthGuard } from './common/guards/auth.guard';
 
 @Module({
   imports: [ConfigModule.forRoot(), AuthModule, UserModule, SizeModule],

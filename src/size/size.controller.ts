@@ -12,8 +12,8 @@ import {
 import { SizeService } from './size.service';
 import { CreateSizeDto } from './dto/create-size.dto';
 import { UpdateSizeDto } from './dto/update-size.dto';
-import { Roles } from '../common/decorators/roles.decorator';
 import { UserRole } from '../../generated/prisma/enums';
+import { Roles } from '../common/decorators/roles.decorator';
 import type { RequestWithAuth } from '../auth/auth.interface';
 import { PaginationQueryDto } from '../common/pagination/dto/pagination-query.dto';
 
@@ -24,7 +24,7 @@ export class SizeController {
   @Post()
   create(@Body() createSizeDto: CreateSizeDto, @Req() req: RequestWithAuth) {
     const userId = req.user?.id;
-    return {};
+    return this.sizeService.create(createSizeDto, userId);
   }
 
   @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN, UserRole.MODERATOR)

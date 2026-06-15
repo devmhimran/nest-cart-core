@@ -1,11 +1,12 @@
 import 'dotenv/config';
-import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { auth } from './auth/auth.config';
+import { NestFactory } from '@nestjs/core';
+import { toNodeHandler } from 'better-auth/node';
 import { ConsoleLogger, ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { auth } from './auth/auth.config';
-import { toNodeHandler } from 'better-auth/node';
 import type { IncomingMessage, ServerResponse } from 'node:http';
+import { AllExceptionsFilter } from './common/filters/http-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -13,16 +14,10 @@ async function bootstrap() {
   });
 
   app.enableCors({
-    origin: [
-      'http://localhost:3000',
-      'http://localhost:5173',
-      'http://localhost:5000',
-      'https://hoppscotch.io',
-    ],
+    origin: [process.env.LOCAL_ORIGIN, 'https://hoppscotch.io'],
     credentials: true,
   });
 
-  // 3. ⚡ LOCAL FAST PATH: Intercept Better Auth calls in NestJS dev server
   app.use('/api/v1/auth', (req, res) => {
     return toNodeHandler(auth)(
       req as unknown as IncomingMessage,
@@ -32,6 +27,7 @@ async function bootstrap() {
 
   // Global settings
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
+  app.useGlobalFilters(new AllExceptionsFilter());
   app.setGlobalPrefix('api/v1');
 
   const config = new DocumentBuilder()

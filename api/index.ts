@@ -1,35 +1,30 @@
 import 'dotenv/config';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from '../src/app.module';
-import { Express, Request, Response } from 'express';
-import { ValidationPipe } from '@nestjs/common';
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { auth } from '../src/auth/auth.config';
+import { ValidationPipe } from '@nestjs/common';
 import { toNodeHandler } from 'better-auth/node';
+import { Express, Request, Response } from 'express';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { AllExceptionsFilter } from '../src/common/filters/http-exception.filter';
 
 let cachedApp: Express;
 
 export default async (req: Request, res: Response) => {
-  // ⚡ FAST PATH: Intercept Better Auth calls directly before NestJS bootstraps
   if (req.url.startsWith('/api/v1/auth')) {
-    // Better Auth's official handler takes care of the mapping and raw streaming body
     return toNodeHandler(auth)(req, res);
   }
 
-  // 🐢 SLOW PATH: Standard NestJS routing fallback
   if (!cachedApp) {
     const app = await NestFactory.create(AppModule);
 
     app.useGlobalPipes(
       new ValidationPipe({ whitelist: true, transform: true }),
     );
+    app.useGlobalFilters(new AllExceptionsFilter());
     app.setGlobalPrefix('api/v1');
     app.enableCors({
-      origin: [
-        'http://localhost:3000',
-        'http://localhost:5173',
-        'https://hoppscotch.io',
-      ],
+      origin: [process.env.LOCAL_ORIGIN, 'https://hoppscotch.io'],
       credentials: true,
     });
 

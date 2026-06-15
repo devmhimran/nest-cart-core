@@ -1,10 +1,9 @@
-// Removed unused AuditAction, EntityType imports
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { PrismaService } from '../prisma.service';
 import { CreateSizeDto } from './dto/create-size.dto';
 import { UpdateSizeDto } from './dto/update-size.dto';
-import { PrismaService } from '../prisma.service';
-import { PaginationQueryDto } from '../common/pagination/dto/pagination-query.dto';
 import { paginate } from '../common/pagination/paginate.util';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { PaginationQueryDto } from '../common/pagination/dto/pagination-query.dto';
 
 @Injectable()
 export class SizeService {

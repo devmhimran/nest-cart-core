@@ -1,11 +1,11 @@
 import { Controller, Get } from '@nestjs/common';
-import { Public } from '../common/decorators/public.decorator';
 
 @Controller('test')
 export class TestController {
-  @Public()
+  // @Public()
+
   @Get('test1')
-  getest1() {
+  getTest1() {
     return { request: 'here is test1' };
   }
 }

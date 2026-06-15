@@ -1,10 +1,10 @@
-// src/auth/auth.guard.ts
 import {
   Injectable,
   CanActivate,
   ExecutionContext,
   UnauthorizedException,
 } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
 import { auth } from '../../auth/auth.config';
 import type {
   RequestWithAuth,
@@ -12,7 +12,6 @@ import type {
   AuthSession,
 } from '../../auth/auth.interface';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
-import { Reflector } from '@nestjs/core';
 
 @Injectable()
 export class BetterAuthGuard implements CanActivate {
@@ -24,19 +23,18 @@ export class BetterAuthGuard implements CanActivate {
     ]);
 
     if (isPublic) {
-      return true; // ⚡ Bypasses authentication safely!
+      return true;
     }
 
     const request = context.switchToHttp().getRequest<RequestWithAuth>();
-
     const headers = new Headers();
+
     for (const [key, value] of Object.entries(request.headers)) {
       if (typeof value === 'string') {
         headers.set(key, value);
       }
     }
 
-    // Better Auth looks at cookies or Authorization headers automatically
     const session = await auth.api.getSession({
       headers,
     });
@@ -47,7 +45,6 @@ export class BetterAuthGuard implements CanActivate {
       );
     }
 
-    // Attach the session and user metadata to the request for your controllers to use
     request.user = session.user as AuthUser;
     request.session = session.session as AuthSession;
 

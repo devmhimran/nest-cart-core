@@ -1,5 +1,5 @@
-import { PaginationQueryDto } from './dto/pagination-query.dto';
 import { PaginatedResult } from './paginated-res.interface';
+import { PaginationQueryDto } from './dto/pagination-query.dto';
 
 export interface PrismaModel<T, A> {
   findMany(args?: A): Promise<T[]>;
