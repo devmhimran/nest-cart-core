@@ -42,4 +42,5 @@ export enum EntityType {
   ORDER = 5,
   BANNER = 6,
   PROMO_CODE = 7,
+  SUB_CATEGORY = 8,
 }

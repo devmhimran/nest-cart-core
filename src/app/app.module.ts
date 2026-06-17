@@ -9,9 +9,18 @@ import { AppController } from './app.controller';
 import { TestController } from '../test/test.controller';
 import { RoleGuard } from '../common/guards/roles.guard';
 import { BetterAuthGuard } from '../common/guards/auth.guard';
+import { CategoryModule } from '../category/category.module';
+import { SubCategoryModule } from '../sub-category/sub-category.module';
 
 @Module({
-  imports: [ConfigModule.forRoot(), AuthModule, UserModule, SizeModule],
+  imports: [
+    ConfigModule.forRoot(),
+    AuthModule,
+    UserModule,
+    SizeModule,
+    CategoryModule,
+    SubCategoryModule,
+  ],
   controllers: [AppController, TestController],
   providers: [
     AppService,

@@ -136,11 +136,24 @@ model Category {
   isDelete Boolean @default(false)
 
   imageId Int?
-  image   MediaLibrary? @relation(fields: [imageId], references: [id])
+  image   MediaLibrary? @relation(fields: [imageId], references: [id], onDelete: SetNull)
 
-  products Product[]
+  products      Product[]
+  subCategories SubCategory[]
 
   @@map("category")
+}
+
+model SubCategory {
+  id       Int     @id @default(autoincrement())
+  name     String
+  slug     String  @unique
+  isDelete Boolean @default(false)
+
+  category   Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  categoryId Int?
+
+  products Product[]
 }
 
 model Color {
@@ -180,23 +193,25 @@ model Product {
   isActive Boolean @default(true)
 
   mainImageId Int?
-  mainImage   MediaLibrary? @relation("MainImage", fields: [mainImageId], references: [id])
+  mainImage   MediaLibrary? @relation("MainImage", fields: [mainImageId], references: [id], onDelete: SetNull)
 
   secondaryImageId Int?
-  secondaryImage   MediaLibrary? @relation("SecondaryImage", fields: [secondaryImageId], references: [id])
+  secondaryImage   MediaLibrary? @relation("SecondaryImage", fields: [secondaryImageId], references: [id], onDelete: SetNull)
 
   categoryId Int?
-  category   Category? @relation(fields: [categoryId], references: [id])
+  category   Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
 
   createdById String?
-  createdBy   User?   @relation("ProductCreatedBy", fields: [createdById], references: [id])
+  createdBy   User?   @relation("ProductCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
 
   variants   ProductVariant[]
   gallery    ProductGallery[]
   orderItems OrderItem[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  subCategory   SubCategory? @relation(fields: [subCategoryId], references: [id], onDelete: SetNull)
+  subCategoryId Int?
 
   @@map("product")
 }
@@ -244,11 +259,9 @@ model Order {
   paymentStatus Int     @default(0)
   isDelete      Boolean @default(false)
 
-  // Explicitly associated to Customer Profile if they are registered users
   customerProfileId String?
   customerProfile   CustomerProfile? @relation(fields: [customerProfileId], references: [id], onDelete: SetNull)
 
-  // Billing & Guest Checkout Fields
   name     String?
   region   String?
   city     String?
