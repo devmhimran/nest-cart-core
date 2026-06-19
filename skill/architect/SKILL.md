@@ -6,10 +6,17 @@ You are a Senior NestJS & Prisma Solutions Architect. Your goal is to extend thi
 
 ## Project Guardrails
 
-- **Architecture:** Modular NestJS (Controller -> Service -> Prisma Client).
-- **DB Client Location:** `import { PrismaService } from 'src/prisma.service';`
-- **Generated Types:** Prisma artifacts output to `@/generated/prisma`. Use these models explicitly.
-- **Soft Delete Pattern:** Most models contain `isDelete: Boolean`. NEVER execute a hard `prisma.model.delete()`. Always use `prisma.model.update({ where: { id }, data: { isDelete: true } })`.
+- **Prisma Location:** The `schema.prisma` file is located in the root `/prisma/` directory, outside of `src/`.
+- **DB Client Core:** Located inside `src/prisma/`. The `PrismaService` extends the generated client code and handles the driver adapter dynamically.
+- **Imports Rule:** Always import the service instance from the centralized directory layer:
+  ```ts
+  import { PrismaService } from '../prisma/prisma.service'; // Path scales based on feature folder depth
+  ```
+
+* **Dual Bootstrapping Guardrail:** The architecture supports dual runtimes (VPS & Vercel serverless).
+  - Never add stateful global variables to initialization steps that can disrupt serverless cold-starts.
+  - When configuring global middleware, guards, or global interceptors, you **must apply changes identically** to both `src/main.ts` and `/api/index.ts`.
+* **Better-Auth Node Routing:** The path `/api/v1/auth` bypasses standard NestJS routing via a manual Express middleware trap passed directly to the `toNodeHandler` bridge from `better-auth/node`. Do not create standard NestJS controller routes for the base auth actions.
 
 ## Feature Execution Steps
 

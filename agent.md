@@ -23,11 +23,20 @@ Do NOT guess or hallucinate project structures. Read these files dynamically as 
 ## 🛠️ Tech Stack & Architecture Baseline
 
 - **Framework:** NestJS (Modular structure under `src/`)
-- **ORM:** Prisma Client (Generated output path: `@/generated/prisma`)
-- **Database:** PostgreSQL (with soft-delete tracking via `isDelete`)
+- **Database Driver:** `@prisma/adapter-pg` pooling configured natively inside `PrismaService`.
+- **Prisma Core Module:** Located at `src/prisma/prisma.module.ts` (Decorated with `@Global()`).
+- **Prisma Core Service:** Located at `src/prisma/prisma.service.ts` (Extends generated client).
+- **Database Target:** PostgreSQL (with soft-delete tracking via `isDelete`).
 - **Package Manager:** `pnpm`
 
 ---
+
+## 🌍 Runtime & Deployment Targets
+
+- **VPS Engine:** Evaluates `src/main.ts` for persistent process connections using standard listen hooks.
+- **Serverless Engine:** Evaluates `/api/index.ts` as a serverless function export optimized for Vercel deployments, using cold-start instance caching (`cachedApp`).
+- **Routing Prefix:** Both engines explicitly mount paths on global route prefix `api/v1`.
+- **API Documentation:** Accessible via Swagger at `/api/v1/docs` utilizing external CDN distributions.
 
 ## 🤫 Token-Saving Rules (Strict Execution)
 

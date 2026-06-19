@@ -11,6 +11,7 @@ import { RoleGuard } from '../common/guards/roles.guard';
 import { BetterAuthGuard } from '../common/guards/auth.guard';
 import { CategoryModule } from '../category/category.module';
 import { SubCategoryModule } from '../sub-category/sub-category.module';
+import { PrismaModule } from '../prisma/prisma.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { SubCategoryModule } from '../sub-category/sub-category.module';
     SizeModule,
     CategoryModule,
     SubCategoryModule,
+    PrismaModule,
   ],
   controllers: [AppController, TestController],
   providers: [

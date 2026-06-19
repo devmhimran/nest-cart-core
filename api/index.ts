@@ -6,6 +6,7 @@ import { Express, Request, Response } from 'express';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AllExceptionsFilter } from '../src/common/filters/http-exception.filter';
 import { BetterAuthConfigShape } from '../src/auth/auth.interface';
+import { TransformInterceptor } from '../src/common/interceptors/transform.interceptor';
 
 type NodeHandlerFunction = (
   req: import('node:http').IncomingMessage,
@@ -19,6 +20,7 @@ export default async (req: Request, res: Response) => {
   if (!cachedApp) {
     const app = await NestFactory.create(AppModule);
 
+    app.useGlobalInterceptors(new TransformInterceptor());
     app.useGlobalPipes(
       new ValidationPipe({ whitelist: true, transform: true }),
     );

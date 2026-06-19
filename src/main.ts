@@ -6,6 +6,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { AllExceptionsFilter } from './common/filters/http-exception.filter';
 import { BetterAuthInstance } from './auth/auth.interface';
+import { TransformInterceptor } from './common/interceptors/transform.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -29,6 +30,7 @@ async function bootstrap() {
   });
 
   // Global settings
+  app.useGlobalInterceptors(new TransformInterceptor());
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
   app.useGlobalFilters(new AllExceptionsFilter());
   app.setGlobalPrefix('api/v1');

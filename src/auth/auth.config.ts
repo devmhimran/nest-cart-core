@@ -1,7 +1,7 @@
 import { createTransport } from 'nodemailer';
 import { SignUpDto } from './dto/signup.dto';
 import type { Transporter } from 'nodemailer';
-import { PrismaService } from '../prisma.service';
+import { PrismaService } from '../prisma/prisma.service';
 import { plainToInstance } from 'class-transformer';
 import { validateOrReject, ValidationError } from 'class-validator';
 

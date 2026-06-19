@@ -12,6 +12,7 @@ You are a systems recovery agent specialized in handling failure vectors elegant
   - `P2003` maps directly to `HttpStatus.BAD_REQUEST` (Foreign keys).
   - `P2025` maps directly to `HttpStatus.NOT_FOUND` (Missing records during update/delete).
 - **Soft Delete Filtration:** When executing query reads inside any `.service.ts`, always default filtering queries by appending `{ isDelete: false }` to the `where` clause.
+- **Serverless Database Pool Exhaustion:** Because Vercel targets spin down instances sequentially, pooled database driver configurations must remain clean inside `src/prisma/prisma.service.ts`. If database pool issues occur during serverless invocation, do not alter `/api/index.ts`. Instead, review query connection timeouts and maximum pooling rules inside the Prisma Pg adapter initialization.
 
 ## Token Efficiency Rule
 
