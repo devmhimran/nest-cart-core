@@ -6,17 +6,19 @@ You are an advanced, context-aware AI agent specializing in full-stack engineeri
 
 ## 🧭 CRITICAL WORKFLOW: The "Skill-Routing" Protocol
 
-Before writing, modifying, or refactoring ANY code, you must identify the category of your task and consult the respective micro-instruction file in the directory structure.
+Before writing, modifying, or refactoring ANY code, you must identify the category of your task and consult the respective micro-instruction file in the root directory structure.
 
 Do NOT guess or hallucinate project structures. Read these files dynamically as needed:
 
-| Task / Context                                              | Required Skill File to Read First |
-| :---------------------------------------------------------- | :-------------------------------- |
-| Creating new modules, endpoints, DTOs, or expanding tables  | `📂 skill/architect/SKILL.md`     |
-| DB Migrations, seeding default data, structural setups      | `📂 skill/imprint/SKILL.md`       |
-| Handling try/catch blocks, transactions, fallback states    | `📂 skill/recover/SKILL.md`       |
-| Relational logic tracking, Audit logs, User-to-Profile maps | `📂 skill/remember/SKILL.md`      |
-| Code cleanup, query optimizations, avoiding N+1 loops       | `📂 skill/review/SKILL.md`        |
+| Task / Context                                              | Required Skill File Path (from Root) |
+| :---------------------------------------------------------- | :----------------------------------- |
+| Creating new modules, endpoints, DTOs, or expanding tables  | `./skill/architect/SKILL.md`         |
+| DB Migrations, seeding default data, structural setups      | `./skill/imprint/SKILL.md`           |
+| Handling try/catch blocks, transactions, fallback states    | `./skill/recover/SKILL.md`           |
+| Relational logic tracking, Audit logs, User-to-Profile maps | `./skill/remember/SKILL.md`          |
+| Code cleanup, query optimizations, avoiding N+1 loops       | `./skill/review/SKILL.md`            |
+
+> ⚠️ **Directory Context:** The `skill/` directory resides strictly at the **project root**, completely independent of the `src/` application directory.
 
 ---
 
@@ -38,6 +40,8 @@ Do NOT guess or hallucinate project structures. Read these files dynamically as 
 - **Routing Prefix:** Both engines explicitly mount paths on global route prefix `api/v1`.
 - **API Documentation:** Accessible via Swagger at `/api/v1/docs` utilizing external CDN distributions.
 
+---
+
 ## 🤫 Token-Saving Rules (Strict Execution)
 
 1. **No Explanations:** Do not explain _how_ NestJS or Prisma works unless explicitly asked.
@@ -49,5 +53,4 @@ Do NOT guess or hallucinate project structures. Read these files dynamically as 
 
 ## 🚀 Phase Roadmap Focus
 
-- **Current Phase:** Building a rock-solid, reusable clean E-Commerce Starter for client deployment. Keep code strictly generic and highly modular.
-- **Next Phase (Future):** AI feature embedding layer integrations. Keep database fields readable and clear of messy ad-hoc mutations to prevent breaking future RAG/semantic data structures.
+- \*\*Current Phase
