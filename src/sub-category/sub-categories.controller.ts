@@ -8,7 +8,7 @@ import {
   Delete,
   Query,
 } from '@nestjs/common';
-import { SubCategoryService } from './sub-category.service';
+import { SubCategoriesService } from './sub-categories.service';
 import { CreateSubCategoryDto } from './dto/create-sub-category.dto';
 import { UpdateSubCategoryDto } from './dto/update-sub-category.dto';
 import { UserRole } from '../constants/enums';
@@ -17,9 +17,9 @@ import { Roles } from '../common/decorators/roles.decorator';
 import type { AuthUser } from '../auth/auth.interface';
 import { PaginationQueryDto } from '../common/pagination/dto/pagination-query.dto';
 
-@Controller('sub-category')
-export class SubCategoryController {
-  constructor(private readonly subCategoryService: SubCategoryService) {}
+@Controller('sub-categories')
+export class SubCategoriesController {
+  constructor(private readonly subCategoryService: SubCategoriesService) {}
 
   @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN)
   @Post()

@@ -3,14 +3,14 @@ import { APP_GUARD } from '@nestjs/core';
 import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from '../auth/auth.module';
-import { SizeModule } from '../size/size.module';
+import { SizesModule } from '../sizes/sizes.module';
 import { UserModule } from '../user/user.module';
 import { AppController } from './app.controller';
 import { TestController } from '../test/test.controller';
 import { RoleGuard } from '../common/guards/roles.guard';
 import { BetterAuthGuard } from '../common/guards/auth.guard';
-import { CategoryModule } from '../category/category.module';
-import { SubCategoryModule } from '../sub-category/sub-category.module';
+import { CategoriesModule } from '../categories/categories.module';
+import { SubCategoriesModule } from '../sub-category/sub-categories.module';
 import { PrismaModule } from '../prisma/prisma.module';
 
 @Module({
@@ -18,9 +18,9 @@ import { PrismaModule } from '../prisma/prisma.module';
     ConfigModule.forRoot(),
     AuthModule,
     UserModule,
-    SizeModule,
-    CategoryModule,
-    SubCategoryModule,
+    SizesModule,
+    CategoriesModule,
+    SubCategoriesModule,
     PrismaModule,
   ],
   controllers: [AppController, TestController],

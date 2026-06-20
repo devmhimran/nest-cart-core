@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { SizeController } from './size.controller';
-import { SizeService } from './size.service';
+import { SizeController } from './sizes.controller';
+import { SizeService } from './sizes.service';
 
 describe('SizeController', () => {
   let controller: SizeController;

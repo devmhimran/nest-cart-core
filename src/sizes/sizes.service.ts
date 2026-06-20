@@ -11,7 +11,7 @@ import {
 import { PaginationQueryDto } from '../common/pagination/dto/pagination-query.dto';
 
 @Injectable()
-export class SizeService {
+export class SizesService {
   constructor(private prismaService: PrismaService) {}
 
   create(createSizeDto: CreateSizeDto, userId?: string) {
