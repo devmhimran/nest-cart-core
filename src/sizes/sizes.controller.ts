@@ -9,7 +9,7 @@ import {
   Req,
   Query,
 } from '@nestjs/common';
-import { SizeService } from './size.service';
+import { SizesService } from './sizes.service';
 import { UserRole } from '../constants/enums';
 import { CreateSizeDto } from './dto/create-size.dto';
 import { UpdateSizeDto } from './dto/update-size.dto';
@@ -18,9 +18,9 @@ import { Roles } from '../common/decorators/roles.decorator';
 import type { AuthUser, RequestWithAuth } from '../auth/auth.interface';
 import { PaginationQueryDto } from '../common/pagination/dto/pagination-query.dto';
 
-@Controller('size')
-export class SizeController {
-  constructor(private readonly sizeService: SizeService) {}
+@Controller('sizes')
+export class SizesController {
+  constructor(private readonly sizeService: SizesService) {}
 
   @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN)
   @Post()

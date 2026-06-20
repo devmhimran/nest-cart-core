@@ -12,7 +12,7 @@ import { PaginationQueryDto } from '../common/pagination/dto/pagination-query.dt
 import { Prisma } from '../../generated/prisma/client';
 
 @Injectable()
-export class SubCategoryService {
+export class SubCategoriesService {
   constructor(private prismaService: PrismaService) {}
 
   async create(createSubCategoryDto: CreateSubCategoryDto, userId?: string) {

@@ -8,7 +8,7 @@ import {
   Delete,
   Query,
 } from '@nestjs/common';
-import { CategoryService } from './category.service';
+import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { UserRole } from '../constants/enums';
@@ -17,9 +17,9 @@ import { Roles } from '../common/decorators/roles.decorator';
 import type { AuthUser } from '../auth/auth.interface';
 import { PaginationQueryDto } from '../common/pagination/dto/pagination-query.dto';
 
-@Controller('category')
-export class CategoryController {
-  constructor(private readonly categoryService: CategoryService) {}
+@Controller('categories')
+export class CategoriesController {
+  constructor(private readonly categoryService: CategoriesService) {}
 
   @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN)
   @Post()

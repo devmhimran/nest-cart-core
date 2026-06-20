@@ -11,7 +11,7 @@ import {
 import { PaginationQueryDto } from '../common/pagination/dto/pagination-query.dto';
 
 @Injectable()
-export class CategoryService {
+export class CategoriesService {
   constructor(private prismaService: PrismaService) {}
 
   async create(createCategoryDto: CreateCategoryDto, userId?: string) {
