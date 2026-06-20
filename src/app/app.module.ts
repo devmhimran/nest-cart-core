@@ -7,6 +7,7 @@ import { UserModule } from '../user/user.module';
 import { AuthModule } from '../auth/auth.module';
 import { SizesModule } from '../sizes/sizes.module';
 import { ColorsModule } from '../colors/colors.module';
+import { PromoCodesModule } from '../promo-codes/promo-codes.module';
 import { PrismaModule } from '../prisma/prisma.module';
 import { TestController } from '../test/test.controller';
 import { RoleGuard } from '../common/guards/roles.guard';
@@ -23,6 +24,7 @@ import { SubCategoriesModule } from '../sub-category/sub-categories.module';
     CategoriesModule,
     SubCategoriesModule,
     ColorsModule,
+    PromoCodesModule,
     PrismaModule,
   ],
   controllers: [AppController, TestController],
