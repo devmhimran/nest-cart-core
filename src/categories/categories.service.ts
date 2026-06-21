@@ -94,7 +94,7 @@ export class CategoriesService {
       },
     });
     if (!category) {
-      throw new NotFoundException(`Category with ID '${id}' not found`);
+      throw new NotFoundException(`Requested category not found.`);
     }
     return category;
   }
@@ -122,7 +122,7 @@ export class CategoriesService {
       const oldCategory = await tx.category.findUnique({ where: { id } });
 
       if (!oldCategory)
-        throw new NotFoundException(`Category with ID '${id}' not found`);
+        throw new NotFoundException(`Requested category not found.`);
 
       const updatedCategory = await tx.category.update({
         where: { id },
@@ -155,7 +155,7 @@ export class CategoriesService {
     return this.prismaService.$transaction(async (tx) => {
       const oldCategory = await tx.category.findUnique({ where: { id } });
       if (!oldCategory)
-        throw new NotFoundException(`Category with ID '${id}' not found`);
+        throw new NotFoundException(`Requested category not found.`);
 
       await tx.category.delete({ where: { id } });
 

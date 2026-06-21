@@ -1,8 +1,8 @@
 import { PrismaService } from '../prisma/prisma.service';
-import { CreateSubCategoryDto } from './dto/create-sub-category.dto';
-import { UpdateSubCategoryDto } from './dto/update-sub-category.dto';
 import { AuditAction, EntityType } from '../constants/enums';
 import { paginate } from '../common/pagination/paginate.util';
+import { CreateSubCategoryDto } from './dto/create-sub-category.dto';
+import { UpdateSubCategoryDto } from './dto/update-sub-category.dto';
 import {
   ConflictException,
   Injectable,
@@ -85,7 +85,7 @@ export class SubCategoriesService {
       include: { category: true },
     });
     if (!subCategory) {
-      throw new NotFoundException(`Sub-category with ID '${id}' not found`);
+      throw new NotFoundException(`Requested sub-category not found.`);
     }
     return subCategory;
   }
@@ -113,7 +113,7 @@ export class SubCategoriesService {
       const oldSubCategory = await tx.subCategory.findUnique({ where: { id } });
 
       if (!oldSubCategory)
-        throw new NotFoundException(`Sub-category with ID '${id}' not found`);
+        throw new NotFoundException(`Requested sub-category not found.`);
 
       const updatedSubCategory = await tx.subCategory.update({
         where: { id },
@@ -146,7 +146,7 @@ export class SubCategoriesService {
     return this.prismaService.$transaction(async (tx) => {
       const oldSubCategory = await tx.subCategory.findUnique({ where: { id } });
       if (!oldSubCategory)
-        throw new NotFoundException(`Sub-category with ID '${id}' not found`);
+        throw new NotFoundException(`Requested sub-category not found.`);
 
       await tx.subCategory.delete({ where: { id } });
 

@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "media_library" ALTER COLUMN "fileSize" SET DATA TYPE DOUBLE PRECISION;

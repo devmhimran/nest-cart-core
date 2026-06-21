@@ -55,7 +55,7 @@ export class ColorsService {
   async findOne(id: number) {
     const color = await this.prismaService.color.findUnique({ where: { id } });
     if (!color) {
-      throw new NotFoundException(`Color with id '${id}' not found`);
+      throw new NotFoundException(`Requested color not found.`);
     }
     return color;
   }
@@ -76,8 +76,7 @@ export class ColorsService {
     return this.prismaService.$transaction(async (tx) => {
       const oldColor = await tx.color.findUnique({ where: { id } });
 
-      if (!oldColor)
-        throw new NotFoundException(`Color with id '${id}' not found`);
+      if (!oldColor) throw new NotFoundException(`Requested color not found.`);
 
       const updateColor = await tx.color.update({
         where: { id },
@@ -108,8 +107,7 @@ export class ColorsService {
   remove(id: number, userId?: string) {
     return this.prismaService.$transaction(async (tx) => {
       const oldColor = await tx.color.findUnique({ where: { id } });
-      if (!oldColor)
-        throw new NotFoundException(`Color with id '${id}' not found`);
+      if (!oldColor) throw new NotFoundException(`Requested color not found.`);
 
       await tx.color.delete({ where: { id } });
 
