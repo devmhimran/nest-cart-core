@@ -111,9 +111,11 @@ model MediaLibrary {
   id               Int              @id @default(autoincrement())
   fileUrl          String
   fileName         String           @unique
+  fileAlt          String?
   fileType         String?
-  fileSize         Int?
+  fileSize         Float?
   isDelete         Boolean          @default(false)
+  publicId         String?          @unique
   createdById      String?
   createdBy        User?            @relation("MediaUploadedBy", fields: [createdById], references: [id], onDelete: SetNull)
   productMain      Product[]        @relation("MainImage")

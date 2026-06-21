@@ -1,8 +1,8 @@
 import { PrismaService } from '../prisma/prisma.service';
-import { CreatePromoCodeDto } from './dto/create-promo-code.dto';
-import { UpdatePromoCodeDto } from './dto/update-promo-code.dto';
 import { AuditAction, EntityType } from '../constants/enums';
 import { paginate } from '../common/pagination/paginate.util';
+import { CreatePromoCodeDto } from './dto/create-promo-code.dto';
+import { UpdatePromoCodeDto } from './dto/update-promo-code.dto';
 import {
   BadRequestException,
   ConflictException,
@@ -67,7 +67,7 @@ export class PromoCodesService {
       where: { id },
     });
     if (!promoCode) {
-      throw new NotFoundException(`Promo code with id '${id}' not found`);
+      throw new NotFoundException(`Requested promo code not found.`);
     }
     return promoCode;
   }
@@ -101,7 +101,7 @@ export class PromoCodesService {
       const oldPromoCode = await tx.promoCode.findUnique({ where: { id } });
 
       if (!oldPromoCode)
-        throw new NotFoundException(`Promo code with id '${id}' not found`);
+        throw new NotFoundException(`Requested promo code not found.`);
 
       const data: Record<string, any> = {};
       if (updatePromoCodeDto.code !== undefined)
@@ -142,7 +142,7 @@ export class PromoCodesService {
     return this.prismaService.$transaction(async (tx) => {
       const oldPromoCode = await tx.promoCode.findUnique({ where: { id } });
       if (!oldPromoCode)
-        throw new NotFoundException(`Promo code with id '${id}' not found`);
+        throw new NotFoundException(`Requested promo code not found.`);
 
       await tx.promoCode.delete({ where: { id } });
 

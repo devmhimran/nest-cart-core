@@ -43,4 +43,5 @@ export enum EntityType {
   BANNER = 6,
   PROMO_CODE = 7,
   SUB_CATEGORY = 8,
+  MEDIA = 9,
 }
