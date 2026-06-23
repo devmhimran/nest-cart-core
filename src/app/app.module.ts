@@ -15,6 +15,7 @@ import { BetterAuthGuard } from '../common/guards/auth.guard';
 import { CategoriesModule } from '../categories/categories.module';
 import { PromoCodesModule } from '../promo-codes/promo-codes.module';
 import { SubCategoriesModule } from '../sub-category/sub-categories.module';
+import { ProductsModule } from '../products/products.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { SubCategoriesModule } from '../sub-category/sub-categories.module';
     CategoriesModule,
     PromoCodesModule,
     SubCategoriesModule,
+    ProductsModule,
   ],
   controllers: [AppController, TestController],
   providers: [
