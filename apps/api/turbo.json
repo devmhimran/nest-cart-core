@@ -1,6 +1,9 @@
 {
   "extends": ["//"],
   "tasks": {
+    "prisma:generate": {
+      "env": ["DATABASE_URL"]
+    },
     "build": {
       "env": [
         "DATABASE_URL",
