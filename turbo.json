@@ -1,21 +1,35 @@
 {
   "$schema": "https://turborepo.dev/schema.json",
   "ui": "tui",
+  "globalEnv": [
+    "DATABASE_URL",
+    "BETTER_AUTH_SECRET",
+    "NODE_ENV",
+    "BETTER_AUTH_URL",
+    "LOCAL_ORIGIN",
+    "RUNTIME",
+    "SMTP_SERVICE",
+    "SMTP_USER",
+    "SMTP_PASSWORD",
+    "PASSWORD_RESET_URL",
+    "CLOUDINARY_CLOUD_NAME",
+    "CLOUDINARY_API_KEY",
+    "CLOUDINARY_FOLDER",
+    "CLOUDINARY_API_SECRET"
+  ],
   "tasks": {
     "prisma:generate": {
       "cache": true,
       "inputs": ["prisma/schema.prisma", "**/schema.prisma"],
-      "outputs": ["node_modules/.prisma/client"]
+      "outputs": [
+        "**/node_modules/.prisma/client",
+        "**/node_modules/@prisma/client"
+      ]
     },
     "build": {
       "dependsOn": ["^build", "prisma:generate"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
       "outputs": [".next/**", "!.next/cache/**", "!.next/dev/**", "dist/**"]
-    },
-    "api#build": {
-      "dependsOn": ["^build", "prisma:generate"],
-      "outputs": ["dist/**"],
-      "env": ["*"]
     },
     "lint": {
       "dependsOn": ["^lint"]
