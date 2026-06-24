@@ -3,7 +3,9 @@
   "ui": "tui",
   "tasks": {
     "prisma:generate": {
-      "cache": false
+      "cache": true,
+      "inputs": ["prisma/schema.prisma"],
+      "outputs": ["node_modules/.prisma/client"]
     },
     "build": {
       "dependsOn": ["^build", "prisma:generate"],
@@ -11,7 +13,7 @@
       "outputs": [".next/**", "!.next/cache/**", "!.next/dev/**", "dist/**"]
     },
     "api#build": {
-      "dependsOn": ["^build"],
+      "dependsOn": ["build"],
       "outputs": ["dist/**"],
       "env": ["*"]
     },
