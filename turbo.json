@@ -1,5 +1,5 @@
 {
-  "$schema": "https://turborepo.dev/schema.json",
+  "$schema": "https://turbo.build/schema.json",
   "ui": "tui",
   "tasks": {
     "prisma:generate": {
@@ -11,11 +11,6 @@
       "dependsOn": ["^build", "prisma:generate"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
       "outputs": [".next/**", "!.next/cache/**", "!.next/dev/**", "dist/**"]
-    },
-    "api#build": {
-      "dependsOn": ["^build", "prisma:generate"],
-      "outputs": ["dist/**"],
-      "env": ["*"]
     },
     "lint": {
       "dependsOn": ["^lint"]

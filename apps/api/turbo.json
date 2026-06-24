@@ -1,0 +1,23 @@
+{
+  "extends": ["//"],
+  "tasks": {
+    "build": {
+      "env": [
+        "DATABASE_URL",
+        "BETTER_AUTH_SECRET",
+        "NODE_ENV",
+        "BETTER_AUTH_URL",
+        "LOCAL_ORIGIN",
+        "RUNTIME",
+        "SMTP_SERVICE",
+        "SMTP_USER",
+        "SMTP_PASSWORD",
+        "PASSWORD_RESET_URL",
+        "CLOUDINARY_CLOUD_NAME",
+        "CLOUDINARY_API_KEY",
+        "CLOUDINARY_FOLDER",
+        "CLOUDINARY_API_SECRET"
+      ]
+    }
+  }
+}
