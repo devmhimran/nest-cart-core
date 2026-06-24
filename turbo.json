@@ -22,9 +22,8 @@
       "cache": true,
       "inputs": ["prisma/schema.prisma", "**/schema.prisma"],
       "outputs": [
-        "node_modules/.prisma/client",
-        ".prisma/client",
-        "**/node_modules/.prisma/client"
+        "**/node_modules/.prisma/client",
+        "**/node_modules/@prisma/client"
       ]
     },
     "build": {
