@@ -7,7 +7,9 @@
     "./components/*": "./src/components/*.tsx",
     "./lib/*": "./src/lib/*.ts",
     "./*": "./src/*.tsx",
-    "./postcss.config": "./postcss.config.mjs"
+    "./postcss.config": "./postcss.config.mjs",
+    "./hooks/*": "./src/hooks/*.ts",
+    ".": "./src/components/index.ts"
   },
   "scripts": {
     "lint": "eslint . --max-warnings 0",
@@ -26,7 +28,6 @@
     "typescript": "5.9.2"
   },
   "dependencies": {
-    "@repo/ui": "workspace:*",
     "@base-ui/react": "^1.6.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

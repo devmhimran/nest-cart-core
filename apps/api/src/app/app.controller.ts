@@ -11,7 +11,10 @@ export class AppController {
     return {
       status: 'online ✅',
       message: 'NestSkeleton API is operational',
-      timestamp: new Date().toISOString(),
+      timestamp: new Intl.DateTimeFormat('en-US', {
+        dateStyle: 'medium',
+        timeStyle: 'medium',
+      }).format(new Date()),
       version: '1.0.0',
     };
   }
