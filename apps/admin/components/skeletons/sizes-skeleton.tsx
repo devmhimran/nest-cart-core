@@ -20,16 +20,16 @@ export function SizesSkeleton() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {Array.from({ length: 5 }).map((_, index) => (
+          {Array.from({ length: 6 }).map((_, index) => (
             <TableRow key={index}>
               <TableCell>
-                <Skeleton className='h-5 w-8' />
+                <Skeleton className='h-6 w-8' />
               </TableCell>
               <TableCell>
-                <Skeleton className='h-5 w-32' />
+                <Skeleton className='h-6 w-32' />
               </TableCell>
               <TableCell className='text-end'>
-                <Skeleton className='h-5 w-5 ml-auto' />
+                <Skeleton className='h-6 w-5 ml-auto' />
               </TableCell>
             </TableRow>
           ))}
