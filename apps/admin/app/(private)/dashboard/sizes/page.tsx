@@ -1,15 +1,15 @@
 'use client';
 
-import { Button, PaginationContainer } from '@repo/ui';
 import { Plus } from 'lucide-react';
 import { useGetAllSizes } from '@/hooks';
 import { useEffect, useState } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
 import { CreateSizeForm } from '@/components/forms';
+import { Button, PaginationContainer } from '@repo/ui';
 import { generateQueryString } from '@repo/ui/lib/utils';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { SizesSearchContainer, SizesTable } from '@/components/pages/sizes';
 import AlertModal from '@repo/ui/components/shared/alert-modal';
+import { SizesSearchContainer, SizesTable } from '@/components/pages/sizes';
 
 export default function SizesPage() {
   const [addSizeModalOpen, setAddSizeModalOpen] = useState(false);
@@ -71,7 +71,7 @@ export default function SizesPage() {
         setIsOpen={setAddSizeModalOpen}
         title='Create new size'
       >
-        <CreateSizeForm />
+        <CreateSizeForm setIsOpen={setAddSizeModalOpen} />
       </AlertModal>
     </div>
   );

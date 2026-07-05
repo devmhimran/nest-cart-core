@@ -86,6 +86,8 @@ export function createApiInstance(defaultOptions: FetchOptions = {}) {
       request<T>(url, { ...options, method: 'POST', data }),
     put: <T>(url: string, data?: unknown, options?: FetchOptions) =>
       request<T>(url, { ...options, method: 'PUT', data }),
+    patch: <T>(url: string, data?: unknown, options?: FetchOptions) =>
+      request<T>(url, { ...options, method: 'PATCH', data }),
     delete: <T>(url: string, options?: FetchOptions) =>
       request<T>(url, { ...options, method: 'DELETE' }),
     stream: (

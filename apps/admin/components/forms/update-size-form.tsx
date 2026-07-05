@@ -8,14 +8,15 @@ import {
   FieldLabel,
   Input,
 } from '@repo/ui';
-import { z } from 'zod';
 import { toast } from 'sonner';
 import { useState } from 'react';
 import { useSizes } from '@/hooks';
+import { SizeType } from '@/types';
 import { Loader2Icon } from 'lucide-react';
 import { getErrorMessage } from '@repo/ui/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Controller, useForm } from 'react-hook-form';
+import { z } from 'zod';
 
 const FormSchema = z.object({
   name: z
@@ -25,30 +26,37 @@ const FormSchema = z.object({
     .regex(/^\S+$/, 'Only a single word is allowed (no spaces)'),
 });
 
-interface CreateSizeFormProps {
+interface UpdateSizeFormProps {
+  data: SizeType | null;
   setIsOpen: (isOpen: boolean) => void;
 }
 
-export function CreateSizeForm({ setIsOpen }: CreateSizeFormProps) {
+export function UpdateSizeForm({ data, setIsOpen }: UpdateSizeFormProps) {
   const [isPending, setIsPending] = useState(false);
-  const { createSizeAsync } = useSizes();
+  const { updateSizeAsync } = useSizes();
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      name: '',
+      name: data?.name || '',
     },
   });
 
-  function onSubmit(data: z.infer<typeof FormSchema>) {
+  function onSubmit(value: z.infer<typeof FormSchema>) {
     setIsPending(true);
-    toast.promise(createSizeAsync(data), {
-      loading: 'Creating size...',
+    if (!data?.id) return;
+
+    const payload = {
+      previousName: data.name,
+      name: value.name,
+    };
+    toast.promise(updateSizeAsync(payload), {
+      loading: 'Updating size...',
       success: () => {
         setIsPending(false);
         form.reset();
         setIsOpen(false);
-        return 'Successfully size created';
+        return 'Successfully size updated';
       },
       error: (err) => {
         setIsPending(false);
@@ -80,9 +88,13 @@ export function CreateSizeForm({ setIsOpen }: CreateSizeFormProps) {
         />
       </FieldGroup>
 
-      <Button type='submit' disabled={isPending} className='flex justify-start'>
+      <Button
+        type='submit'
+        disabled={isPending || !form.formState.isDirty}
+        className='flex justify-start'
+      >
         {isPending && <Loader2Icon className='animate-spin' />}
-        Create
+        Update
       </Button>
     </form>
   );

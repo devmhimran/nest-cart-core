@@ -19,7 +19,7 @@ type ConfirmModalProps = {
   setIsOpen: (isOpen: boolean) => void;
 };
 
-export default function ConfirmModal({
+export function ConfirmModal({
   isOpen,
   setIsOpen,
   onClick,
