@@ -1,6 +1,7 @@
-import { PrismaService } from '../prisma/prisma.service';
 import { CreateSizeDto } from './dto/create-size.dto';
 import { UpdateSizeDto } from './dto/update-size.dto';
+import { Prisma } from '../../generated/prisma/client';
+import { PrismaService } from '../prisma/prisma.service';
 import { AuditAction, EntityType } from '../constants/enums';
 import { paginate } from '../common/pagination/paginate.util';
 import {
@@ -46,7 +47,17 @@ export class SizesService {
   }
 
   findAll(query: PaginationQueryDto) {
+    const { search } = query;
+    const where: Prisma.SizeWhereInput = search
+      ? {
+          name: {
+            contains: search,
+            mode: 'insensitive',
+          },
+        }
+      : {};
     return paginate(this.prismaService.size, query, {
+      where,
       orderBy: { id: 'desc' },
     });
   }

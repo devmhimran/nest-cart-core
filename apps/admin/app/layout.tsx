@@ -4,7 +4,7 @@ import { Inter } from 'next/font/google';
 
 import './globals.css';
 import { Loading } from '@repo/ui';
-import { ThemeProvider } from '@/components/providers';
+import { QueryProvider, ThemeProvider } from '@/components/providers';
 
 const inter = Inter({
   variable: '--font-inter',
@@ -31,7 +31,7 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            {children}
+            <QueryProvider>{children}</QueryProvider>
           </ThemeProvider>
         </Suspense>
       </body>

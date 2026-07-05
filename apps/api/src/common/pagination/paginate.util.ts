@@ -14,9 +14,9 @@ export async function paginate<
   queryDto: PaginationQueryDto,
   args?: A,
 ): Promise<PaginatedResult<T>> {
-  const page = queryDto.page || 1;
-  const limit = queryDto.limit || 10;
-  const skip = queryDto.skip;
+  const page = Number(queryDto.page) || 1;
+  const limit = Number(queryDto.limit) || 10;
+  const skip = (page - 1) * limit;
 
   const [data, total] = await Promise.all([
     model.findMany({
