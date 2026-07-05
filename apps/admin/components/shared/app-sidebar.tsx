@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import {
   Image,
   LayoutDashboard,
@@ -12,11 +13,7 @@ import {
   TicketPercent,
   Users,
 } from 'lucide-react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-
 import {
-  Separator,
   Sidebar,
   SidebarContent,
   SidebarFooter,
@@ -29,6 +26,7 @@ import {
   SidebarRail,
 } from '@repo/ui';
 import UserNav from './user-nav';
+import { usePathname } from 'next/navigation';
 
 const superAdminMenuItems = [
   {

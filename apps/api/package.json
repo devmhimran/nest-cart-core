@@ -9,6 +9,7 @@
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
+    "predev": "prisma generate",
     "dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "NODE_OPTIONS='--experimental-require-module' node dist/main ",
