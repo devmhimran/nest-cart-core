@@ -71,10 +71,6 @@ export function SizesTable({ data, loading }: SizesTableProps) {
     setUpdateSizeModalOpen(true);
   };
 
-  if (!data?.data || data.data.length === 0) {
-    return <EmptyState message='No sizes found.' />;
-  }
-
   return (
     <Card>
       <CardHeader>
@@ -83,6 +79,8 @@ export function SizesTable({ data, loading }: SizesTableProps) {
       <CardContent>
         {loading ? (
           <SizesSkeleton />
+        ) : !data?.data || data.data.length === 0 ? (
+          <EmptyState message='No sizes found.' />
         ) : (
           <Table>
             <TableHeader>
