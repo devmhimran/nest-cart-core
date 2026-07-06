@@ -30,6 +30,7 @@ import { getErrorMessage } from '@repo/ui/lib/utils';
 import { SizesSkeleton } from '@/components/skeletons';
 import { Ellipsis, SquarePen, Trash2 } from 'lucide-react';
 import AlertModal from '@repo/ui/components/shared/alert-modal';
+import { EmptyState } from '@/components/shared';
 
 interface SizesTableProps {
   data?: {
@@ -70,6 +71,10 @@ export function SizesTable({ data, loading }: SizesTableProps) {
     setUpdateSizeModalOpen(true);
   };
 
+  if (!data?.data || data.data.length === 0) {
+    return <EmptyState message='No sizes found.' />;
+  }
+
   return (
     <Card>
       <CardHeader>
@@ -96,7 +101,9 @@ export function SizesTable({ data, loading }: SizesTableProps) {
                       1}
                     .
                   </TableCell>
-                  <TableCell className='font-medium'>{size.name}</TableCell>
+                  <TableCell className='font-medium uppercase'>
+                    {size.name}
+                  </TableCell>
                   <TableCell className='flex justify-end'>
                     <DropdownMenu>
                       <DropdownMenuTrigger

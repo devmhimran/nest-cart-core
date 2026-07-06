@@ -9,6 +9,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PaginationQueryDto } from '../common/pagination/dto/pagination-query.dto';
+import { Prisma } from '../../generated/prisma/client';
 
 @Injectable()
 export class ColorsService {
@@ -47,7 +48,27 @@ export class ColorsService {
   }
 
   findAll(query: PaginationQueryDto) {
+    const { search } = query;
+    const where: Prisma.ColorWhereInput = search
+      ? {
+          OR: [
+            {
+              name: {
+                contains: search,
+                mode: 'insensitive',
+              },
+            },
+            {
+              hex: {
+                contains: search,
+                mode: 'insensitive',
+              },
+            },
+          ],
+        }
+      : {};
     return paginate(this.prismaService.color, query, {
+      where,
       orderBy: { id: 'desc' },
     });
   }
