@@ -94,8 +94,9 @@ export default function SignInPage() {
                   <Input
                     id='email'
                     autoComplete='off'
-                    // type='email'
-                    placeholder='m@example.com'
+                    type='email'
+                    placeholder='Enter your email'
+                    aria-invalid={!!errors.email}
                     {...register('email')}
                   />
                   <FieldError errors={[errors.email]} />
@@ -106,7 +107,8 @@ export default function SignInPage() {
                     id='password'
                     autoComplete='off'
                     type='password'
-                    placeholder='••••••••'
+                    placeholder='Enter your password'
+                    aria-invalid={!!errors.password}
                     {...register('password')}
                   />
                   <FieldError errors={[errors.password]} />
