@@ -9,7 +9,11 @@ import { Button, PaginationContainer } from '@repo/ui';
 import { generateQueryString } from '@repo/ui/lib/utils';
 import { useRouter, useSearchParams } from 'next/navigation';
 import AlertModal from '@repo/ui/components/shared/alert-modal';
-import { SizesSearchContainer, SizesTable } from '@/components/pages/sizes';
+import {
+  SizesSearchContainer,
+  SizesTable,
+  SizeStatsGrid,
+} from '@/components/pages/sizes';
 
 export default function SizesPage() {
   const [addSizeModalOpen, setAddSizeModalOpen] = useState(false);
@@ -41,15 +45,34 @@ export default function SizesPage() {
     router.replace(queryString, { scroll: false });
   }, [queryString, router]);
 
+  const totalSizes = fetchAllSizesMutationData?.data?.meta?.total || 0;
+  const currentCount = fetchAllSizesMutationData?.data?.data?.length || 0;
+  const currentPage = fetchAllSizesMutationData?.data?.meta?.currentPage || 1;
+
   return (
-    <div className='space-y-6 w-full md:w-5/6 lg:w-3/6 mx-auto '>
-      <div className='flex items-center justify-between'>
-        <h1 className='text-xl md:text-2xl font-bold'>Sizes</h1>
+    <div className='space-y-6 w-full md:w-5/6 lg:w-3/6 mx-auto px-4 py-6'>
+      <div className='flex items-center justify-between border-b pb-4'>
+        <div className='space-y-1'>
+          <h1 className='text-xl md:text-2xl font-bold tracking-tight text-foreground'>
+            Sizes
+          </h1>
+          <p className='text-xs text-muted-foreground hidden sm:block'>
+            Configure dimensional variations and sizing scales for product
+            inventory options.
+          </p>
+        </div>
         <Button onClick={() => setAddSizeModalOpen(true)}>
           <Plus className='mr-2 h-4 w-4' />
-          Create Sizes
+          Create Size
         </Button>
       </div>
+
+      <SizeStatsGrid
+        totalSizes={totalSizes}
+        currentCount={currentCount}
+        currentPage={currentPage}
+      />
+
       <SizesSearchContainer
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
@@ -57,19 +80,23 @@ export default function SizesPage() {
         setParams={setParams}
         debounced={debounced}
       />
+
       <SizesTable
         data={fetchAllSizesMutationData?.data}
         loading={fetchAllSizesMutation.isLoading}
       />
+
       <PaginationContainer
         meta={fetchAllSizesMutationData?.data?.meta}
         params={params}
         setParams={setParams}
       />
+
       <AlertModal
         isOpen={addSizeModalOpen}
         setIsOpen={setAddSizeModalOpen}
-        title='Create new size'
+        title='Size Attributes'
+        description='Define dimensional variations for product inventory management tokens.'
       >
         <CreateSizeForm setIsOpen={setAddSizeModalOpen} />
       </AlertModal>

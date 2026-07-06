@@ -1,4 +1,4 @@
-export type SizeType = {
+export interface SizeType {
   id: number;
   name: string;
 };
