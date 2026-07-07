@@ -22,9 +22,9 @@ export function ColorsStatsGrid({
             <p className='text-xs font-medium text-muted-foreground tracking-wider uppercase'>
               Total Colors
             </p>
-            <p className='text-2xl font-bold font-mono text-foreground'>
+            <span className='text-2xl font-bold font-mono text-foreground'>
               {loading ? <Skeleton className='h-8 w-6' /> : totalColors}
-            </p>
+            </span>
           </div>
           <div className='p-2.5 bg-primary/10 rounded-lg text-primary'>
             <Palette className='w-5 h-5' />
@@ -38,9 +38,9 @@ export function ColorsStatsGrid({
             <p className='text-xs font-medium text-muted-foreground tracking-wider uppercase'>
               Viewing on Page
             </p>
-            <p className='text-2xl font-bold font-mono text-foreground'>
+            <span className='text-2xl font-bold font-mono text-foreground'>
               {loading ? <Skeleton className='h-8 w-6' /> : currentCount}
-            </p>
+            </span>
           </div>
           <div className='p-2.5 bg-amber-500/10 rounded-lg text-amber-500'>
             <Layers className='w-5 h-5' />
