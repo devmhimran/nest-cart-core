@@ -10,6 +10,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PaginationQueryDto } from '../common/pagination/dto/pagination-query.dto';
+import { Prisma } from '../../generated/prisma/client';
 
 @Injectable()
 export class PromoCodesService {
@@ -57,7 +58,26 @@ export class PromoCodesService {
   }
 
   findAll(query: PaginationQueryDto) {
+    const { search } = query;
+    const where: Prisma.PromoCodeWhereInput = search
+      ? {
+          OR: [
+            {
+              title: {
+                contains: search,
+              },
+            },
+            {
+              code: {
+                contains: search,
+              },
+            },
+          ],
+        }
+      : {};
+
     return paginate(this.prismaService.promoCode, query, {
+      where,
       orderBy: { id: 'desc' },
     });
   }

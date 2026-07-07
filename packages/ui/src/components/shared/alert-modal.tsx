@@ -60,7 +60,9 @@ export default function AlertModal({
           {description && (
             <AlertDialogDescription>{description}</AlertDialogDescription>
           )}
-          <div className='px-1 w-full'>{children}</div>
+          <div className='w-full max-h-[80vh] overflow-y-auto scrollbar-thin px-1 pb-px'>
+            {children}
+          </div>
         </AlertDialogHeader>
       </AlertDialogContent>
     </AlertDialog>

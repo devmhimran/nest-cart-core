@@ -77,7 +77,6 @@ export function CreateColorForm({ setIsOpen }: CreateColorFormProps) {
     <form onSubmit={handleSubmit(onSubmit)} className='space-y-6 pt-2'>
       <FieldSet>
         <FieldGroup>
-          {/* 1. Name Field Configuration */}
           <Field>
             <FieldLabel htmlFor='name'>Color Name</FieldLabel>
             <Input
@@ -96,11 +95,9 @@ export function CreateColorForm({ setIsOpen }: CreateColorFormProps) {
             )}
           </Field>
 
-          {/* 2. Color Code Field with Swatch Integration */}
           <Field>
             <FieldLabel htmlFor='hex'>Color Value</FieldLabel>
             <div className='flex items-center gap-2'>
-              {/* Native Picker Wrapper */}
               <div className='relative w-10 h-10 rounded-md border overflow-hidden shrink-0 shadow-sm cursor-pointer bg-muted'>
                 <input
                   type='color'
