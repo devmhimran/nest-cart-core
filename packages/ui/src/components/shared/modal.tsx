@@ -19,7 +19,7 @@ interface ModalProps {
   handleSubmit?: (e: React.FormEvent) => void;
 }
 
-export default function Modal({
+export function Modal({
   isOpen,
   setIsOpen,
   children,
