@@ -16,7 +16,7 @@ import { UserRole } from '../constants/enums';
 import { Roles } from '../common/decorators/roles.decorator';
 import { AuthCtx } from '../user/decorators/user.decorator';
 import type { AuthUser } from '../auth/auth.interface';
-import { PaginationQueryDto } from '../common/pagination/dto/pagination-query.dto';
+import { QueryPromoCodeDto } from './dto/query-promo-code.dto';
 
 @Controller('promo-codes')
 export class PromoCodesController {
@@ -33,7 +33,7 @@ export class PromoCodesController {
 
   @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN, UserRole.MODERATOR)
   @Get()
-  findAll(@Query() query: PaginationQueryDto) {
+  findAll(@Query() query: QueryPromoCodeDto) {
     return this.promoCodesService.findAll(query);
   }
 

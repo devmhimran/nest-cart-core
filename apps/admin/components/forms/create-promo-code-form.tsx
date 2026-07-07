@@ -103,7 +103,7 @@ export function CreatePromoCodeForm({ setIsOpen }: CreatePromoCodeFormProps) {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className='space-y-4 pt-2'>
       <FieldSet>
-        <FieldGroup className='gap-4'>
+        <FieldGroup>
           <Field>
             <FieldLabel htmlFor='code'>Promo Code</FieldLabel>
             <Input
