@@ -1,8 +1,8 @@
 'use client';
 
 import { Plus } from 'lucide-react';
+import { ColorType } from '@/types';
 import { useColors, useGetAllColors } from '@/hooks';
-import { ColorType } from '@/types/color';
 import { useEffect, useState } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
 import { generateQueryString, getErrorMessage } from '@repo/ui/lib/utils';
