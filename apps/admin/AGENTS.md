@@ -23,7 +23,7 @@ To save max context tokens, all interactions use Tokenized Pseudo-Code (TPC) syn
 
 - **apps/admin/**:
   ├── `api/`: Domain API services organized by entity matching HTTP methods. Needs `index.ts` barrel export.
-  ├── `app/`: Next.js 14+ App Router routes split cleanly into `(private)` and `(public)` route groups.
+  ├── `app/`: Next.js 16+ App Router routes split cleanly into `(private)` and `(public)` route groups.
   ├── `config/`: App-level environment variable validation and fail-safes (`env.ts`).
   ├── `lib/`: Domain runtime engines (`auth.ts`, `fetch.ts`, `react-query.ts`, local app `utils.ts`).
   ├── `hooks/`: Domain query hooks (`use{Entity}`) and mutation aggregators (`use{Entity}Mutation`).
