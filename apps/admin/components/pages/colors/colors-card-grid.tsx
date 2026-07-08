@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from '@repo/ui';
 import { Meta } from '@/types';
-import { ColorType } from '@/types/color';
+import { ColorType } from '@/types';
 import { ColorsSkeleton } from '@/components/skeletons';
 import { Check, Copy, Ellipsis, SquarePen, Trash2 } from 'lucide-react';
 import { EmptyState } from '@/components/shared';

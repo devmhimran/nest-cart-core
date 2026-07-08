@@ -6,6 +6,8 @@ You are an expert full-stack developer acting within a high-performance TurboRep
 
 To save max context tokens, all interactions use Tokenized Pseudo-Code (TPC) syntax definitions. Do not expand boilerplate unless requested.
 
+> ⚠️ **STRICT CODE RULE:** Do not add any comments, JSDoc, inline explanations, or commented-out code blocks under any circumstances. All output code must be raw, self-documenting executable code only.
+
 ### 🪙 Tokenization Dictionary
 
 - `α_api`: Domain API Object (`apps/admin/api/*`) -> `get|post|put|del` using custom fetch wrapper

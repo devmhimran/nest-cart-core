@@ -11,3 +11,16 @@ export const getAvatarFallbackText = (name?: string) => {
       ).toUpperCase()
     : '';
 };
+
+export const handleCopy = async (
+  text: string,
+  setCopiedText: (text: string | null) => void,
+) => {
+  try {
+    await navigator.clipboard.writeText(text);
+    setCopiedText(text);
+    setTimeout(() => setCopiedText(null), 2000);
+  } catch (err) {
+    console.error('Failed to copy text: ', err);
+  }
+};

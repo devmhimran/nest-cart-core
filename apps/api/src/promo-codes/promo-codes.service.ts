@@ -9,7 +9,8 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { PaginationQueryDto } from '../common/pagination/dto/pagination-query.dto';
+import { Prisma } from '../../generated/prisma/client';
+import { QueryPromoCodeDto } from './dto/query-promo-code.dto';
 
 @Injectable()
 export class PromoCodesService {
@@ -56,8 +57,49 @@ export class PromoCodesService {
     });
   }
 
-  findAll(query: PaginationQueryDto) {
+  findAll(query: QueryPromoCodeDto) {
+    const { search, startDate, endDate, active } = query;
+
+    const where: Prisma.PromoCodeWhereInput = {};
+
+    const now = new Date();
+
+    if (search) {
+      where.OR = [
+        { code: { contains: search, mode: 'insensitive' } },
+        { title: { contains: search, mode: 'insensitive' } },
+      ];
+    }
+
+    if (active !== undefined && active !== null) {
+      if (active) {
+        where.startDate = { lte: now };
+        where.endDate = { gte: now };
+      } else {
+        where.OR = [
+          ...(where.OR || []),
+          { startDate: { gt: now } },
+          { endDate: { lt: now } },
+        ];
+      }
+    }
+
+    if (startDate) {
+      where.startDate = {
+        ...(where.startDate as Prisma.DateTimeFilter),
+        gte: new Date(startDate),
+      };
+    }
+
+    if (endDate) {
+      where.endDate = {
+        ...(where.endDate as Prisma.DateTimeFilter),
+        lte: new Date(endDate),
+      };
+    }
+
     return paginate(this.prismaService.promoCode, query, {
+      where,
       orderBy: { id: 'desc' },
     });
   }

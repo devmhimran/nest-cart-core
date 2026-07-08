@@ -1,8 +1,8 @@
 'use client';
 
 import { Plus } from 'lucide-react';
+import { ColorType } from '@/types';
 import { useColors, useGetAllColors } from '@/hooks';
-import { ColorType } from '@/types/color';
 import { useEffect, useState } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
 import { generateQueryString, getErrorMessage } from '@repo/ui/lib/utils';
@@ -16,6 +16,7 @@ import {
   ColorsStatsGrid,
 } from '@/components/pages/colors';
 import { toast } from 'sonner';
+import { handleCopy } from '@/lib/utils';
 
 export default function ColorsPage() {
   const searchParams = useSearchParams();
@@ -56,16 +57,6 @@ export default function ColorsPage() {
   const currentCount = fetchAllColorsMutationData?.data?.data?.length || 0;
   const currentPage = fetchAllColorsMutationData?.data?.meta?.currentPage || 1;
 
-  const handleCopy = async (text: string) => {
-    try {
-      await navigator.clipboard.writeText(text);
-      setCopiedText(text);
-      setTimeout(() => setCopiedText(null), 2000);
-    } catch (err) {
-      console.error('Failed to copy text: ', err);
-    }
-  };
-
   const handleEditIntent = (color: ColorType) => {
     setSelectedColor(color);
     setUpdateColorModalOpen(true);
@@ -87,6 +78,10 @@ export default function ColorsPage() {
         return getErrorMessage(err);
       },
     });
+  };
+
+  const onCopy = (text: string) => {
+    handleCopy(text, setCopiedText);
   };
 
   return (
@@ -126,7 +121,7 @@ export default function ColorsPage() {
         data={fetchAllColorsMutationData?.data}
         loading={fetchAllColorsMutation.isLoading}
         copiedText={copiedText}
-        onCopy={handleCopy}
+        onCopy={onCopy}
         onEdit={handleEditIntent}
         onDelete={handleDeleteColor}
       />

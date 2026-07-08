@@ -3,7 +3,7 @@
 import { colorApi } from '@/api';
 import { getQueryClient } from '@/lib/react-query';
 import { Response } from '@/types';
-import { ColorType } from '@/types/color';
+import { ColorType } from '@/types';
 import { keepPreviousData, useMutation, useQuery } from '@tanstack/react-query';
 
 const queryClient = getQueryClient();
