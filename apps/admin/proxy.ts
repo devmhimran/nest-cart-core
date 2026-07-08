@@ -9,7 +9,7 @@ const ROUTE_PERMISSIONS: Record<string, UserRole[]> = {
     UserRole.ADMIN,
     UserRole.MODERATOR,
   ],
-  '/dashboard/products': [UserRole.SUPER_ADMIN, UserRole.ADMIN],
+  '/dashboard/products': [UserRole.ADMIN],
   '/dashboard/orders': [UserRole.SUPER_ADMIN, UserRole.ADMIN],
   '/dashboard/categories': [UserRole.SUPER_ADMIN, UserRole.ADMIN],
   '/dashboard/sub-categories': [UserRole.SUPER_ADMIN, UserRole.ADMIN],
@@ -29,33 +29,131 @@ const ROUTE_PERMISSIONS: Record<string, UserRole[]> = {
   ],
 };
 
+function findMatchedRoute(pathname: string): string | undefined {
+  return Object.keys(ROUTE_PERMISSIONS)
+    .sort((a, b) => b.length - a.length)
+    .find((route) => {
+      if (route === '/dashboard') {
+        return pathname === route;
+      }
+      return pathname === route || pathname.startsWith(`${route}/`);
+    });
+}
+
+function handleOfflineFallback(request: NextRequest, pathname: string) {
+  const cachedRoleStr = request.cookies.get('user_role')?.value;
+
+  if (cachedRoleStr !== undefined) {
+    const cachedRole = Number(cachedRoleStr) as UserRole;
+    const matchedRoute = findMatchedRoute(pathname);
+
+    if (matchedRoute) {
+      const allowedRoles = ROUTE_PERMISSIONS[matchedRoute];
+      if (allowedRoles.includes(cachedRole)) {
+        return NextResponse.next();
+      } else {
+        return NextResponse.redirect(new URL('/dashboard', request.url));
+      }
+    }
+  }
+
+  return NextResponse.next();
+}
+
+function getSafeRedirectUrl(request: NextRequest): URL {
+  const callbackUrl = request.nextUrl.searchParams.get('callbackUrl');
+  let target = '/dashboard';
+  if (
+    callbackUrl &&
+    callbackUrl.startsWith('/') &&
+    !callbackUrl.startsWith('//')
+  ) {
+    target = callbackUrl;
+  }
+  return new URL(target, request.url);
+}
+
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  const cookies = request.headers.get('cookie') ?? '';
+  const hasSessionCookie =
+    cookies.includes('better-auth.session_token') ||
+    cookies.includes('__Secure-better-auth.session_token') ||
+    cookies.includes('session_token');
+
+  if (!hasSessionCookie) {
+    if (pathname === '/signin') {
+      return NextResponse.next();
+    }
+    const signInUrl = new URL('/signin', request.url);
+    signInUrl.searchParams.set('callbackUrl', pathname);
+    return NextResponse.redirect(signInUrl);
+  }
+
   try {
-    const { data: session } = await getSession({
+    const res = await getSession({
       fetchOptions: {
         headers: {
-          cookie: request.headers.get('cookie') ?? '',
+          cookie: cookies,
         },
       },
     });
 
-    if (!session) {
+    const session = res?.data;
+    const authError = res?.error;
+
+    if (authError) {
+      const status = authError.status;
+      const isNetworkOrServerError = !status || status >= 500;
+
+      if (isNetworkOrServerError) {
+        console.warn(
+          'Backend returned server/network error, executing offline fallback:',
+          authError,
+        );
+        if (pathname === '/signin') {
+          return NextResponse.redirect(getSafeRedirectUrl(request));
+        }
+        return handleOfflineFallback(request, pathname);
+      }
+
+      if (pathname === '/signin') {
+        const response = NextResponse.next();
+        response.cookies.delete('user_role');
+        return response;
+      }
       const signInUrl = new URL('/signin', request.url);
       signInUrl.searchParams.set('callbackUrl', pathname);
       return NextResponse.redirect(signInUrl);
     }
 
-    const matchedRoute = Object.keys(ROUTE_PERMISSIONS)
-      .sort((a, b) => b.length - a.length)
-      .find((route) => {
-        if (route === '/dashboard') {
-          return pathname === route;
-        }
+    if (!session) {
+      if (pathname === '/signin') {
+        const response = NextResponse.next();
+        response.cookies.delete('user_role');
+        return response;
+      }
+      const signInUrl = new URL('/signin', request.url);
+      signInUrl.searchParams.set('callbackUrl', pathname);
+      return NextResponse.redirect(signInUrl);
+    }
 
-        return pathname === route || pathname.startsWith(`${route}/`);
+    const userRole = session.user.role as UserRole;
+
+    if (pathname === '/signin') {
+      const response = NextResponse.redirect(getSafeRedirectUrl(request));
+      response.cookies.set('user_role', String(userRole), {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        path: '/',
+        maxAge: 60 * 60 * 24 * 7,
       });
+      return response;
+    }
+
+    const matchedRoute = findMatchedRoute(pathname);
 
     if (!matchedRoute) {
       return NextResponse.redirect(new URL('/dashboard', request.url));
@@ -63,17 +161,32 @@ export async function proxy(request: NextRequest) {
 
     const allowedRoles = ROUTE_PERMISSIONS[matchedRoute];
 
-    if (!allowedRoles.includes(session.user.role as UserRole)) {
+    if (!allowedRoles.includes(userRole)) {
       return NextResponse.redirect(new URL('/dashboard', request.url));
     }
 
-    return NextResponse.next();
+    const response = NextResponse.next();
+    response.cookies.set('user_role', String(userRole), {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/',
+      maxAge: 60 * 60 * 24 * 7,
+    });
+
+    return response;
   } catch (error) {
-    console.error('Failed to fetch session:', error);
-    return NextResponse.redirect(new URL('/signin', request.url));
+    console.error(
+      'Failed to fetch session due to exception, executing offline fallback:',
+      error,
+    );
+    if (pathname === '/signin') {
+      return NextResponse.redirect(getSafeRedirectUrl(request));
+    }
+    return handleOfflineFallback(request, pathname);
   }
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*'],
+  matcher: ['/dashboard/:path*', '/signin'],
 };
