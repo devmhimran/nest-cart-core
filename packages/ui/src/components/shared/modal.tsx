@@ -9,9 +9,10 @@ import {
 interface ModalProps {
   title: string;
   isOpen: boolean;
-  description: string;
+  description?: string;
   buttonTitle?: string;
   children: React.ReactNode;
+  hideClose?: boolean;
   reset?: () => void;
   onSubmit?: () => void;
   submitHandler?: () => void;
@@ -31,6 +32,7 @@ export function Modal({
     setIsOpen(false);
     if (reset) reset();
   };
+
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent
@@ -38,10 +40,20 @@ export function Modal({
         aria-describedby={undefined}
       >
         <DialogHeader>
-          {title && <DialogTitle className='text-start'>{title}</DialogTitle>}
-          {description && <DialogDescription>{description}</DialogDescription>}
+          {title && (
+            <DialogTitle className='text-start leading-5.5'>
+              {title}
+            </DialogTitle>
+          )}
+          {description && (
+            <DialogDescription className='text-wrap text-start w-full'>
+              {description}
+            </DialogDescription>
+          )}
         </DialogHeader>
-        <div className='p-2'>{children}</div>
+        <div className='w-full max-h-[80vh] overflow-y-auto scrollbar-thin px-1 pb-px'>
+          {children}
+        </div>
       </DialogContent>
     </Dialog>
   );

@@ -24,3 +24,9 @@ export const handleCopy = async (
     console.error('Failed to copy text: ', err);
   }
 };
+
+export const formatBytes = (kb: number) => {
+  if (kb === 0) return '0 KB';
+  if (kb >= 1024) return `${(kb / 1024).toFixed(2)} MB`;
+  return `${kb.toFixed(1)} KB`;
+};
