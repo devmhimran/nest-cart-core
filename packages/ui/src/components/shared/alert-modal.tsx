@@ -23,7 +23,7 @@ interface AlertModalProps {
   reset?: () => void;
 }
 
-export default function AlertModal({
+export function AlertModal({
   isOpen,
   setIsOpen,
   children,

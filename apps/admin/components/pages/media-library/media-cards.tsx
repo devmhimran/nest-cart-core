@@ -3,7 +3,11 @@ import { MediaCard } from './media-card';
 import { AttachmentGroup } from '@repo/ui';
 
 export function MediaCards({ mediaList }: { mediaList: MediaType[] }) {
-  return (
+  return mediaList.length === 0 ? (
+    <div className='text-center py-12 text-sm text-muted-foreground'>
+      No media files found.
+    </div>
+  ) : (
     <div className='mx-auto w-full py-6'>
       <AttachmentGroup className='grid grid-cols-2 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-12 gap-4 w-full'>
         {mediaList.map((media) => (

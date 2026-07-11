@@ -1,5 +1,6 @@
 export interface MediaType {
   id: number;
+  title?: string;
   fileName: string;
   fileAlt: string;
   fileType: 'webp' | 'png' | 'jpg' | 'jpeg' | 'svg' | 'pdf' | 'csv' | 'xlsx';

@@ -111,7 +111,9 @@ export function MediaCard({ media }: MediaCardProps) {
       </AttachmentMedia>
 
       <AttachmentContent>
-        <AttachmentTitle className='truncate'>{media.fileName}</AttachmentTitle>
+        <AttachmentTitle className='truncate'>
+          {media.title || media.fileName}
+        </AttachmentTitle>
         <AttachmentDescription>
           {media.fileType.toUpperCase()} · {media.fileSize.toFixed(1)} KB
         </AttachmentDescription>

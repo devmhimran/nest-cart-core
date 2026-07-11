@@ -9,11 +9,7 @@ export const mediaLibrary = {
   },
 
   uploadMedia: (formData: FormData) => {
-    return api.post(path, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
+    return api.post(path, formData);
   },
 
   deleteMedia: (id: number) => {

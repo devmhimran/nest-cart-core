@@ -31,6 +31,7 @@ export function createApiInstance(defaultOptions: FetchOptions = {}) {
     if (data && !body) {
       if (data instanceof FormData) {
         body = data;
+        finalHeaders.delete('Content-Type');
       } else {
         finalHeaders.set('Content-Type', 'application/json');
         body = JSON.stringify(data);

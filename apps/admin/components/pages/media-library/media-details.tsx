@@ -16,7 +16,7 @@ import Link from 'next/link';
 import { toast } from 'sonner';
 import { useState } from 'react';
 import { MediaType } from '@/types';
-import { formatBytes } from '@/lib/utils';
+import { formatBytes, handleDownload } from '@/lib/utils';
 import { Button, Separator } from '@repo/ui';
 
 interface MediaDetailsContentProps {
@@ -86,7 +86,6 @@ export function MediaDetails({ media }: MediaDetailsContentProps) {
         )}
       </div>
 
-      {/* 3. Action Buttons Row */}
       <div className='grid grid-cols-3 gap-2'>
         <Button
           variant='outline'
@@ -102,17 +101,13 @@ export function MediaDetails({ media }: MediaDetailsContentProps) {
           {copied ? 'Copied' : 'Copy URL'}
         </Button>
 
-        <Button variant='outline' size='sm'>
-          <Link
-            href={media.fileUrl}
-            download={media.fileName}
-            target='_blank'
-            rel='noreferrer'
-            className='flex gap-2 text-sm items-center'
-          >
-            <Download className='h-3.5 w-3.5' />
-            Download
-          </Link>
+        <Button
+          variant='outline'
+          size='sm'
+          onClick={() => handleDownload(media.fileUrl, media.fileName)}
+        >
+          <Download className='h-3.5 w-3.5' />
+          Download
         </Button>
 
         <Button variant='outline' size='sm'>
@@ -130,12 +125,20 @@ export function MediaDetails({ media }: MediaDetailsContentProps) {
 
       <Separator />
 
-      {/* 4. Structured Information Metadata Panels */}
       <div className='space-y-2.5'>
         <h4 className='text-[11px] font-bold text-muted-foreground/80 uppercase tracking-wider'>
           File Information
         </h4>
         <div className='grid grid-cols-2 gap-3 text-sm'>
+          <div className='flex items-start gap-2 border rounded-lg p-2 bg-muted/20 col-span-2'>
+            <Calendar className='h-4 w-4 text-muted-foreground shrink-0' />
+            <div>
+              <p className='text-[11px] text-muted-foreground leading-none'>
+                Title
+              </p>
+              <p className='font-medium mt-1 text-xs'>{media.title || 'N/A'}</p>
+            </div>
+          </div>
           <div className='flex items-start gap-2 border rounded-lg p-2 bg-muted/20 col-span-2'>
             <Calendar className='h-4 w-4 text-muted-foreground shrink-0' />
             <div>

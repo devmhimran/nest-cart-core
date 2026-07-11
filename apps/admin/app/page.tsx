@@ -1,4 +1,3 @@
-import { Button } from '@repo/ui/components/ui/button';
 import {
   Card,
   CardAction,
@@ -7,9 +6,10 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@repo/ui/components/ui/card';
-import { Input } from '@repo/ui/components/ui/input';
-import { Label } from '@repo/ui/components/ui/label';
+  Input,
+  Label,
+} from '@repo/ui';
+import { Button } from '@repo/ui/components/ui/button';
 
 export default function Home() {
   return (

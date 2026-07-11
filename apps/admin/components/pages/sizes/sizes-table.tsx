@@ -1,6 +1,7 @@
 'use client';
 
 import {
+  AlertModal,
   Button,
   Card,
   CardContent,
@@ -29,7 +30,6 @@ import { UpdateSizeForm } from '@/components/forms';
 import { getErrorMessage } from '@repo/ui/lib/utils';
 import { SizesSkeleton } from '@/components/skeletons';
 import { Ellipsis, SquarePen, Trash2 } from 'lucide-react';
-import AlertModal from '@repo/ui/components/shared/alert-modal';
 import { EmptyState } from '@/components/shared';
 
 interface SizesTableProps {

@@ -6,8 +6,13 @@ import { useEffect, useState } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { generateQueryString, getErrorMessage } from '@repo/ui/lib/utils';
-import { Button, ConfirmModal, PaginationContainer } from '@repo/ui';
-import AlertModal from '@repo/ui/components/shared/alert-modal';
+import {
+  AlertModal,
+  Button,
+  ConfirmModal,
+  PaginationContainer,
+} from '@repo/ui';
+
 import { CreatePromoCodeForm, UpdatePromoCodeForm } from '@/components/forms';
 import {
   PromoCodeCardGrid,

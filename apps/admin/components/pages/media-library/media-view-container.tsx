@@ -7,7 +7,15 @@ import { useDebouncedCallback } from 'use-debounce';
 import { generateQueryString } from '@repo/ui/lib/utils';
 import { useGetAllMedia } from '@/hooks/use-media-library';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Button, Card, CardContent, Input, Separator } from '@repo/ui';
+import {
+  AlertModal,
+  Button,
+  Card,
+  CardContent,
+  Input,
+  Separator,
+} from '@repo/ui';
+import { MediaUploadForm } from './media-upload-form';
 
 export function MediaViewerContainer() {
   const searchParams = useSearchParams();
@@ -38,8 +46,6 @@ export function MediaViewerContainer() {
   useEffect(() => {
     router.replace(queryString, { scroll: false });
   }, [queryString, router]);
-
-  console.log({ fetchAllMediaMutationData });
 
   return (
     <Card>
@@ -76,14 +82,16 @@ export function MediaViewerContainer() {
         </div>
         <Separator />
 
-        {fetchAllMediaMutationData?.data?.data?.length === 0 ? (
-          <div className='text-center py-12 text-sm text-muted-foreground'>
-            No media files found.
-          </div>
-        ) : (
-          <MediaCards mediaList={fetchAllMediaMutationData?.data?.data || []} />
-        )}
+        <MediaCards mediaList={fetchAllMediaMutationData?.data?.data || []} />
       </CardContent>
+
+      <AlertModal
+        isOpen={addMediaOpen}
+        setIsOpen={setAddMediaOpen}
+        title='Upload Media'
+      >
+        <MediaUploadForm setIsOpen={setAddMediaOpen} />
+      </AlertModal>
     </Card>
   );
 }

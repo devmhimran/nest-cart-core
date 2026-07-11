@@ -5,10 +5,9 @@ import { useGetAllSizes } from '@/hooks';
 import { useEffect, useState } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
 import { CreateSizeForm } from '@/components/forms';
-import { Button, PaginationContainer } from '@repo/ui';
+import { AlertModal, Button, PaginationContainer } from '@repo/ui';
 import { generateQueryString } from '@repo/ui/lib/utils';
 import { useRouter, useSearchParams } from 'next/navigation';
-import AlertModal from '@repo/ui/components/shared/alert-modal';
 import {
   SizesSearchContainer,
   SizesTable,
