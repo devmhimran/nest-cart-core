@@ -57,6 +57,8 @@ export function CategoriesCardGrid({
               <img
                 src={category.image}
                 alt={category.name}
+                loading='lazy'
+                decoding='async'
                 className='h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.01]'
                 onError={(e) => {
                   (e.target as HTMLImageElement).src =

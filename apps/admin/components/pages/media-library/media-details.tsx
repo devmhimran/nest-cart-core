@@ -72,6 +72,8 @@ export function MediaDetails({ media }: MediaDetailsContentProps) {
           <img
             src={media.fileUrl}
             alt={media.fileAlt || media.fileName}
+            loading='lazy'
+            decoding='async'
             className='max-h-full max-w-full object-contain p-2'
           />
         ) : (

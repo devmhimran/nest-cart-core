@@ -1,19 +1,15 @@
 import { Button } from '@repo/ui';
 import { Dispatch, SetStateAction } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { Meta } from '@repo/ui/types/common';
 
 interface ParamsProps {
   page: string;
   [key: string]: any;
 }
 
-interface PaginationMeta {
-  total: number;
-  lastPage: number;
-}
-
 interface PaginationContainerProps {
-  meta?: PaginationMeta;
+  meta?: Meta;
   params: ParamsProps;
   setParams: Dispatch<SetStateAction<any>> | ((value: any) => void);
 }

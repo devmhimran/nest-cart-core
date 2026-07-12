@@ -12,7 +12,7 @@ export function MediaCards({ mediaList, isLoading }: MediaCardsProps) {
   if (isLoading) {
     return (
       <div className='mx-auto w-full'>
-        <AttachmentGroup className='grid grid-cols-2 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-12 gap-4 w-full'>
+        <AttachmentGroup className='grid grid-cols-2 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-9 xl:grid-cols-12 gap-4 w-full'>
           {Array.from({ length: 12 }).map((_, index) => (
             <MediaGridSkeleton key={`skeleton-${index}`} />
           ))}
@@ -31,7 +31,7 @@ export function MediaCards({ mediaList, isLoading }: MediaCardsProps) {
 
   return (
     <div className='mx-auto w-full'>
-      <AttachmentGroup className='flex flex-wrap lg:justify-start md:justify-center gap-4 w-full'>
+      <AttachmentGroup className='grid grid-cols-3 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-9 xl:grid-cols-12 gap-2.5 md:gap-4 w-full'>
         {mediaList.map((media) => (
           <MediaCard media={media} key={media.id} />
         ))}
