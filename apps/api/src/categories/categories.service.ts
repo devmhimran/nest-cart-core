@@ -9,6 +9,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PaginationQueryDto } from '../common/pagination/dto/pagination-query.dto';
+import { Prisma } from '../../generated/prisma/client';
 
 @Injectable()
 export class CategoriesService {
@@ -54,7 +55,18 @@ export class CategoriesService {
   }
 
   findAll(query: PaginationQueryDto) {
+    const { search } = query;
+
+    const where: Prisma.CategoryWhereInput = {};
+    if (search) {
+      where.OR = [
+        { name: { contains: search, mode: 'insensitive' } },
+        { slug: { contains: search, mode: 'insensitive' } },
+      ];
+    }
+
     return paginate(this.prismaService.category, query, {
+      where,
       orderBy: { id: 'desc' },
       select: {
         id: true,
