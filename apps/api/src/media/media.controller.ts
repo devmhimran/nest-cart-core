@@ -10,7 +10,6 @@ import {
   UploadedFile,
   MaxFileSizeValidator,
   ParseFilePipe,
-  FileTypeValidator,
   Query,
 } from '@nestjs/common';
 import { UserRole } from '../constants/enums';
@@ -32,13 +31,7 @@ export class MediaController {
   create(
     @UploadedFile(
       new ParseFilePipe({
-        validators: [
-          new MaxFileSizeValidator({ maxSize: 5 * 1024 * 1024 }),
-          new FileTypeValidator({
-            fileType:
-              /(image\/(webp|png|jpeg|jpg|svg\+xml)|application\/pdf|text\/csv|application\/vnd\.openxmlformats-officedocument\.spreadsheetml\.sheet)/,
-          }),
-        ],
+        validators: [new MaxFileSizeValidator({ maxSize: 5 * 1024 * 1024 })],
       }),
     )
     file: Express.Multer.File,

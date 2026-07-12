@@ -7,8 +7,12 @@ import { useEffect, useState } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
 import { generateQueryString, getErrorMessage } from '@repo/ui/lib/utils';
 import { useRouter, useSearchParams } from 'next/navigation';
-import AlertModal from '@repo/ui/components/shared/alert-modal';
-import { Button, PaginationContainer, ConfirmModal } from '@repo/ui';
+import {
+  Button,
+  PaginationContainer,
+  ConfirmModal,
+  AlertModal,
+} from '@repo/ui';
 import { CreateColorForm, UpdateColorForm } from '@/components/forms';
 import {
   ColorCardGrid,

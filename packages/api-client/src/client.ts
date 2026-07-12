@@ -20,7 +20,8 @@ export function createApiInstance(defaultOptions: FetchOptions = {}) {
     options: FetchOptions = {},
   ): Promise<any> {
     const mergedOptions = { ...instanceDefaults, ...options };
-    const { params, data, headers, stream, ...config } = mergedOptions;
+    const { params, data, headers, stream, onUploadProgress, ...config } =
+      mergedOptions;
 
     const queryString = buildQueryString(params);
     const fullUrl = `${baseUrl}${url}${queryString}`;
@@ -31,10 +32,64 @@ export function createApiInstance(defaultOptions: FetchOptions = {}) {
     if (data && !body) {
       if (data instanceof FormData) {
         body = data;
+        finalHeaders.delete('Content-Type');
       } else {
         finalHeaders.set('Content-Type', 'application/json');
         body = JSON.stringify(data);
       }
+    }
+
+    if (onUploadProgress && mergedOptions.method === 'POST') {
+      return new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', fullUrl, true);
+
+        const credentialsMode = config.credentials || 'include';
+        if (credentialsMode === 'include') {
+          xhr.withCredentials = true;
+        }
+
+        finalHeaders.forEach((value, key) => {
+          xhr.setRequestHeader(key, value);
+        });
+
+        xhr.upload.onprogress = (event) => {
+          if (event.lengthComputable) {
+            const percentage = Math.round((event.loaded * 100) / event.total);
+            onUploadProgress(percentage);
+          }
+        };
+
+        xhr.onload = () => {
+          let responseData: any = xhr.responseText;
+          const contentType = xhr.getResponseHeader('content-type');
+
+          if (contentType && contentType.includes('application/json')) {
+            try {
+              responseData = JSON.parse(xhr.responseText);
+            } catch {}
+          }
+
+          if (xhr.status >= 200 && xhr.status < 300) {
+            resolve({
+              data: responseData as T,
+              status: xhr.status,
+              statusText: xhr.statusText,
+            });
+          } else {
+            const apiError = new ApiError(
+              responseData?.message || `HTTP error! status: ${xhr.status}`,
+              xhr.status,
+              responseData,
+            );
+            if (options.onResponseError) options.onResponseError(apiError);
+            reject(apiError);
+          }
+        };
+
+        xhr.onerror = () => reject(new Error('Network request failed'));
+        xhr.send(body);
+      });
     }
 
     const fetchConfig: RequestInit = {
