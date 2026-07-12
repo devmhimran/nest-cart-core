@@ -2,10 +2,11 @@
 
 import * as z from 'zod';
 import { toast } from 'sonner';
-import { useState, useEffect } from 'react';
 import { useCategories } from '@/hooks';
 import { Loader2 } from 'lucide-react';
 import { useForm } from 'react-hook-form';
+import { CategoryType } from '@/types';
+import { useState, useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { getErrorMessage } from '@repo/ui/lib/utils';
 import {
@@ -40,13 +41,14 @@ const categoryFormSchema = z.object({
 
 type CategoryFormValues = z.infer<typeof categoryFormSchema>;
 
-interface CreateCategoryFormProps {
+interface UpdateCategoryFormProps {
+  data: CategoryType | null;
   setIsOpen: (isOpen: boolean) => void;
 }
 
-export function CreateCategoryForm({ setIsOpen }: CreateCategoryFormProps) {
+export function UpdateCategoryForm({ data, setIsOpen }: UpdateCategoryFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { createCategoryAsync } = useCategories();
+  const { updateCategoryAsync } = useCategories();
 
   const {
     register,
@@ -58,34 +60,36 @@ export function CreateCategoryForm({ setIsOpen }: CreateCategoryFormProps) {
   } = useForm<CategoryFormValues>({
     resolver: zodResolver(categoryFormSchema),
     defaultValues: {
-      name: '',
-      slug: '',
-      image: '',
+      name: data?.name || '',
+      slug: data?.slug || '',
+      image: data?.image || '',
     },
   });
 
-  const categoryName = watch('name');
+  useEffect(() => {
+    if (data) {
+      reset({
+        name: data.name,
+        slug: data.slug,
+        image: data.image || '',
+      });
+    }
+  }, [data, reset]);
+
   const imageUrl = watch('image');
 
-  useEffect(() => {
-    if (categoryName) {
-      const generatedSlug = categoryName
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/(^-|-$)+/g, '');
-      setValue('slug', generatedSlug, { shouldValidate: true });
-    }
-  }, [categoryName, setValue]);
+  function onSubmit(formData: CategoryFormValues) {
+    if (!data?.id) return;
 
-  function onSubmit(data: CategoryFormValues) {
     setIsSubmitting(true);
-    toast.promise(createCategoryAsync(data), {
-      loading: 'Creating category...',
+    const updatedPayload = { id: data.id, ...formData };
+
+    toast.promise(updateCategoryAsync(updatedPayload), {
+      loading: 'Updating category...',
       success: () => {
         setIsSubmitting(false);
-        reset();
         setIsOpen(false);
-        return 'Successfully category created';
+        return 'Successfully category updated';
       },
       error: (err) => {
         setIsSubmitting(false);
@@ -99,9 +103,9 @@ export function CreateCategoryForm({ setIsOpen }: CreateCategoryFormProps) {
       <FieldSet>
         <FieldGroup>
           <Field>
-            <FieldLabel htmlFor='name'>Category Name</FieldLabel>
+            <FieldLabel htmlFor='update-name'>Category Name</FieldLabel>
             <Input
-              id='name'
+              id='update-name'
               placeholder='e.g., Electronics, Fashion'
               autoComplete='off'
               aria-invalid={!!errors.name}
@@ -111,15 +115,15 @@ export function CreateCategoryForm({ setIsOpen }: CreateCategoryFormProps) {
               <FieldError>{errors.name.message}</FieldError>
             ) : (
               <FieldDescription>
-                Provide a friendly name for this category.
+                Modify category name descriptor.
               </FieldDescription>
             )}
           </Field>
 
           <Field>
-            <FieldLabel htmlFor='slug'>Slug</FieldLabel>
+            <FieldLabel htmlFor='update-slug'>Slug</FieldLabel>
             <Input
-              id='slug'
+              id='update-slug'
               placeholder='e.g., electronics'
               autoComplete='off'
               aria-invalid={!!errors.slug}
@@ -129,15 +133,15 @@ export function CreateCategoryForm({ setIsOpen }: CreateCategoryFormProps) {
               <FieldError>{errors.slug.message}</FieldError>
             ) : (
               <FieldDescription>
-                URL-friendly identifier generated automatically or manually adjusted.
+                Unique resource locator handle.
               </FieldDescription>
             )}
           </Field>
 
           <Field>
-            <FieldLabel htmlFor='image'>Image URL</FieldLabel>
+            <FieldLabel htmlFor='update-image'>Image URL</FieldLabel>
             <Input
-              id='image'
+              id='update-image'
               placeholder='e.g., https://example.com/image.jpg'
               autoComplete='off'
               aria-invalid={!!errors.image}
@@ -178,7 +182,7 @@ export function CreateCategoryForm({ setIsOpen }: CreateCategoryFormProps) {
         </Button>
         <Button type='submit' disabled={isSubmitting}>
           {isSubmitting && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
-          Save Category
+          Update Category
         </Button>
       </div>
     </form>
