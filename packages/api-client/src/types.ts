@@ -4,6 +4,7 @@ export interface FetchOptions extends RequestInit {
   data?: unknown;
   onResponseError?: (error: ApiError) => void;
   stream?: boolean;
+  onUploadProgress?: (progress: number) => void;
 }
 
 export interface ApiResponse<T = any> {

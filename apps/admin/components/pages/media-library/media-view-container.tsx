@@ -41,7 +41,8 @@ export function MediaViewerContainer() {
   }, 500);
 
   const queryString = generateQueryString(params);
-  const { fetchAllMediaMutationData } = useGetAllMedia(queryString);
+  const { fetchAllMediaMutationData, fetchAllMediaMutation } =
+    useGetAllMedia(queryString);
 
   useEffect(() => {
     router.replace(queryString, { scroll: false });
@@ -82,7 +83,10 @@ export function MediaViewerContainer() {
         </div>
         <Separator />
 
-        <MediaCards mediaList={fetchAllMediaMutationData?.data?.data || []} />
+        <MediaCards
+          mediaList={fetchAllMediaMutationData?.data?.data || []}
+          isLoading={fetchAllMediaMutation?.isLoading}
+        />
       </CardContent>
 
       <AlertModal

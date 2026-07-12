@@ -8,8 +8,13 @@ export const mediaLibrary = {
     return api.get(url);
   },
 
-  uploadMedia: (formData: FormData) => {
-    return api.post(path, formData);
+  uploadMedia: (
+    formData: FormData,
+    onProgress?: (progress: number) => void,
+  ) => {
+    return api.post(path, formData, {
+      onUploadProgress: onProgress,
+    });
   },
 
   deleteMedia: (id: number) => {

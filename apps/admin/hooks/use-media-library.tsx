@@ -2,13 +2,22 @@ import { mediaLibrary } from '@/api';
 import { MediaType, Response } from '@/types';
 import { getQueryClient } from '@/lib/react-query';
 import { keepPreviousData, useMutation, useQuery } from '@tanstack/react-query';
+import { useState } from 'react';
 
 const queryClient = getQueryClient();
 
 export const useMedia = () => {
+  const [uploadProgress, setUploadProgress] = useState<number>(0);
+
   const createMediaMutation = useMutation({
-    mutationFn: async (formData: FormData) =>
-      await mediaLibrary.uploadMedia(formData).then(({ data }) => data),
+    mutationFn: async (formData: FormData) => {
+      setUploadProgress(0);
+
+      const response = await mediaLibrary.uploadMedia(formData, (progress) => {
+        setUploadProgress(progress);
+      });
+      return response.data;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['media'] });
     },
@@ -23,6 +32,7 @@ export const useMedia = () => {
   });
 
   return {
+    uploadProgress,
     createMediaMutation,
     createMediaAsync: createMediaMutation.mutateAsync,
 

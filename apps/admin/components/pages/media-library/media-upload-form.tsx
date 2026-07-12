@@ -2,7 +2,7 @@
 
 import { z } from 'zod';
 import { toast } from 'sonner';
-import { Button } from '@repo/ui';
+import { Button, Progress } from '@repo/ui';
 import { useMedia } from '@/hooks';
 import { Loader2 } from 'lucide-react';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -30,7 +30,7 @@ interface MediaUploadFormProps {
 }
 
 export function MediaUploadForm({ setIsOpen }: MediaUploadFormProps) {
-  const { createMediaAsync, createMediaMutation } = useMedia();
+  const { createMediaAsync, createMediaMutation, uploadProgress } = useMedia();
 
   const methods = useForm<FileUploadFormValues>({
     resolver: zodResolver(fileUploadSchema),
@@ -73,6 +73,22 @@ export function MediaUploadForm({ setIsOpen }: MediaUploadFormProps) {
         <div className='p-1'>
           <MediaFileUploadZone name='file' />
         </div>
+        {isLoading && (
+          <div className='space-y-2 animate-in fade-in duration-200'>
+            <div className='flex items-center justify-between text-xs font-medium text-muted-foreground'>
+              <span className='flex items-center gap-1.5'>
+                <Loader2 className='h-3 w-3 animate-spin text-primary' />
+                Uploading asset to library...
+              </span>
+              <span>{uploadProgress}%</span>
+            </div>
+
+            <Progress
+              value={uploadProgress}
+              className='h-1.5 transition-all duration-200'
+            />
+          </div>
+        )}
 
         <div className='flex justify-end gap-3 border-t pt-4 border-border'>
           <Button
@@ -85,14 +101,7 @@ export function MediaUploadForm({ setIsOpen }: MediaUploadFormProps) {
           </Button>
 
           <Button type='submit' disabled={isLoading} className='min-w-25'>
-            {isLoading ? (
-              <>
-                <Loader2 className='mr-2 h-4 w-4 animate-spin' />
-                Uploading...
-              </>
-            ) : (
-              'Save Asset'
-            )}
+            {isLoading ? `Processing (${uploadProgress}%)` : 'Save Asset'}
           </Button>
         </div>
       </form>
