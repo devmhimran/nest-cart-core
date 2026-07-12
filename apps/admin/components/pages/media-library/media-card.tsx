@@ -20,6 +20,7 @@ import { useMedia } from '@/hooks';
 import { MediaType } from '@/types';
 import { MediaDetails } from './media-details';
 import { MoreVertical, Eye, Trash2 } from 'lucide-react';
+import { formatBytes } from '@/lib/utils';
 
 interface MediaCardProps {
   media: MediaType;
@@ -106,6 +107,8 @@ export function MediaCard({ media }: MediaCardProps) {
         <img
           src={media.fileUrl}
           alt={media.fileAlt || media.fileName}
+          loading='lazy'
+          decoding='async'
           className='object-cover h-full w-full'
         />
       </AttachmentMedia>
@@ -115,7 +118,7 @@ export function MediaCard({ media }: MediaCardProps) {
           {media.title || media.fileName}
         </AttachmentTitle>
         <AttachmentDescription>
-          {media.fileType.toUpperCase()} · {media.fileSize.toFixed(1)} KB
+          {media.fileType.toUpperCase()} · {formatBytes(media.fileSize)}
         </AttachmentDescription>
       </AttachmentContent>
 

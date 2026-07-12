@@ -29,7 +29,8 @@ const categoryFormSchema = z.object({
     .string()
     .min(2, { message: 'Slug must be at least 2 characters.' })
     .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, {
-      message: 'Slug must contain only lowercase letters, numbers, and hyphens.',
+      message:
+        'Slug must contain only lowercase letters, numbers, and hyphens.',
     }),
   image: z
     .string()
@@ -46,7 +47,10 @@ interface UpdateCategoryFormProps {
   setIsOpen: (isOpen: boolean) => void;
 }
 
-export function UpdateCategoryForm({ data, setIsOpen }: UpdateCategoryFormProps) {
+export function UpdateCategoryForm({
+  data,
+  setIsOpen,
+}: UpdateCategoryFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { updateCategoryAsync } = useCategories();
 
@@ -162,8 +166,11 @@ export function UpdateCategoryForm({ data, setIsOpen }: UpdateCategoryFormProps)
                 src={imageUrl}
                 alt='Category Preview'
                 className='h-full object-contain rounded'
+                loading='lazy'
+                decoding='async'
                 onError={(e) => {
-                  (e.target as HTMLImageElement).src = 'https://placehold.co/600x400?text=Invalid+Image+URL';
+                  (e.target as HTMLImageElement).src =
+                    'https://placehold.co/600x400?text=Invalid+Image+URL';
                 }}
               />
             </div>

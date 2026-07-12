@@ -136,12 +136,14 @@ export function MediaFileUploadZone({ name }: FileUploadZoneProps) {
         </Field>
       ) : (
         <div className='space-y-4 animate-in fade-in-50 duration-200'>
-          <div className='relative group flex items-center gap-4 rounded-xl border border-border bg-card/60 p-4 shadow-sm backdrop-blur-sm'>
+          <div className='relative group flex items-center gap-4 rounded-xl border border-border bg-card/60 p-4 backdrop-blur-sm'>
             <div className='relative flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border bg-muted/40'>
               {isImage && previewUrl ? (
                 <img
                   src={previewUrl}
                   alt='Upload preview'
+                  loading='lazy'
+                  decoding='async'
                   className='h-full w-full object-cover transition-transform duration-300 group-hover:scale-105'
                 />
               ) : (
