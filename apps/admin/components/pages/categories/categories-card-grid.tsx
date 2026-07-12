@@ -55,7 +55,7 @@ export function CategoriesCardGrid({
           <div className='relative h-20 w-full overflow-hidden bg-muted/20 border-b border-border/40'>
             {category.image ? (
               <img
-                src={category.image}
+                src={category.image.fileUrl}
                 alt={category.name}
                 loading='lazy'
                 decoding='async'

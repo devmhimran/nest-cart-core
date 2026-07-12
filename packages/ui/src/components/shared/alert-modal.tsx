@@ -49,7 +49,7 @@ export function AlertModal({
         className={contentClassName}
       >
         <AlertDialogHeader className='space-y-1'>
-          <AlertDialogTitle className='w-full flex items-start justify-between gap-3 text-md'>
+          <AlertDialogTitle className='w-full flex items-start justify-between gap-3 tex-md md:text-lg'>
             <div>{title}</div>
             {hideClose || (
               <div onClick={handleClose} className='cursor-pointer p-0.5'>

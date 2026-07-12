@@ -75,6 +75,7 @@ export class CategoriesService {
         image: {
           select: {
             id: true,
+            title: true,
             fileUrl: true,
             fileName: true,
           },

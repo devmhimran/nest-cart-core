@@ -21,14 +21,12 @@ export function useCategories() {
   });
 
   const updateCategoryMutation = useMutation({
-    mutationFn: async (
-      data: Partial<CategoryType> & Pick<CategoryType, 'id'>,
-    ) => {
+    mutationFn: async (data: CreateCategoryType & { id: number }) => {
       const res = await categoriesApi
         .updateCategory(data.id, {
           name: data.name,
           slug: data.slug,
-          image: data.image,
+          imageId: data.imageId,
         })
         .then((response) => response.data);
       return res;
