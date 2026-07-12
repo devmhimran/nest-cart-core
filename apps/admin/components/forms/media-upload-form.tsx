@@ -7,8 +7,8 @@ import { useMedia } from '@/hooks';
 import { Loader2 } from 'lucide-react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, FormProvider } from 'react-hook-form';
-import { MediaFileUploadZone } from './media-file-upload-zone';
 import { ACCEPTED_IMAGE_TYPES, MAX_FILE_SIZE } from '@/lib/utils';
+import { MediaFileUploadZone } from '../pages/media-library/media-file-upload-zone';
 
 export const fileUploadSchema = z.object({
   file: z

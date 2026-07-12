@@ -66,7 +66,7 @@ export function CategoriesCardGrid({
                 }}
               />
             ) : (
-              <div className='flex items-center h-full w-full px-4 bg-gradient-to-r from-muted/30 to-transparent select-none'>
+              <div className='flex items-center h-full w-full px-4 bg-linear-to-r from-muted/30 to-transparent select-none'>
                 <div className='flex items-center justify-center w-8 h-8 rounded-lg bg-background border border-border/60 shadow-sm'>
                   <Folder className='w-4 h-4 text-muted-foreground/80 stroke-[1.5]' />
                 </div>

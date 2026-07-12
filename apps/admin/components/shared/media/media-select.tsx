@@ -20,19 +20,19 @@ import { Check, Search, X } from 'lucide-react';
 import { useState } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
 
-interface MediaLibrarySelectProps {
+interface MediaSelectProps {
   image: CategoryImageType | CategoryImageType[] | null;
   setImage: (image: CategoryImageType | CategoryImageType[] | null) => void;
   setIsOpen: (isOpen: boolean) => void;
   multiple?: boolean;
 }
 
-export function MediaLibrarySelect({
+export function MediaSelect({
   image,
   setImage,
   setIsOpen,
   multiple = false,
-}: MediaLibrarySelectProps) {
+}: MediaSelectProps) {
   const [params, setParams] = useState({
     search: '',
     page: '1',
@@ -105,7 +105,7 @@ export function MediaLibrarySelect({
         )}
       </div>
 
-      {!fetchAllMediaMutation.isLoading ? (
+      {fetchAllMediaMutation.isLoading ? (
         <MediaLibrarySelectSkeleton />
       ) : (
         <AttachmentGroup className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 w-full'>
@@ -136,7 +136,7 @@ export function MediaLibrarySelect({
                   {selected && (
                     <div className='absolute inset-0 bg-primary/10 flex items-center justify-center'>
                       <div className='bg-primary text-primary-foreground rounded-full p-1 shadow'>
-                        <Check className='h-4 w-4 stroke-[3]' />
+                        <Check className='h-4 w-4 stroke-3' />
                       </div>
                     </div>
                   )}

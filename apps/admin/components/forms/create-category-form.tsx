@@ -25,8 +25,8 @@ import {
   AttachmentDescription,
   AttachmentActions,
 } from '@repo/ui';
-import { CategoryImageType, MediaType } from '@/types';
-import { MediaLibraryChoose } from '../pages/media-library';
+import { CategoryImageType } from '@/types';
+import { MediaChoose } from '../shared/media';
 
 const categoryFormSchema = z.object({
   name: z
@@ -232,7 +232,7 @@ export function CreateCategoryForm({ setIsOpen }: CreateCategoryFormProps) {
                 <button
                   type='button'
                   onClick={() => setOpenMediaLibraryModal(true)}
-                  className='group flex flex-col items-center justify-center w-full w-full h-32 border-2 border-dashed border-muted-foreground/20 hover:border-primary/50 bg-muted/5 hover:bg-muted/20 rounded-xl transition-all space-y-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20'
+                  className='group flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-muted-foreground/20 hover:border-primary/50 bg-muted/5 hover:bg-muted/20 rounded-xl transition-all space-y-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20'
                 >
                   <div className='p-2.5 bg-background border rounded-lg shadow-sm group-hover:scale-105 transition-transform'>
                     <ImageIcon className='h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors' />
@@ -275,7 +275,7 @@ export function CreateCategoryForm({ setIsOpen }: CreateCategoryFormProps) {
         title='Select Category Image'
         description='check check category image'
       >
-        <MediaLibraryChoose
+        <MediaChoose
           setIsOpen={setOpenMediaLibraryModal}
           setImage={setSelectedImage}
           image={selectedImage}

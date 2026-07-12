@@ -26,7 +26,7 @@ import {
   AttachmentDescription,
   AttachmentActions,
 } from '@repo/ui';
-import { MediaLibraryChoose } from '../pages/media-library';
+import { MediaChoose } from '../shared/media';
 
 const categoryFormSchema = z.object({
   name: z
@@ -238,7 +238,7 @@ export function UpdateCategoryForm({
         title='Select Category Image'
         description='Choose an image from your media library.'
       >
-        <MediaLibraryChoose
+        <MediaChoose
           multiple={false}
           image={selectedImage}
           setIsOpen={setOpenMediaLibraryModal}
