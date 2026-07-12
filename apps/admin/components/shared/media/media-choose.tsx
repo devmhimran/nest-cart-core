@@ -2,18 +2,18 @@
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui';
 import { useState } from 'react';
-import { MediaUploadForm } from './media-upload-form';
-import { MediaLibrarySelect } from './media-library-select';
-import { MediaType } from '@/types';
+import { CategoryImageType } from '@/types';
+import { MediaSelect } from './media-select';
+import { MediaUploadForm } from '@/components/forms/media-upload-form';
 
 interface MediaLibraryChooseProps {
-  image: MediaType | MediaType[] | null;
-  setImage: (image: MediaType | MediaType[] | null) => void;
+  image: CategoryImageType | CategoryImageType[] | null;
+  setImage: (image: CategoryImageType | CategoryImageType[] | null) => void;
   setIsOpen: (isOpen: boolean) => void;
   multiple?: boolean;
 }
 
-export function MediaLibraryChoose({
+export function MediaChoose({
   image,
   setImage,
   setIsOpen,
@@ -35,7 +35,7 @@ export function MediaLibraryChoose({
         <MediaUploadForm setIsOpen={handleUploadSuccess} />
       </TabsContent>
       <TabsContent value='choose'>
-        <MediaLibrarySelect
+        <MediaSelect
           image={image}
           setImage={setImage}
           setIsOpen={setIsOpen}

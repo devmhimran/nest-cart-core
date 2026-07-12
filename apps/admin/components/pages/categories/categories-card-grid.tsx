@@ -55,7 +55,7 @@ export function CategoriesCardGrid({
           <div className='relative h-20 w-full overflow-hidden bg-muted/20 border-b border-border/40'>
             {category.image ? (
               <img
-                src={category.image}
+                src={category.image.fileUrl}
                 alt={category.name}
                 loading='lazy'
                 decoding='async'
@@ -66,7 +66,7 @@ export function CategoriesCardGrid({
                 }}
               />
             ) : (
-              <div className='flex items-center h-full w-full px-4 bg-gradient-to-r from-muted/30 to-transparent select-none'>
+              <div className='flex items-center h-full w-full px-4 bg-linear-to-r from-muted/30 to-transparent select-none'>
                 <div className='flex items-center justify-center w-8 h-8 rounded-lg bg-background border border-border/60 shadow-sm'>
                   <Folder className='w-4 h-4 text-muted-foreground/80 stroke-[1.5]' />
                 </div>

@@ -1,8 +1,9 @@
 'use client';
 
+import { MediaLibrarySelectSkeleton } from '@/components/skeletons';
 import { useGetAllMedia } from '@/hooks';
 import { formatBytes } from '@/lib/utils';
-import { MediaType } from '@/types';
+import { CategoryImageType, MediaType } from '@/types';
 import {
   Attachment,
   AttachmentContent,
@@ -13,26 +14,25 @@ import {
   Button,
   Input,
   PaginationContainer,
-  Skeleton,
 } from '@repo/ui';
 import { generateQueryString } from '@repo/ui/lib/utils';
 import { Check, Search, X } from 'lucide-react';
 import { useState } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
 
-interface MediaLibrarySelectProps {
-  image: MediaType | MediaType[] | null;
-  setImage: (image: MediaType | MediaType[] | null) => void;
+interface MediaSelectProps {
+  image: CategoryImageType | CategoryImageType[] | null;
+  setImage: (image: CategoryImageType | CategoryImageType[] | null) => void;
   setIsOpen: (isOpen: boolean) => void;
   multiple?: boolean;
 }
 
-export function MediaLibrarySelect({
+export function MediaSelect({
   image,
   setImage,
   setIsOpen,
   multiple = false,
-}: MediaLibrarySelectProps) {
+}: MediaSelectProps) {
   const [params, setParams] = useState({
     search: '',
     page: '1',
@@ -106,15 +106,7 @@ export function MediaLibrarySelect({
       </div>
 
       {fetchAllMediaMutation.isLoading ? (
-        <AttachmentGroup className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-4 w-full'>
-          {Array.from({ length: 8 }).map((_, index) => (
-            <div key={index} className='border rounded-lg p-2 space-y-2'>
-              <Skeleton className='h-16 w-full rounded-md' />
-              <Skeleton className='h-3 w-3/4' />
-              <Skeleton className='h-2 w-1/2' />
-            </div>
-          ))}
-        </AttachmentGroup>
+        <MediaLibrarySelectSkeleton />
       ) : (
         <AttachmentGroup className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 w-full'>
           {mediaItems.map((item) => {
@@ -144,7 +136,7 @@ export function MediaLibrarySelect({
                   {selected && (
                     <div className='absolute inset-0 bg-primary/10 flex items-center justify-center'>
                       <div className='bg-primary text-primary-foreground rounded-full p-1 shadow'>
-                        <Check className='h-4 w-4 stroke-[3]' />
+                        <Check className='h-4 w-4 stroke-3' />
                       </div>
                     </div>
                   )}

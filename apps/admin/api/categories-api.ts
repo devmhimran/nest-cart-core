@@ -12,7 +12,7 @@ export const categoriesApi = {
     return api.post(path, data);
   },
   updateCategory: (id: number, data: Partial<CreateCategoryType>) => {
-    return api.put(`${path}/${id}`, data);
+    return api.patch(`${path}/${id}`, data);
   },
   deleteCategory: (id: number) => {
     return api.delete(`${path}/${id}`);

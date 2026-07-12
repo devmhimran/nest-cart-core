@@ -8,9 +8,9 @@ export function CategoriesGridSkeleton() {
       {skeletonCards.map((_, index) => (
         <Card
           key={index}
-          className='relative flex flex-col justify-between overflow-hidden rounded-xl border bg-card shadow-sm pt-0'
+          className='relative flex flex-col justify-between overflow-hidden rounded-xl bg-card pt-0'
         >
-          <Skeleton className='h-40 w-full bg-muted/60 relative' />
+          <Skeleton className='h-11 w-full bg-muted/60 relative' />
           <CardContent className='p-4 space-y-3 bg-card'>
             <div className='space-y-2 w-full'>
               <Skeleton className='h-5 bg-muted/70 rounded w-2/3' />

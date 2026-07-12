@@ -1,8 +1,15 @@
+import { MediaType } from './media-library';
+
+export type CategoryImageType = Pick<
+  MediaType,
+  'id' | 'fileUrl' | 'fileName' | 'title'
+>;
+
 export interface CategoryType {
   id: number;
   name: string;
   slug: string;
-  image: string | null;
+  image: CategoryImageType | null;
   _count: {
     products: number;
     subCategories: number;
@@ -12,5 +19,5 @@ export interface CategoryType {
 export interface CreateCategoryType {
   name: string;
   slug: string;
-  image: string | null;
+  imageId?: number | null;
 }

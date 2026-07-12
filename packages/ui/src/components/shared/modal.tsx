@@ -41,12 +41,12 @@ export function Modal({
       >
         <DialogHeader>
           {title && (
-            <DialogTitle className='text-start leading-5.5'>
+            <DialogTitle className='text-md md:text-lg text-start leading-5.5'>
               {title}
             </DialogTitle>
           )}
           {description && (
-            <DialogDescription className='text-wrap text-start w-full'>
+            <DialogDescription className='text-xs md:text-sm text-wrap text-start w-full'>
               {description}
             </DialogDescription>
           )}

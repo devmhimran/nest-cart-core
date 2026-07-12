@@ -16,7 +16,7 @@ import {
   PaginationContainer,
   Separator,
 } from '@repo/ui';
-import { MediaUploadForm } from './media-upload-form';
+import { MediaUploadForm } from '@/components/forms/media-upload-form';
 
 export function MediaViewerContainer() {
   const searchParams = useSearchParams();

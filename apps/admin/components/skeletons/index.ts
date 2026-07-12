@@ -4,3 +4,4 @@ export * from './colors-skeleton';
 export * from './promo-codes-skeleton';
 export * from './media-grid-skeleton';
 export * from './categories-grid-skeleton';
+export * from './media-library-select-skeleton';
