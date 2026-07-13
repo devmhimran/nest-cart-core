@@ -1,5 +1,9 @@
 'use client';
 
+import { toast } from 'sonner';
+import { useState } from 'react';
+import { Ellipsis, SquarePen, Trash2 } from 'lucide-react';
+
 import {
   AlertModal,
   Button,
@@ -22,15 +26,12 @@ import {
   TableHeader,
   TableRow,
 } from '@repo/ui';
-import { toast } from 'sonner';
-import { useState } from 'react';
 import { useSizes } from '@/hooks';
 import { Meta, SizeType } from '@/types';
+import { EmptyState } from '@/components/shared';
 import { UpdateSizeForm } from '@/components/forms';
 import { getErrorMessage } from '@repo/ui/lib/utils';
 import { SizesSkeleton } from '@/components/skeletons';
-import { Ellipsis, SquarePen, Trash2 } from 'lucide-react';
-import { EmptyState } from '@/components/shared';
 
 interface SizesTableProps {
   data?: {

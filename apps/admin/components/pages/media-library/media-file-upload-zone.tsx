@@ -1,5 +1,9 @@
 'use client';
 
+import { UploadCloud, X, FileText } from 'lucide-react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
+import { useFormContext, useController } from 'react-hook-form';
+
 import {
   Button,
   Field,
@@ -11,9 +15,6 @@ import {
   Input,
 } from '@repo/ui';
 import { cn } from '@repo/ui/lib/utils';
-import { UploadCloud, X, FileText } from 'lucide-react';
-import React, { useState, useCallback, useEffect } from 'react';
-import { useFormContext, useController } from 'react-hook-form';
 
 interface FileUploadZoneProps {
   name: string;
@@ -30,7 +31,7 @@ export function MediaFileUploadZone({ name }: FileUploadZoneProps) {
   const isImage =
     fileValue instanceof File && fileValue.type?.startsWith('image/');
 
-  const previewUrl = React.useMemo(() => {
+  const previewUrl = useMemo(() => {
     if (isImage && fileValue) {
       try {
         return URL.createObjectURL(fileValue);

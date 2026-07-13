@@ -1,5 +1,6 @@
-import { Card, CardContent, Skeleton } from '@repo/ui';
 import { Layers, Palette, Sliders } from 'lucide-react';
+
+import { Card, CardContent, Skeleton } from '@repo/ui';
 
 interface ColorsStatsGridProps {
   totalColors: number;

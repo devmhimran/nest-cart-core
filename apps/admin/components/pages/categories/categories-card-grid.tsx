@@ -1,6 +1,15 @@
 'use client';
 
 import {
+  Ellipsis,
+  SquarePen,
+  Trash2,
+  FolderTree,
+  ShoppingBag,
+  Folder,
+} from 'lucide-react';
+
+import {
   Button,
   DropdownMenu,
   DropdownMenuContent,
@@ -11,16 +20,8 @@ import {
   DropdownMenuTrigger,
 } from '@repo/ui';
 import { Meta, CategoryType } from '@/types';
-import { CategoriesGridSkeleton } from '@/components/skeletons';
-import {
-  Ellipsis,
-  SquarePen,
-  Trash2,
-  FolderTree,
-  ShoppingBag,
-  Folder,
-} from 'lucide-react';
 import { EmptyState } from '@/components/shared';
+import { CategoriesGridSkeleton } from '@/components/skeletons';
 
 interface CategoryGridCardProps {
   data?: {

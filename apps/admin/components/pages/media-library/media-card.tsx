@@ -1,5 +1,9 @@
 'use client';
 
+import { toast } from 'sonner';
+import { useState } from 'react';
+import { MoreVertical, Eye, Trash2 } from 'lucide-react';
+
 import {
   Attachment,
   AttachmentContent,
@@ -14,13 +18,10 @@ import {
   Modal,
   ConfirmModal,
 } from '@repo/ui';
-import { toast } from 'sonner';
-import { useState } from 'react';
 import { useMedia } from '@/hooks';
 import { MediaType } from '@/types';
-import { MediaDetails } from './media-details';
-import { MoreVertical, Eye, Trash2 } from 'lucide-react';
 import { formatBytes } from '@/lib/utils';
+import { MediaDetails } from './media-details';
 
 interface MediaCardProps {
   media: MediaType;

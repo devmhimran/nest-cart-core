@@ -1,5 +1,6 @@
-import { ENV } from '@/config/env';
 import { toast } from 'sonner';
+
+import { ENV } from '@/config/env';
 
 export const baseUrl = ENV.NEXT_PUBLIC_API_URL + '/api/v1';
 

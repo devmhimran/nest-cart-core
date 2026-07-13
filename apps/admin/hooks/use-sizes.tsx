@@ -1,7 +1,8 @@
+import { keepPreviousData, useMutation, useQuery } from '@tanstack/react-query';
+
 import { sizeApi } from '@/api';
 import { Response, SizeType } from '@/types';
 import { getQueryClient } from '@/lib/react-query';
-import { keepPreviousData, useMutation, useQuery } from '@tanstack/react-query';
 
 const queryClient = getQueryClient();
 

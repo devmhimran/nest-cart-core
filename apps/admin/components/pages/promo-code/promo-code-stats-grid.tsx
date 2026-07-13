@@ -1,5 +1,6 @@
-import { Card, CardContent, Skeleton } from '@repo/ui';
 import { CalendarRange, Layers, TicketPercent } from 'lucide-react';
+
+import { Card, CardContent, Skeleton } from '@repo/ui';
 
 interface PromoCodeStatsGridProps {
   totalPromoCodes: number;

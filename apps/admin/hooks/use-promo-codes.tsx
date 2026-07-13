@@ -1,9 +1,10 @@
 'use client';
 
+import { keepPreviousData, useMutation, useQuery } from '@tanstack/react-query';
+
 import { promoCodeApi } from '@/api';
 import { getQueryClient } from '@/lib/react-query';
 import { PromoCodeCreateInput, PromoCodeType, Response } from '@/types';
-import { keepPreviousData, useMutation, useQuery } from '@tanstack/react-query';
 
 const queryClient = getQueryClient();
 

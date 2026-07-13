@@ -1,5 +1,7 @@
 'use client';
 
+import { Check, Copy, Ellipsis, SquarePen, Trash2 } from 'lucide-react';
+
 import {
   Button,
   DropdownMenu,
@@ -13,7 +15,6 @@ import {
 import { Meta } from '@/types';
 import { ColorType } from '@/types';
 import { ColorsSkeleton } from '@/components/skeletons';
-import { Check, Copy, Ellipsis, SquarePen, Trash2 } from 'lucide-react';
 import { EmptyState } from '@/components/shared';
 
 interface ColorGridCardProps {

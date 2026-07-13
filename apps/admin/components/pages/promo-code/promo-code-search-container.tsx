@@ -1,5 +1,8 @@
 'use client';
 
+import { Search, X } from 'lucide-react';
+import { Dispatch, SetStateAction, useState } from 'react';
+
 import {
   Badge,
   Button,
@@ -10,8 +13,6 @@ import {
   Input,
   Modal,
 } from '@repo/ui';
-import { Search, X } from 'lucide-react';
-import { Dispatch, SetStateAction, useState } from 'react';
 import { PromoCodeFilter } from './promo-code-filter';
 
 interface ParamsProps {

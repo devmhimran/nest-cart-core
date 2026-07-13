@@ -1,5 +1,9 @@
 'use client';
 
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { ChevronsUpDown, LogOut, User } from 'lucide-react';
+
 import {
   Avatar,
   AvatarFallback,
@@ -12,14 +16,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@repo/ui';
-import Link from 'next/link';
 import { UserRole } from '@/lib/enums';
-import { useRouter } from 'next/navigation';
 import { ROLE_LABELS } from '@/lib/constants';
 import { UserNavSkeleton } from '../skeletons';
 import { signOut, useSession } from '@/lib/auth';
 import { getAvatarFallbackText } from '@/lib/utils';
-import { ChevronsUpDown, LogOut, User } from 'lucide-react';
 
 export default function UserNav() {
   const { data: session, isPending } = useSession();

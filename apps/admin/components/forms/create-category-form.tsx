@@ -3,11 +3,10 @@
 import * as z from 'zod';
 import { toast } from 'sonner';
 import { useState, useEffect } from 'react';
-import { useCategories } from '@/hooks';
 import { ImageIcon, Loader2, X } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { getErrorMessage } from '@repo/ui/lib/utils';
+
 import {
   FieldSet,
   FieldDescription,
@@ -25,8 +24,10 @@ import {
   AttachmentDescription,
   AttachmentActions,
 } from '@repo/ui';
+import { useCategories } from '@/hooks';
 import { CategoryImageType } from '@/types';
 import { MediaChoose } from '../shared/media';
+import { getErrorMessage } from '@repo/ui/lib/utils';
 
 const categoryFormSchema = z.object({
   name: z

@@ -1,9 +1,9 @@
 'use client';
 
-import { MediaLibrarySelectSkeleton } from '@/components/skeletons';
-import { useGetAllMedia } from '@/hooks';
-import { formatBytes } from '@/lib/utils';
-import { CategoryImageType, MediaType } from '@/types';
+import { useState } from 'react';
+import { Check, Search, X } from 'lucide-react';
+import { useDebouncedCallback } from 'use-debounce';
+
 import {
   Attachment,
   AttachmentContent,
@@ -15,10 +15,11 @@ import {
   Input,
   PaginationContainer,
 } from '@repo/ui';
+import { useGetAllMedia } from '@/hooks';
+import { formatBytes } from '@/lib/utils';
+import { CategoryImageType, MediaType } from '@/types';
 import { generateQueryString } from '@repo/ui/lib/utils';
-import { Check, Search, X } from 'lucide-react';
-import { useState } from 'react';
-import { useDebouncedCallback } from 'use-debounce';
+import { MediaLibrarySelectSkeleton } from '@/components/skeletons';
 
 interface MediaSelectProps {
   image: CategoryImageType | CategoryImageType[] | null;

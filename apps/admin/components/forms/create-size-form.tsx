@@ -1,5 +1,12 @@
 'use client';
 
+import { z } from 'zod';
+import { toast } from 'sonner';
+import { useState } from 'react';
+import { Loader2Icon, Sparkles } from 'lucide-react';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Controller, useForm } from 'react-hook-form';
+
 import {
   Button,
   Field,
@@ -10,14 +17,8 @@ import {
   FieldSet,
   Input,
 } from '@repo/ui';
-import { z } from 'zod';
-import { toast } from 'sonner';
-import { useState } from 'react';
 import { useSizes } from '@/hooks';
-import { Loader2Icon, Sparkles } from 'lucide-react';
 import { getErrorMessage } from '@repo/ui/lib/utils';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Controller, useForm } from 'react-hook-form';
 
 const FormSchema = z.object({
   name: z

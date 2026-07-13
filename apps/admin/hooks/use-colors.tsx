@@ -1,9 +1,9 @@
 'use client';
 
 import { colorApi } from '@/api';
-import { getQueryClient } from '@/lib/react-query';
 import { Response } from '@/types';
 import { ColorType } from '@/types';
+import { getQueryClient } from '@/lib/react-query';
 import { keepPreviousData, useMutation, useQuery } from '@tanstack/react-query';
 
 const queryClient = getQueryClient();

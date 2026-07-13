@@ -1,12 +1,9 @@
 'use client';
 
 import { Search, X } from 'lucide-react';
-import { MediaCards } from './media-cards';
 import { useEffect, useState } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
-import { generateQueryString } from '@repo/ui/lib/utils';
-import { useGetAllMedia } from '@/hooks/use-media-library';
-import { useRouter, useSearchParams } from 'next/navigation';
+
 import {
   AlertModal,
   Button,
@@ -16,6 +13,10 @@ import {
   PaginationContainer,
   Separator,
 } from '@repo/ui';
+import { MediaCards } from './media-cards';
+import { generateQueryString } from '@repo/ui/lib/utils';
+import { useGetAllMedia } from '@/hooks/use-media-library';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { MediaUploadForm } from '@/components/forms/media-upload-form';
 
 export function MediaViewerContainer() {

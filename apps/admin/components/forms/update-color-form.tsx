@@ -2,13 +2,10 @@
 
 import * as z from 'zod';
 import { toast } from 'sonner';
-import { useColors } from '@/hooks';
 import { Loader2 } from 'lucide-react';
-import { useForm } from 'react-hook-form';
-import { ColorType } from '@/types';
 import { useState, useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { getErrorMessage } from '@repo/ui/lib/utils';
+
 import {
   FieldSet,
   FieldDescription,
@@ -19,6 +16,10 @@ import {
   Button,
   Input,
 } from '@repo/ui';
+import { useColors } from '@/hooks';
+import { ColorType } from '@/types';
+import { useForm } from 'react-hook-form';
+import { getErrorMessage } from '@repo/ui/lib/utils';
 
 const colorFormSchema = z.object({
   name: z

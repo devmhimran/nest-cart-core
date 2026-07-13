@@ -1,2 +1,2 @@
-export * from './categories-search-container';
 export * from './categories-card-grid';
+export * from './categories-search-container';

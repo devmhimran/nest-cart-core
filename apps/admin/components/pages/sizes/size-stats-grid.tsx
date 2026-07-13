@@ -1,5 +1,6 @@
-import { Card, CardContent } from '@repo/ui';
 import { ArrowUpDown, Layers, Ruler } from 'lucide-react';
+
+import { Card, CardContent } from '@repo/ui';
 
 interface SizeStatsGridProps {
   totalSizes: number;

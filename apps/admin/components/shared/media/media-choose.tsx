@@ -1,7 +1,8 @@
 'use client';
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui';
 import { useState } from 'react';
+
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui';
 import { CategoryImageType } from '@/types';
 import { MediaSelect } from './media-select';
 import { MediaUploadForm } from '@/components/forms/media-upload-form';

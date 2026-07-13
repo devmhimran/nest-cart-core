@@ -1,24 +1,25 @@
 'use client';
 
+import { toast } from 'sonner';
 import { Plus } from 'lucide-react';
-import { CategoryType } from '@/types';
-import { useCategories, useGetAllCategories } from '@/hooks';
 import { useEffect, useState } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
-import { generateQueryString, getErrorMessage } from '@repo/ui/lib/utils';
 import { useRouter, useSearchParams } from 'next/navigation';
+
 import {
   Button,
   PaginationContainer,
   ConfirmModal,
   AlertModal,
 } from '@repo/ui';
-import { CreateCategoryForm, UpdateCategoryForm } from '@/components/forms';
 import {
   CategoriesCardGrid,
   CategoriesSearchContainer,
 } from '@/components/pages/categories';
-import { toast } from 'sonner';
+import { CategoryType } from '@/types';
+import { useCategories, useGetAllCategories } from '@/hooks';
+import { generateQueryString, getErrorMessage } from '@repo/ui/lib/utils';
+import { CreateCategoryForm, UpdateCategoryForm } from '@/components/forms';
 
 export default function CategoriesPage() {
   const searchParams = useSearchParams();
@@ -26,7 +27,9 @@ export default function CategoriesPage() {
   const [addCategoryModalOpen, setAddCategoryModalOpen] = useState(false);
   const [updateCategoryModalOpen, setUpdateCategoryModalOpen] = useState(false);
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState<CategoryType | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<CategoryType | null>(
+    null,
+  );
   const [loadingDelete, setLoadingDelete] = useState(false);
   const { deleteCategoryAsync } = useCategories();
 
@@ -90,7 +93,8 @@ export default function CategoriesPage() {
             Categories
           </h1>
           <p className='text-xs text-muted-foreground'>
-            Configure and manage product categories to organize items in your marketplace.
+            Configure and manage product categories to organize items in your
+            marketplace.
           </p>
         </div>
         <Button onClick={() => setAddCategoryModalOpen(true)}>

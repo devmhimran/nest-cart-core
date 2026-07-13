@@ -1,8 +1,9 @@
 'use client';
 
-import { Dispatch, SetStateAction } from 'react';
 import { format } from 'date-fns';
+import { Dispatch, SetStateAction } from 'react';
 import { Calendar as CalendarIcon, XCircle } from 'lucide-react';
+
 import {
   Button,
   Calendar,

@@ -1,18 +1,19 @@
 'use client';
 
 import { Plus } from 'lucide-react';
-import { useGetAllSizes } from '@/hooks';
 import { useEffect, useState } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
-import { CreateSizeForm } from '@/components/forms';
-import { AlertModal, Button, PaginationContainer } from '@repo/ui';
-import { generateQueryString } from '@repo/ui/lib/utils';
-import { useRouter, useSearchParams } from 'next/navigation';
+
 import {
   SizesSearchContainer,
   SizesTable,
   SizeStatsGrid,
 } from '@/components/pages/sizes';
+import { useGetAllSizes } from '@/hooks';
+import { CreateSizeForm } from '@/components/forms';
+import { generateQueryString } from '@repo/ui/lib/utils';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { AlertModal, Button, PaginationContainer } from '@repo/ui';
 
 export default function SizesPage() {
   const [addSizeModalOpen, setAddSizeModalOpen] = useState(false);

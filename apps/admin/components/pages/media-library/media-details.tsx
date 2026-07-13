@@ -15,9 +15,10 @@ import {
 import Link from 'next/link';
 import { toast } from 'sonner';
 import { useState } from 'react';
+
 import { MediaType } from '@/types';
-import { formatBytes, handleDownload } from '@/lib/utils';
 import { Button, Separator } from '@repo/ui';
+import { formatBytes, handleDownload } from '@/lib/utils';
 
 interface MediaDetailsContentProps {
   media: MediaType | null;

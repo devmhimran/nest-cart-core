@@ -1,5 +1,11 @@
 'use client';
 
+import { z } from 'zod';
+import { toast } from 'sonner';
+import { useForm } from 'react-hook-form';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { zodResolver } from '@hookform/resolvers/zod';
+
 import {
   Button,
   Card,
@@ -15,12 +21,7 @@ import {
   FieldSet,
   Input,
 } from '@repo/ui';
-import { z } from 'zod';
-import { toast } from 'sonner';
 import { authClient } from '@/lib/auth';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useRouter, useSearchParams } from 'next/navigation';
 
 const loginSchema = z.object({
   email: z

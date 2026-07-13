@@ -1,5 +1,6 @@
-import { Skeleton } from '@repo/ui';
 import { ChevronsUpDown } from 'lucide-react';
+
+import { Skeleton } from '@repo/ui';
 
 export function UserNavSkeleton() {
   return (

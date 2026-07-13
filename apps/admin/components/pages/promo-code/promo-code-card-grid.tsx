@@ -1,6 +1,17 @@
 'use client';
 
 import {
+  Calendar,
+  Ellipsis,
+  SquarePen,
+  Trash2,
+  Copy,
+  CheckCircle,
+  XCircle,
+} from 'lucide-react';
+import { useState } from 'react';
+
+import {
   Button,
   Card,
   CardContent,
@@ -15,20 +26,10 @@ import {
   DropdownMenuTrigger,
   Badge,
 } from '@repo/ui';
-import { PromoCodeType, Meta } from '@/types';
-import { PromoCodesSkeleton } from '@/components/skeletons';
-import {
-  Calendar,
-  Ellipsis,
-  SquarePen,
-  Trash2,
-  Copy,
-  CheckCircle,
-  XCircle,
-} from 'lucide-react';
-import { EmptyState } from '@/components/shared';
-import { useState } from 'react';
 import { handleCopy } from '@/lib/utils';
+import { PromoCodeType, Meta } from '@/types';
+import { EmptyState } from '@/components/shared';
+import { PromoCodesSkeleton } from '@/components/skeletons';
 
 interface PromoCodeTableProps {
   data?: {

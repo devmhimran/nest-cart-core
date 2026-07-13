@@ -1,26 +1,27 @@
 'use client';
 
+import { toast } from 'sonner';
 import { Plus } from 'lucide-react';
-import { ColorType } from '@/types';
-import { useColors, useGetAllColors } from '@/hooks';
 import { useEffect, useState } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
-import { generateQueryString, getErrorMessage } from '@repo/ui/lib/utils';
 import { useRouter, useSearchParams } from 'next/navigation';
+
 import {
   Button,
   PaginationContainer,
   ConfirmModal,
   AlertModal,
 } from '@repo/ui';
-import { CreateColorForm, UpdateColorForm } from '@/components/forms';
 import {
   ColorCardGrid,
   ColorSearchContainer,
   ColorsStatsGrid,
 } from '@/components/pages/colors';
-import { toast } from 'sonner';
+import { ColorType } from '@/types';
 import { handleCopy } from '@/lib/utils';
+import { useColors, useGetAllColors } from '@/hooks';
+import { generateQueryString, getErrorMessage } from '@repo/ui/lib/utils';
+import { CreateColorForm, UpdateColorForm } from '@/components/forms';
 
 export default function ColorsPage() {
   const searchParams = useSearchParams();

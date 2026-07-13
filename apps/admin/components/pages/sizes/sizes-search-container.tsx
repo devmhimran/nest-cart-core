@@ -1,3 +1,6 @@
+import { Search, X } from 'lucide-react';
+import { Dispatch, SetStateAction } from 'react';
+
 import {
   Badge,
   Card,
@@ -6,8 +9,6 @@ import {
   CardTitle,
   Input,
 } from '@repo/ui';
-import { Search, X } from 'lucide-react';
-import { Dispatch, SetStateAction } from 'react';
 
 interface ParamsProps {
   search: string;
