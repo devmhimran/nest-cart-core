@@ -36,7 +36,6 @@ export function MediaFileUploadZone({ name }: FileUploadZoneProps) {
       try {
         return URL.createObjectURL(fileValue);
       } catch (e) {
-        console.error('Failed to generate preview URL', e);
         return null;
       }
     }

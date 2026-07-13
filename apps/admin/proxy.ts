@@ -108,10 +108,6 @@ export async function proxy(request: NextRequest) {
       const isNetworkOrServerError = !status || status >= 500;
 
       if (isNetworkOrServerError) {
-        console.warn(
-          'Backend returned server/network error, executing offline fallback:',
-          authError,
-        );
         if (pathname === '/signin') {
           return NextResponse.redirect(getSafeRedirectUrl(request));
         }
@@ -175,11 +171,7 @@ export async function proxy(request: NextRequest) {
     });
 
     return response;
-  } catch (error) {
-    console.error(
-      'Failed to fetch session due to exception, executing offline fallback:',
-      error,
-    );
+  } catch {
     if (pathname === '/signin') {
       return NextResponse.redirect(getSafeRedirectUrl(request));
     }
