@@ -57,7 +57,19 @@ export class SubCategoriesService {
   }
 
   findAll(query: PaginationQueryDto) {
+    const { search } = query;
+
+    const where: Prisma.SubCategoryWhereInput = search
+      ? {
+          OR: [
+            { name: { contains: search, mode: 'insensitive' } },
+            { slug: { contains: search, mode: 'insensitive' } },
+          ],
+        }
+      : {};
+
     return paginate(this.prismaService.subCategory, query, {
+      where,
       orderBy: { id: 'desc' },
       select: {
         id: true,

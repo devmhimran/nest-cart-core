@@ -36,7 +36,6 @@ export function SearchAndSelect({
           }
         } catch (error) {
           if (!isCancelled) {
-            console.error('Search error:', error);
             setOptions([]);
           }
         }

@@ -54,8 +54,7 @@ export const handleDownload = async (imageUrl: string, imageName: string) => {
     window.URL.revokeObjectURL(blobUrl);
 
     toast.success('Download started!');
-  } catch (error) {
-    console.error('Download failed:', error);
+  } catch {
     toast.error(
       'Failed to download image. Please try opening in a new tab and saving manually.',
     );
