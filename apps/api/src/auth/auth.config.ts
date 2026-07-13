@@ -127,7 +127,7 @@ export async function initializeAuth() {
     },
     user: {
       additionalFields: {
-        role: { type: 'number', defaultValue: 0 },
+        role: { type: 'number', defaultValue: 3 },
       },
     },
   });
