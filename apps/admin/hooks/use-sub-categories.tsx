@@ -3,8 +3,8 @@
 import { keepPreviousData, useMutation, useQuery } from '@tanstack/react-query';
 
 import { subCategoriesApi } from '@/api';
-import { CreateSubCategory, Response, SubCategoryType } from '@/types';
 import { getQueryClient } from '@/lib/react-query';
+import { CreateSubCategory, Response, SubCategoryType } from '@/types';
 
 const queryClient = getQueryClient();
 
@@ -38,7 +38,8 @@ export function useSubCategories() {
   });
 
   const deleteSubCategoryMutation = useMutation({
-    mutationFn: async (id: number) => await subCategoriesApi.deleteSubCategory(id),
+    mutationFn: async (id: number) =>
+      await subCategoriesApi.deleteSubCategory(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['sub-categories'] });
     },
@@ -48,9 +49,11 @@ export function useSubCategories() {
     createSubCategoryMutation,
     createSubCategory: createSubCategoryMutation.mutate,
     createSubCategoryAsync: createSubCategoryMutation.mutateAsync,
+
     updateSubCategoryMutation,
     updateSubCategory: updateSubCategoryMutation.mutate,
     updateSubCategoryAsync: updateSubCategoryMutation.mutateAsync,
+
     deleteSubCategoryMutation,
     deleteSubCategory: deleteSubCategoryMutation.mutate,
     deleteSubCategoryAsync: deleteSubCategoryMutation.mutateAsync,
