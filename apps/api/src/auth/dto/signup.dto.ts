@@ -3,6 +3,7 @@ import {
   IsNotEmpty,
   IsString,
   IsStrongPassword,
+  MaxLength,
 } from 'class-validator';
 
 export class SignUpDto {
@@ -21,5 +22,6 @@ export class SignUpDto {
     minNumbers: 1,
     minSymbols: 1,
   })
+  @MaxLength(32, { message: 'Password cannot exceed 32 characters.' })
   password!: string;
 }

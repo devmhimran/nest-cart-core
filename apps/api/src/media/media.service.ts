@@ -91,7 +91,7 @@ export class MediaService {
           userId,
           action: AuditAction.CREATE,
           entity: EntityType.MEDIA,
-          entityId: mediaRecord.id,
+          entityId: mediaRecord.id.toString(),
           newData: JSON.stringify(mediaRecord),
         },
       });
@@ -169,7 +169,7 @@ export class MediaService {
           userId,
           action: AuditAction.DELETE,
           entity: EntityType.MEDIA,
-          entityId: id,
+          entityId: id.toString(),
           oldData: JSON.stringify(media),
         },
       });

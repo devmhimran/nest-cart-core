@@ -22,6 +22,8 @@ import {
   Input,
 } from '@repo/ui';
 import { authClient } from '@/lib/auth';
+import { Eye, EyeClosed } from 'lucide-react';
+import { useState } from 'react';
 
 const loginSchema = z.object({
   email: z
@@ -38,6 +40,7 @@ export default function SignInPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const previousURL = searchParams.get('callbackUrl');
+  const [showPassword, setShowPassword] = useState(false);
 
   const {
     handleSubmit,
@@ -100,18 +103,36 @@ export default function SignInPage() {
                     aria-invalid={!!errors.email}
                     {...register('email')}
                   />
+
                   <FieldError errors={[errors.email]} />
                 </Field>
                 <Field>
                   <FieldLabel htmlFor='password'>Password</FieldLabel>
-                  <Input
-                    id='password'
-                    autoComplete='off'
-                    type='password'
-                    placeholder='Enter your password'
-                    aria-invalid={!!errors.password}
-                    {...register('password')}
-                  />
+                  <div className='relative'>
+                    <Input
+                      id='password'
+                      autoComplete='off'
+                      type={showPassword ? 'text' : 'password'}
+                      placeholder='Enter your password'
+                      aria-invalid={!!errors.password}
+                      {...register('password')}
+                    />
+                    {showPassword ? (
+                      <span
+                        className='absolute right-3 top-2.5'
+                        onClick={() => setShowPassword(false)}
+                      >
+                        <Eye className='w-4 h-4' />
+                      </span>
+                    ) : (
+                      <span
+                        className='absolute right-3 top-2.5'
+                        onClick={() => setShowPassword(true)}
+                      >
+                        <EyeClosed className='w-4 h-4' />
+                      </span>
+                    )}
+                  </div>
                   <FieldError errors={[errors.password]} />
                 </Field>
               </FieldGroup>

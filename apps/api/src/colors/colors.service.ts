@@ -39,7 +39,7 @@ export class ColorsService {
           userId,
           action: AuditAction.CREATE,
           entity: EntityType.COLOR,
-          entityId: newColor.id,
+          entityId: newColor.id.toString(),
           newData: JSON.stringify(newColor),
         },
       });
@@ -112,7 +112,7 @@ export class ColorsService {
           userId,
           action: AuditAction.UPDATE,
           entity: EntityType.COLOR,
-          entityId: updateColor.id,
+          entityId: updateColor.id.toString(),
           oldData: JSON.stringify(oldColor),
           newData: JSON.stringify(updateColor),
         },
@@ -137,7 +137,7 @@ export class ColorsService {
           userId,
           action: AuditAction.DELETE,
           entity: EntityType.COLOR,
-          entityId: oldColor.id,
+          entityId: oldColor.id.toString(),
           oldData: JSON.stringify(oldColor),
         },
       });

@@ -43,7 +43,7 @@ export class CategoriesService {
           userId,
           action: AuditAction.CREATE,
           entity: EntityType.CATEGORY,
-          entityId: newCategory.id,
+          entityId: newCategory.id.toString(),
           newData: JSON.stringify(newCategory),
         },
       });
@@ -151,7 +151,7 @@ export class CategoriesService {
           userId,
           action: AuditAction.UPDATE,
           entity: EntityType.CATEGORY,
-          entityId: updatedCategory.id,
+          entityId: updatedCategory.id.toString(),
           oldData: JSON.stringify(oldCategory),
           newData: JSON.stringify(updatedCategory),
         },
@@ -177,7 +177,7 @@ export class CategoriesService {
           userId,
           action: AuditAction.DELETE,
           entity: EntityType.CATEGORY,
-          entityId: oldCategory.id,
+          entityId: oldCategory.id.toString(),
           oldData: JSON.stringify(oldCategory),
         },
       });

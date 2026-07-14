@@ -43,7 +43,7 @@ interface UsersGridProps {
 
 const roleColor: Record<UserRole, string> = {
   [UserRole.SUPER_ADMIN]:
-    'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400',
+    'bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-400',
   [UserRole.ADMIN]:
     'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
   [UserRole.MODERATOR]:
@@ -67,8 +67,8 @@ export function UsersGrid({ data, loading, onEdit, onDelete }: UsersGridProps) {
             <TableHeader>
               <TableRow>
                 <TableHead className='w-20'>Serial</TableHead>
-                <TableHead className='w-24 max-w-[6rem]'>Name</TableHead>
-                <TableHead className='w-68 max-w-[17rem]'>Email</TableHead>
+                <TableHead className='w-32 max-w-32'>Name</TableHead>
+                <TableHead className='w-68 max-w-68'>Email</TableHead>
                 <TableHead>Role</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Joined</TableHead>
@@ -86,7 +86,7 @@ export function UsersGrid({ data, loading, onEdit, onDelete }: UsersGridProps) {
                   </TableCell>
                   <TableCell className='font-medium '>
                     <span
-                      className='block w-24 truncate'
+                      className='block w-32 truncate'
                       title={`${user.name}`}
                     >
                       {user.name}
