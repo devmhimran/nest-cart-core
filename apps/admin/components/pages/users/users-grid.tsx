@@ -21,6 +21,7 @@ import {
   TableHeader,
   TableRow,
   Button,
+  ScrollArea,
 } from '@repo/ui';
 import { Meta } from '@/types';
 import { UserRole } from '@/lib/enums';
@@ -61,103 +62,106 @@ export function UsersGrid({ data, loading, onEdit, onDelete }: UsersGridProps) {
 
   return (
     <>
-      <Card className='hidden lg:block'>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className='w-20'>Serial</TableHead>
-                <TableHead className='w-32 max-w-32'>Name</TableHead>
-                <TableHead className='w-68 max-w-68'>Email</TableHead>
-                <TableHead>Role</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Joined</TableHead>
-                <TableHead className='text-end'>Option</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {data.data.map((user, index) => (
-                <TableRow key={user.id}>
-                  <TableCell className='font-medium'>
-                    {(data.meta.currentPage - 1) * data.meta.perPage +
-                      index +
-                      1}
-                    .
-                  </TableCell>
-                  <TableCell className='font-medium '>
-                    <span
-                      className='block w-32 truncate'
-                      title={`${user.name}`}
-                    >
-                      {user.name}
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    <span
-                      className='block w-68 truncate'
-                      title={`${user.email}`}
-                    >
-                      {user.email}
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    <span
-                      className={cn(
-                        'rounded-full px-2.5 py-0.5 text-xs font-medium',
-                        roleColor[user.role],
-                      )}
-                    >
-                      {ROLE_LABELS[user.role]}
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    <div className='flex items-center gap-1.5'>
-                      <Badge variant={user.isActive ? 'default' : 'secondary'}>
-                        {user.isActive ? 'Active' : 'Inactive'}
-                      </Badge>
-                      {user.emailVerified && (
-                        <Badge variant='outline'>Verified</Badge>
-                      )}
-                    </div>
-                  </TableCell>
-                  <TableCell className='text-muted-foreground'>
-                    {format(new Date(user.createdAt), 'MMM d, yyyy')}
-                  </TableCell>
-                  <TableCell className='text-end'>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger
-                        render={
-                          <Button variant='ghost' size='sm'>
-                            <Ellipsis className='w-4 h-4' />
-                          </Button>
-                        }
-                      />
-                      <DropdownMenuContent align='end'>
-                        <DropdownMenuGroup>
-                          <DropdownMenuLabel>Options</DropdownMenuLabel>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem onClick={() => onEdit(user)}>
-                            <SquarePen className='w-4 h-4' />
-                            Edit
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            className='text-destructive'
-                            onClick={() => onDelete(user)}
-                          >
-                            <Trash2 className='w-4 h-4' />
-                            Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuGroup>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
+      <ScrollArea className='hidden lg:block h-[46vh] w-full'>
+        <Card className=' m-1'>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className='w-20'>Serial</TableHead>
+                  <TableHead className='w-32 max-w-32'>Name</TableHead>
+                  <TableHead className='w-68 max-w-68'>Email</TableHead>
+                  <TableHead>Role</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Joined</TableHead>
+                  <TableHead className='text-end'>Option</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
-
+              </TableHeader>
+              <TableBody>
+                {data.data.map((user, index) => (
+                  <TableRow key={user.id}>
+                    <TableCell className='font-medium'>
+                      {(data.meta.currentPage - 1) * data.meta.perPage +
+                        index +
+                        1}
+                      .
+                    </TableCell>
+                    <TableCell className='font-medium '>
+                      <span
+                        className='block w-32 truncate'
+                        title={`${user.name}`}
+                      >
+                        {user.name}
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      <span
+                        className='block w-68 truncate'
+                        title={`${user.email}`}
+                      >
+                        {user.email}
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      <span
+                        className={cn(
+                          'rounded-full px-2.5 py-0.5 text-xs font-medium',
+                          roleColor[user.role],
+                        )}
+                      >
+                        {ROLE_LABELS[user.role]}
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      <div className='flex items-center gap-1.5'>
+                        <Badge
+                          variant={user.isActive ? 'default' : 'secondary'}
+                        >
+                          {user.isActive ? 'Active' : 'Inactive'}
+                        </Badge>
+                        {user.emailVerified && (
+                          <Badge variant='outline'>Verified</Badge>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell className='text-muted-foreground'>
+                      {format(new Date(user.createdAt), 'MMM d, yyyy')}
+                    </TableCell>
+                    <TableCell className='text-end'>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger
+                          render={
+                            <Button variant='ghost' size='sm'>
+                              <Ellipsis className='w-4 h-4' />
+                            </Button>
+                          }
+                        />
+                        <DropdownMenuContent align='end'>
+                          <DropdownMenuGroup>
+                            <DropdownMenuLabel>Options</DropdownMenuLabel>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem onClick={() => onEdit(user)}>
+                              <SquarePen className='w-4 h-4' />
+                              Edit
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              className='text-destructive'
+                              onClick={() => onDelete(user)}
+                            >
+                              <Trash2 className='w-4 h-4' />
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuGroup>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      </ScrollArea>
       <div className='grid grid-cols-1 sm:grid-cols-2 gap-4 lg:hidden'>
         {data.data.map((user) => (
           <UserCard

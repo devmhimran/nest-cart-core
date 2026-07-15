@@ -83,8 +83,8 @@ export default function UsersPage() {
   };
 
   return (
-    <div className='space-y-6 w-full md:w-5/6 lg:w-4/5 mx-auto px-4 py-6'>
-      <div className='flex items-center justify-between gap-4 border-b pb-4'>
+    <div className='space-y-5 w-full md:w-5/6 lg:w-4/5 mx-auto px-4 py-6'>
+      <div className='flex flex-col md:flex-row md:items-center justify-between gap-4 border-b pb-4'>
         <div className='space-y-1'>
           <h1 className='text-2xl font-bold tracking-tight text-foreground'>
             Users
