@@ -1,12 +1,13 @@
 import { createTransport } from 'nodemailer';
-import { SignUpDto } from './dto/signup.dto';
 import type { Transporter } from 'nodemailer';
-import { PrismaService } from '../prisma/prisma.service';
-import { ClassConstructor, plainToInstance } from 'class-transformer';
-import { validateOrReject, ValidationError } from 'class-validator';
-import { SignInDto } from './dto/signin.dto';
-import { admin } from 'better-auth/plugins';
 import type { Auth, BetterAuthOptions } from 'better-auth';
+import { validateOrReject, ValidationError } from 'class-validator';
+import { ClassConstructor, plainToInstance } from 'class-transformer';
+
+import { admin } from 'better-auth/plugins';
+import { SignUpDto } from './dto/signup.dto';
+import { SignInDto } from './dto/signin.dto';
+import { PrismaService } from '../prisma/prisma.service';
 
 const prisma = new PrismaService();
 const isDev = process.env.NODE_ENV === 'development' || !process.env.NODE_ENV;
@@ -144,7 +145,12 @@ export async function initializeAuth(): Promise<Auth> {
     },
     user: {
       additionalFields: {
-        role: { type: 'number', defaultValue: 3, input: false },
+        customRole: {
+          type: 'number',
+          defaultValue: 3,
+          input: false,
+          fieldName: 'role',
+        },
       },
     },
     plugins: [admin()],

@@ -8,6 +8,12 @@ import {
   CardHeader,
   CardTitle,
   Input,
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from '@repo/ui';
 
 interface ParamsProps {
@@ -23,6 +29,13 @@ interface UsersSearchContainerProps {
   setParams: Dispatch<SetStateAction<ParamsProps>>;
   debounced: (value: string) => void;
 }
+
+const userRole = [
+  { value: '', label: 'All Roles' },
+  { value: 'SUPER_ADMIN', label: 'Super Admin' },
+  { value: 'ADMIN', label: 'Admin' },
+  { value: 'MODERATOR', label: 'Moderator' },
+];
 
 export function UsersSearchContainer({
   searchQuery,
@@ -50,6 +63,26 @@ export function UsersSearchContainer({
               className='pl-8'
             />
           </div>
+          <Select
+            items={userRole}
+            value={params.role}
+            onValueChange={(value) =>
+              setParams((prev) => ({ ...prev, page: '1', role: value ?? '' }))
+            }
+          >
+            <SelectTrigger className='w-full md:w-40'>
+              <SelectValue placeholder='Role' />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                {userRole.map((item) => (
+                  <SelectItem key={item.value} value={item.value}>
+                    {item.label}
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
         </div>
         <div className='flex flex-wrap gap-2'>
           {params.search && (
@@ -62,6 +95,21 @@ export function UsersSearchContainer({
                     search: '',
                   }));
                   setSearchQuery('');
+                }}
+              >
+                <X className='w-4 h-4 cursor-pointer' />
+              </span>
+            </Badge>
+          )}
+          {params.role && (
+            <Badge variant='outline'>
+              {userRole.find((item) => item.value === params.role)?.label}{' '}
+              <span
+                onClick={() => {
+                  setParams((prev) => ({
+                    ...prev,
+                    role: '',
+                  }));
                 }}
               >
                 <X className='w-4 h-4 cursor-pointer' />

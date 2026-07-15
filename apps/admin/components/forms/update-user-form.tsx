@@ -1,11 +1,19 @@
 'use client';
 
+import {
+  Check,
+  Eye,
+  EyeClosed,
+  Loader2,
+  ShieldCheck,
+  ShieldUser,
+  UserCog,
+  Users,
+} from 'lucide-react';
 import * as z from 'zod';
 import { toast } from 'sonner';
 import { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { Loader2, ShieldCheck, ShieldUser, UserCog, Users } from 'lucide-react';
-
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import {
@@ -24,19 +32,43 @@ import {
   SelectValue,
 } from '@repo/ui';
 import { useUsers } from '@/hooks';
-import { UsersType } from '@/types/users';
-import { getErrorMessage } from '@repo/ui/lib/utils';
 import { UserRole } from '@/lib/enums';
+import { UsersType } from '@/types/users';
+import { requirements } from '@/lib/utils';
 import { ROLE_LABELS } from '@/lib/constants';
+import { getErrorMessage } from '@repo/ui/lib/utils';
 
-const updateUserSchema = z.object({
-  name: z
-    .string()
-    .min(2, { message: 'Name must be at least 2 characters.' })
-    .max(50, { message: 'Name must be less than 50 characters.' }),
-  email: z.string().email({ message: 'Please enter a valid email address.' }),
-  role: z.nativeEnum(UserRole, { message: 'Please select a role.' }),
-});
+const updateUserSchema = z
+  .object({
+    name: z
+      .string()
+      .min(2, { message: 'Name must be at least 2 characters.' })
+      .max(50, { message: 'Name must be less than 50 characters.' }),
+    email: z.email({ message: 'Please enter a valid email address.' }),
+    password: z
+      .string()
+      .min(8, 'Password must be at least 8 characters long')
+      .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
+      .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
+      .regex(/[0-9]/, 'Password must contain at least one number')
+      .regex(/[^a-zA-Z0-9]/, 'Password must contain at least one symbol')
+      .optional()
+      .or(z.literal('')),
+
+    confirmPassword: z
+      .string()
+      .min(6, { message: 'Confirm Password must be at least 6 characters.' })
+      .max(100, {
+        message: 'Confirm Password must be less than 100 characters.',
+      })
+      .optional()
+      .or(z.literal('')),
+    role: z.enum(UserRole, { message: 'Please select a role.' }),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ['confirmPassword'],
+  });
 
 type UpdateUserFormValues = z.infer<typeof updateUserSchema>;
 
@@ -54,6 +86,7 @@ const roleIcons: Record<UserRole, typeof ShieldCheck> = {
 
 export function UpdateUserForm({ data, setIsOpen }: UpdateUserFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const { updateUserAsync } = useUsers();
 
   const {
@@ -83,12 +116,15 @@ export function UpdateUserForm({ data, setIsOpen }: UpdateUserFormProps) {
   }, [data, reset]);
 
   const selectedRole = watch('role');
+  const passwordValue = watch('password');
 
   function onSubmit(formData: UpdateUserFormValues) {
     if (!data?.id) return;
 
     setIsSubmitting(true);
-    const payload = { id: data.id, ...formData };
+
+    const { confirmPassword, ...rest } = formData;
+    const payload = { id: data.id, ...rest };
 
     toast.promise(updateUserAsync(payload), {
       loading: 'Updating user...',
@@ -140,6 +176,81 @@ export function UpdateUserForm({ data, setIsOpen }: UpdateUserFormProps) {
               <FieldDescription>
                 The email address for sign in.
               </FieldDescription>
+            )}
+          </Field>
+
+          <Field>
+            <FieldLabel htmlFor='create-password'>Password</FieldLabel>
+            <div className='relative'>
+              <Input
+                id='create-password'
+                autoComplete='new-password'
+                type={showPassword ? 'text' : 'password'}
+                placeholder='Enter your password'
+                aria-invalid={!!errors.password}
+                {...register('password')}
+              />
+              {showPassword ? (
+                <span
+                  className='absolute right-3 top-2.5 cursor-pointer'
+                  onClick={() => setShowPassword(false)}
+                >
+                  <Eye className='w-4 h-4' />
+                </span>
+              ) : (
+                <span
+                  className='absolute right-3 top-2.5 cursor-pointer'
+                  onClick={() => setShowPassword(true)}
+                >
+                  <EyeClosed className='w-4 h-4' />
+                </span>
+              )}
+            </div>
+
+            <div className='mt-3 space-y-1.5 text-xs text-muted-foreground transition-all duration-300'>
+              <p className='font-medium text-foreground mb-2'>
+                Password Requirements:
+              </p>
+              {requirements.map((req, index) => {
+                const isMet = req.test(passwordValue);
+                return (
+                  <div
+                    key={index}
+                    className={`flex items-center gap-2 transition-colors duration-200 ${
+                      isMet
+                        ? 'text-emerald-600 dark:text-emerald-400'
+                        : 'text-zinc-400'
+                    }`}
+                  >
+                    {isMet ? (
+                      <Check className='w-3.5 h-3.5 text-emerald-500 stroke-3' />
+                    ) : (
+                      <span className='w-1.5 h-1.5 rounded-full bg-zinc-300 dark:bg-zinc-600 ml-1' />
+                    )}
+                    <span className={isMet ? 'line-through opacity-80' : ''}>
+                      {req.label}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+
+            <FieldError errors={[errors.password]} />
+          </Field>
+          <Field>
+            <FieldLabel htmlFor='create-confirm-password'>
+              Confirm Password
+            </FieldLabel>
+            <Input
+              id='create-confirm-password'
+              type='password'
+              placeholder='Min. 6 characters'
+              autoComplete='confirm-new-password'
+              aria-invalid={!!errors.confirmPassword}
+              {...register('confirmPassword')}
+            />
+            {errors.confirmPassword && (
+              <FieldError>{errors.confirmPassword.message}</FieldError>
             )}
           </Field>
 

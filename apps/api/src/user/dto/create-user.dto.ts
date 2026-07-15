@@ -4,7 +4,8 @@ import {
   IsNumber,
   IsOptional,
   IsString,
-  MinLength,
+  IsStrongPassword,
+  MaxLength,
 } from 'class-validator';
 
 export class CreateUserDto {
@@ -16,9 +17,15 @@ export class CreateUserDto {
   @IsNotEmpty()
   email!: string;
 
-  @IsString()
   @IsNotEmpty()
-  @MinLength(6, { message: 'Password must be at least 6 characters long' })
+  @IsStrongPassword({
+    minLength: 8,
+    minLowercase: 1,
+    minUppercase: 1,
+    minNumbers: 1,
+    minSymbols: 1,
+  })
+  @MaxLength(32, { message: 'Password cannot exceed 32 characters.' })
   password!: string;
 
   @IsNumber()
