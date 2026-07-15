@@ -49,7 +49,7 @@ export class PromoCodesService {
           userId,
           action: AuditAction.CREATE,
           entity: EntityType.PROMO_CODE,
-          entityId: newPromoCode.id,
+          entityId: newPromoCode.id.toString(),
           newData: JSON.stringify(newPromoCode),
         },
       });
@@ -167,7 +167,7 @@ export class PromoCodesService {
           userId,
           action: AuditAction.UPDATE,
           entity: EntityType.PROMO_CODE,
-          entityId: updatePromoCode.id,
+          entityId: updatePromoCode.id.toString(),
           oldData: JSON.stringify(oldPromoCode),
           newData: JSON.stringify(updatePromoCode),
         },
@@ -193,7 +193,7 @@ export class PromoCodesService {
           userId,
           action: AuditAction.DELETE,
           entity: EntityType.PROMO_CODE,
-          entityId: oldPromoCode.id,
+          entityId: oldPromoCode.id.toString(),
           oldData: JSON.stringify(oldPromoCode),
         },
       });

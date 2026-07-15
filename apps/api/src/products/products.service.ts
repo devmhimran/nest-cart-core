@@ -82,7 +82,7 @@ export class ProductsService {
           userId,
           action: AuditAction.CREATE,
           entity: EntityType.PRODUCT,
-          entityId: newProduct.id,
+          entityId: newProduct.id.toString(),
           newData: JSON.stringify(newProduct),
         },
       });
@@ -178,7 +178,6 @@ export class ProductsService {
     updateProductDto: UpdateProductDto,
     userId?: string,
   ) {
-    // 1. Fail-fast validation (Check for title/slug conflicts)
     const exists = await this.prismaService.product.findFirst({
       where: {
         OR: [
@@ -241,7 +240,6 @@ export class ProductsService {
       if (galleryMediaIds) {
         const currentMediaIds = oldProduct.gallery.map((g) => g.mediaId);
 
-        // Find which records to delete and which to add
         const toDelete = currentMediaIds.filter(
           (mediaId) => !galleryMediaIds.includes(mediaId),
         );
@@ -320,7 +318,7 @@ export class ProductsService {
           userId,
           action: AuditAction.UPDATE,
           entity: EntityType.PRODUCT,
-          entityId: updatedProduct.id,
+          entityId: updatedProduct.id.toString(),
           oldData: JSON.stringify(oldProduct),
           newData: JSON.stringify(updatedProduct),
         },
@@ -355,7 +353,7 @@ export class ProductsService {
           userId,
           action: AuditAction.DELETE,
           entity: EntityType.PRODUCT,
-          entityId: oldProduct.id,
+          entityId: oldProduct.id.toString(),
           oldData: JSON.stringify(oldProduct),
         },
       });

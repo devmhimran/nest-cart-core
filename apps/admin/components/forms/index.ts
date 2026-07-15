@@ -2,6 +2,8 @@ export * from './create-size-form';
 export * from './update-size-form';
 export * from './create-color-form';
 export * from './update-color-form';
+export * from './create-user-form';
+export * from './update-user-form';
 export * from './create-category-form';
 export * from './update-category-form';
 export * from './update-promo-code-form';

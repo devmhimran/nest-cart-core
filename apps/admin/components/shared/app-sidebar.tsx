@@ -80,15 +80,14 @@ const superAdminMenuItems = [
   //   url: '/dashboard/shipping-charge',
   //   icon: Truck,
   // },
-
-  {
-    title: 'Customers',
-    url: '/dashboard/customers',
-    icon: Users,
-  },
   {
     title: 'Users',
     url: '/dashboard/users',
+    icon: Users,
+  },
+  {
+    title: 'Customers',
+    url: '/dashboard/customers',
     icon: Users,
   },
 ];

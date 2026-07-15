@@ -44,7 +44,7 @@ export class SubCategoriesService {
             userId,
             action: AuditAction.CREATE,
             entity: EntityType.SUB_CATEGORY,
-            entityId: newSubCategory.id,
+            entityId: newSubCategory.id.toString(),
             newData: JSON.stringify(newSubCategory),
           },
         });
@@ -141,7 +141,7 @@ export class SubCategoriesService {
           userId,
           action: AuditAction.UPDATE,
           entity: EntityType.SUB_CATEGORY,
-          entityId: updatedSubCategory.id,
+          entityId: updatedSubCategory.id.toString(),
           oldData: JSON.stringify(oldSubCategory),
           newData: JSON.stringify(updatedSubCategory),
         },
@@ -167,7 +167,7 @@ export class SubCategoriesService {
           userId,
           action: AuditAction.DELETE,
           entity: EntityType.SUB_CATEGORY,
-          entityId: oldSubCategory.id,
+          entityId: oldSubCategory.id.toString(),
           oldData: JSON.stringify(oldSubCategory),
         },
       });

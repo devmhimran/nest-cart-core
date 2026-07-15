@@ -1,9 +1,13 @@
 import { createTransport } from 'nodemailer';
-import { SignUpDto } from './dto/signup.dto';
 import type { Transporter } from 'nodemailer';
-import { PrismaService } from '../prisma/prisma.service';
-import { plainToInstance } from 'class-transformer';
+import type { Auth, BetterAuthOptions } from 'better-auth';
 import { validateOrReject, ValidationError } from 'class-validator';
+import { ClassConstructor, plainToInstance } from 'class-transformer';
+
+import { admin } from 'better-auth/plugins';
+import { SignUpDto } from './dto/signup.dto';
+import { SignInDto } from './dto/signin.dto';
+import { PrismaService } from '../prisma/prisma.service';
 
 const prisma = new PrismaService();
 const isDev = process.env.NODE_ENV === 'development' || !process.env.NODE_ENV;
@@ -25,11 +29,39 @@ const localOrigins = [
   'https://hoppscotch.io/',
 ];
 
-export async function initializeAuth() {
+async function validateBody<T extends object>(
+  dtoClass: ClassConstructor<T>,
+  body: Record<string, unknown>,
+  APIError: (typeof import('better-auth'))['APIError'],
+): Promise<void> {
+  try {
+    const dataInstance = plainToInstance(dtoClass, body);
+    await validateOrReject(dataInstance);
+  } catch (error: unknown) {
+    if (
+      Array.isArray(error) &&
+      error.every((e) => e instanceof ValidationError)
+    ) {
+      const errorMessages = error.flatMap((err) =>
+        err.constraints ? Object.values(err.constraints) : [],
+      );
+
+      throw new APIError('BAD_REQUEST', {
+        message: errorMessages.join(', '),
+      });
+    }
+
+    throw new APIError('INTERNAL_SERVER_ERROR', {
+      message: 'An unexpected error occurred during validation.',
+    });
+  }
+}
+
+export async function initializeAuth(): Promise<Auth> {
   const { betterAuth, APIError } = await import('better-auth');
   const { prismaAdapter } = await import('better-auth/adapters/prisma');
 
-  return betterAuth({
+  const options: BetterAuthOptions = {
     baseURL: process.env.BETTER_AUTH_URL,
     basePath: '/api/v1/auth',
     secret: process.env.BETTER_AUTH_SECRET,
@@ -47,60 +79,46 @@ export async function initializeAuth() {
     hooks: {
       before: async (ctx) => {
         const requestUrl = ctx.request?.url;
+        if (!requestUrl) return { context: ctx };
 
-        if (requestUrl) {
-          const urlPath = requestUrl.startsWith('http')
-            ? new URL(requestUrl).pathname
-            : requestUrl;
-          if (urlPath.endsWith('/sign-up/email')) {
-            const body = ctx.body as Record<string, any> | undefined;
+        const urlPath = requestUrl.startsWith('http')
+          ? new URL(requestUrl).pathname
+          : requestUrl;
 
-            if (body) {
-              try {
-                const signUpData = plainToInstance(SignUpDto, body);
-                await validateOrReject(signUpData);
-              } catch (error: unknown) {
-                if (
-                  Array.isArray(error) &&
-                  error.every((e) => e instanceof ValidationError)
-                ) {
-                  const errorMessages = error.flatMap((err) =>
-                    err.constraints ? Object.values(err.constraints) : [],
-                  );
+        if (!ctx.body) return { context: ctx };
 
-                  throw new APIError('BAD_REQUEST', {
-                    message: errorMessages.join(', '),
-                  });
-                }
+        const body = ctx.body as Record<string, unknown>;
 
-                throw new APIError('INTERNAL_SERVER_ERROR', {
-                  message: 'An unexpected error occurred during validation.',
+        if (urlPath.endsWith('/sign-up/email')) {
+          if (body.role !== undefined && body.role !== 3) {
+            throw new APIError('BAD_REQUEST', {
+              message: 'Registration is restricted to the default role only.',
+            });
+          }
+          await validateBody(SignUpDto, body, APIError);
+        }
+
+        if (urlPath.endsWith('/sign-in/email')) {
+          await validateBody(SignInDto, body, APIError);
+
+          const email = typeof body.email === 'string' ? body.email : undefined;
+
+          if (email) {
+            const user = await prisma.user.findUnique({
+              where: { email },
+            });
+
+            if (user) {
+              if (user.isDelete) {
+                throw new APIError('FORBIDDEN', {
+                  message: 'This account has been removed.',
                 });
               }
-            }
-          }
 
-          if (urlPath.endsWith('/sign-in/email')) {
-            const body = ctx.body as { email?: string } | undefined;
-            const email = body?.email;
-
-            if (email) {
-              const user = await prisma.user.findUnique({
-                where: { email },
-              });
-
-              if (user) {
-                if (user.isDelete) {
-                  throw new APIError('FORBIDDEN', {
-                    message: 'This account has been removed.',
-                  });
-                }
-
-                if (!user.isActive) {
-                  throw new APIError('FORBIDDEN', {
-                    message: 'This account is currently inactive.',
-                  });
-                }
+              if (!user.isActive) {
+                throw new APIError('FORBIDDEN', {
+                  message: 'This account is currently inactive.',
+                });
               }
             }
           }
@@ -127,8 +145,18 @@ export async function initializeAuth() {
     },
     user: {
       additionalFields: {
-        role: { type: 'number', defaultValue: 3 },
+        customRole: {
+          type: 'number',
+          defaultValue: 3,
+          input: false,
+          fieldName: 'role',
+        },
       },
     },
-  });
+    plugins: [admin()],
+  };
+
+  return betterAuth(options);
 }
+
+export const authPromise = initializeAuth();

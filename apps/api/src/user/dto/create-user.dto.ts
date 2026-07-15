@@ -1,17 +1,20 @@
 import {
   IsEmail,
   IsNotEmpty,
+  IsNumber,
+  IsOptional,
   IsString,
   IsStrongPassword,
   MaxLength,
 } from 'class-validator';
 
-export class SignUpDto {
-  @IsNotEmpty()
+export class CreateUserDto {
   @IsString()
+  @IsNotEmpty()
   name!: string;
 
   @IsEmail()
+  @IsNotEmpty()
   email!: string;
 
   @IsNotEmpty()
@@ -24,4 +27,12 @@ export class SignUpDto {
   })
   @MaxLength(32, { message: 'Password cannot exceed 32 characters.' })
   password!: string;
+
+  @IsNumber()
+  @IsNotEmpty()
+  role!: number;
+
+  @IsString()
+  @IsOptional()
+  phone?: string;
 }

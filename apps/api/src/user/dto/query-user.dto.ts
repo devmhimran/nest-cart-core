@@ -1,6 +1,6 @@
+import { Transform } from 'class-transformer';
 import { IsIn, IsOptional } from 'class-validator';
 
-import { Transform } from 'class-transformer';
 import { UserRole } from '../../constants/enums';
 import { PaginationQueryDto } from '../../common/pagination/dto/pagination-query.dto';
 

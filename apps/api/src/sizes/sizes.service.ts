@@ -38,7 +38,7 @@ export class SizesService {
           userId,
           action: AuditAction.CREATE,
           entity: EntityType.SIZE,
-          entityId: newSize.id,
+          entityId: newSize.id.toString(),
           newData: JSON.stringify(newSize),
         },
       });
@@ -99,7 +99,7 @@ export class SizesService {
           userId,
           action: AuditAction.UPDATE,
           entity: EntityType.SIZE,
-          entityId: updateSize.id,
+          entityId: updateSize.id.toString(),
           oldData: JSON.stringify(oldSize),
           newData: JSON.stringify(updateSize),
         },
@@ -125,7 +125,7 @@ export class SizesService {
           userId,
           action: AuditAction.DELETE,
           entity: EntityType.SIZE,
-          entityId: oldSize.id,
+          entityId: oldSize.id.toString(),
           oldData: JSON.stringify(oldSize),
         },
       });

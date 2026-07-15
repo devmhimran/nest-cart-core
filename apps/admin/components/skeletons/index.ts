@@ -1,4 +1,5 @@
 export * from './sizes-skeleton';
+export * from './users-skeleton';
 export * from './colors-skeleton';
 export * from './user-nav-skeleton';
 export * from './media-grid-skeleton';

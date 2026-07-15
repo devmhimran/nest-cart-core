@@ -68,3 +68,23 @@ export const ACCEPTED_IMAGE_TYPES = [
   'image/webp',
   'image/svg+xml',
 ];
+
+export const requirements = [
+  {
+    label: 'At least 8 characters',
+    test: (val?: string) => (val || '').length >= 8,
+  },
+  {
+    label: 'One lowercase letter',
+    test: (val?: string) => /[a-z]/.test(val || ''),
+  },
+  {
+    label: 'One uppercase letter',
+    test: (val?: string) => /[A-Z]/.test(val || ''),
+  },
+  { label: 'One number', test: (val?: string) => /[0-9]/.test(val || '') },
+  {
+    label: 'One special character (symbol)',
+    test: (val?: string) => /[^a-zA-Z0-9]/.test(val || ''),
+  },
+];
