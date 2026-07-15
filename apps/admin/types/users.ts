@@ -15,4 +15,5 @@ export interface CreateUserType {
   email: string;
   password: string;
   role: UserRole;
+  isActive?: boolean;
 }

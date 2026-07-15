@@ -32,6 +32,7 @@ export default function UsersPage() {
     search: searchParams.get('search') || '',
     page: searchParams.get('page') || '1',
     role: searchParams.get('role') || '',
+    status: searchParams.get('status') || '',
   });
   const [searchQuery, setSearchQuery] = useState(
     searchParams.get('search') || '',

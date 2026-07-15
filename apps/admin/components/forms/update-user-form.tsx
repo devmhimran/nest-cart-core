@@ -64,6 +64,9 @@ const updateUserSchema = z
       .optional()
       .or(z.literal('')),
     role: z.enum(UserRole, { message: 'Please select a role.' }),
+    isActive: z.enum(['ACTIVE', 'INACTIVE'], {
+      message: 'Please select a valid status',
+    }),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords don't match",
@@ -76,6 +79,11 @@ interface UpdateUserFormProps {
   data: UsersType | null;
   setIsOpen: (isOpen: boolean) => void;
 }
+
+const STATUS = {
+  ACTIVE: 'Active',
+  INACTIVE: 'Inactive',
+};
 
 const roleIcons: Record<UserRole, typeof ShieldCheck> = {
   [UserRole.SUPER_ADMIN]: ShieldCheck,
@@ -102,6 +110,7 @@ export function UpdateUserForm({ data, setIsOpen }: UpdateUserFormProps) {
       name: data?.name || '',
       email: data?.email || '',
       role: data?.role ?? undefined,
+      isActive: data?.isActive ? 'ACTIVE' : 'INACTIVE',
     },
   });
 
@@ -111,6 +120,7 @@ export function UpdateUserForm({ data, setIsOpen }: UpdateUserFormProps) {
         name: data.name,
         email: data.email,
         role: data.role,
+        isActive: data?.isActive ? 'ACTIVE' : 'INACTIVE',
       });
     }
   }, [data, reset]);
@@ -124,7 +134,16 @@ export function UpdateUserForm({ data, setIsOpen }: UpdateUserFormProps) {
     setIsSubmitting(true);
 
     const { confirmPassword, ...rest } = formData;
-    const payload = { id: data.id, ...rest };
+
+    const payload = {
+      id: data.id,
+      ...rest,
+      isActive: formData.isActive === 'ACTIVE',
+    };
+
+    if (payload.password === '') {
+      delete payload.password;
+    }
 
     toast.promise(updateUserAsync(payload), {
       loading: 'Updating user...',
@@ -252,6 +271,31 @@ export function UpdateUserForm({ data, setIsOpen }: UpdateUserFormProps) {
             {errors.confirmPassword && (
               <FieldError>{errors.confirmPassword.message}</FieldError>
             )}
+          </Field>
+
+          <Field>
+            <FieldLabel>Status</FieldLabel>
+            <Controller
+              name='isActive'
+              control={control}
+              render={({ field }) => (
+                <Select
+                  value={STATUS[field.value]}
+                  onValueChange={field.onChange}
+                >
+                  <SelectTrigger className='w-full'>
+                    <SelectValue placeholder='Select status...'></SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.keys(STATUS).map((key) => (
+                      <SelectItem key={key} value={key}>
+                        {STATUS[key as keyof typeof STATUS]}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            />
           </Field>
 
           <Field>

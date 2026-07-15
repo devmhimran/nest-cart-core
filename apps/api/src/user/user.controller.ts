@@ -2,6 +2,7 @@ import { UserService } from './user.service';
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Patch,
@@ -52,5 +53,11 @@ export class UserController {
   ) {
     const userId = user?.id;
     return this.userService.updateUser(id, updateUserDto, userId);
+  }
+
+  @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)
+  @Delete(':id')
+  remove(@Param('id') id: string, @AuthCtx() user: AuthUser) {
+    return this.userService.removeUser(id, user?.id);
   }
 }

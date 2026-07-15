@@ -1,4 +1,5 @@
 import {
+  IsBoolean,
   IsEmail,
   IsNotEmpty,
   IsNumber,
@@ -35,4 +36,8 @@ export class CreateUserDto {
   @IsString()
   @IsOptional()
   phone?: string;
+
+  @IsBoolean()
+  @IsOptional()
+  isActive?: boolean;
 }

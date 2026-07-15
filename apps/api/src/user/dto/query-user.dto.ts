@@ -1,7 +1,7 @@
 import { Transform } from 'class-transformer';
 import { IsIn, IsOptional } from 'class-validator';
 
-import { UserRole } from '../../constants/enums';
+import { UserRole, UserStatusInput } from '../../constants/enums';
 import { PaginationQueryDto } from '../../common/pagination/dto/pagination-query.dto';
 
 export class UserQueryDto extends PaginationQueryDto {
@@ -22,4 +22,13 @@ export class UserQueryDto extends PaginationQueryDto {
       'role must be one of the following values: SUPER_ADMIN, ADMIN, MODERATOR',
   })
   role?: UserRole;
+
+  @IsOptional()
+  @Transform(({ value }: { value: unknown }): string | undefined =>
+    typeof value === 'string' ? value.toUpperCase() : undefined,
+  )
+  @IsIn([UserStatusInput.ACTIVE, UserStatusInput.INACTIVE], {
+    message: 'status must be one of the following values: ACTIVE, INACTIVE',
+  })
+  status?: UserStatusInput;
 }
