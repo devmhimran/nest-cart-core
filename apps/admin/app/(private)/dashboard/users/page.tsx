@@ -25,8 +25,7 @@ export default function UsersPage() {
   const [updateModalOpen, setUpdateModalOpen] = useState(false);
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<UsersType | null>(null);
-  const [loadingDelete, setLoadingDelete] = useState(false);
-  const { deleteUserAsync } = useUsers();
+  const { deleteUserAsync, deleteUserMutation } = useUsers();
 
   const [params, setParams] = useState({
     search: searchParams.get('search') || '',
@@ -66,17 +65,14 @@ export default function UsersPage() {
 
   const handleDeleteUser = async () => {
     if (!selectedUser) return;
-    setLoadingDelete(true);
 
     toast.promise(deleteUserAsync(selectedUser.id), {
       loading: 'Deleting user...',
       success: () => {
-        setLoadingDelete(false);
         setConfirmModalOpen(false);
         return 'User deleted successfully';
       },
       error: (err) => {
-        setLoadingDelete(false);
         return getErrorMessage(err);
       },
     });
@@ -142,7 +138,7 @@ export default function UsersPage() {
         title={`Are you sure you want to delete ${selectedUser?.name || 'this user'}?`}
         isOpen={confirmModalOpen}
         setIsOpen={setConfirmModalOpen}
-        loading={loadingDelete}
+        loading={deleteUserMutation.isPending}
         onClick={handleDeleteUser}
       />
     </div>
