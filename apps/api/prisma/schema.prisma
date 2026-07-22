@@ -32,6 +32,7 @@ model User {
   mediaUploaded MediaLibrary[] @relation("MediaUploadedBy")
   notifications Notification[]
   auditLogs     AuditLog[]
+  chatSession ChatSession[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -103,6 +104,31 @@ model CustomerProfile {
   updatedAt DateTime @updatedAt
 
   @@map("customer_profile")
+}
+
+// --- CHAT SESSION ---
+model ChatSession {
+  id        String        @id @default(cuid())
+  userId    String
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String?       
+  messages  ChatMessage[]
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  @@map("chat_session")
+}
+
+model ChatMessage {
+  id            String      @id @default(cuid())
+  chatSessionId String
+  chatSession   ChatSession @relation(fields: [chatSessionId], references: [id], onDelete: Cascade)
+  role          String      // 'user' | 'assistant' | 'tool'
+  content       String      @db.Text
+  toolCalls     Json?       // Stores pending proposals or tool results
+  createdAt     DateTime    @default(now())
+
+  @@map("chat_message")
 }
 
 // --- MEDIA SYSTEM ---
