@@ -32,7 +32,7 @@ export default function PrivateLayout({
         <SidebarInset className='flex flex-col flex-1 min-w-0 h-full overflow-hidden'>
           <header className='flex h-16 shrink-0 items-center gap-2 border-b px-4'>
             <SidebarTrigger className='-ml-1' />
-            <Separator orientation='vertical' className='h-4' />
+            <Separator orientation='vertical' />
             <h1 className='text-lg font-semibold'>Nest Cart Core</h1>
             <div className='ml-auto'>
               <div className='flex items-center gap-2'>
