@@ -11,7 +11,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { paginate } from '../common/pagination/paginate.util';
 import { CreateUserDto } from './dto/create-user.dto';
 import { authPromise } from '../auth/auth.config';
-import { AuditAction, EntityType } from '../constants/enums';
+import { AuditAction, EntityType, UserStatusInput } from '../constants/enums';
 import { UpdateUserDto } from './dto/update-user.dto';
 
 const scryptConfig = { N: 16384, r: 16, p: 1, dkLen: 64 };
@@ -78,12 +78,17 @@ export class UserService {
   }
 
   async findAll(query: UserQueryDto) {
-    const { search, role } = query;
-    const where: Prisma.UserWhereInput = {};
-
-    where.role = {
-      not: 3,
+    const { search, role, status } = query;
+    const where: Prisma.UserWhereInput = {
+      isDelete: false,
+      role: {
+        not: 3,
+      },
     };
+
+    if (status !== undefined) {
+      where.isActive = status === UserStatusInput.ACTIVE;
+    }
 
     if (search) {
       where.OR = [
@@ -196,7 +201,7 @@ export class UserService {
       }
     }
 
-    if (dto.password) {
+    if (dto.password && dto.password.trim() !== '') {
       try {
         const hashedPassword = await hashPassword(dto.password);
 
@@ -239,6 +244,7 @@ export class UserService {
           email: dto.email,
           role: dto.role,
           phone: dto.phone,
+          ...(dto.isActive !== undefined ? { isActive: dto.isActive } : {}),
         },
       });
 
@@ -262,6 +268,31 @@ export class UserService {
           phone: updatedUser.phone,
         },
       };
+    });
+  }
+
+  async removeUser(id: string, userId?: string) {
+    return this.prismaService.$transaction(async (tx) => {
+      const user = await tx.user.findUnique({ where: { id } });
+
+      if (!user) {
+        throw new NotFoundException('User profile not found.');
+      }
+
+      await tx.user.update({
+        where: { id },
+        data: { isDelete: true },
+      });
+
+      await tx.auditLog.create({
+        data: {
+          userId,
+          action: AuditAction.DELETE,
+          entity: EntityType.USER,
+          entityId: user.id,
+          oldData: JSON.stringify(user),
+        },
+      });
     });
   }
 }

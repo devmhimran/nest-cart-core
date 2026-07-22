@@ -29,6 +29,8 @@ export function useUsers() {
           name: data.name,
           email: data.email,
           role: data.role,
+          isActive: data.isActive,
+          password: data.password,
         })
         .then((response) => response.data);
       return res;

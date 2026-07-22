@@ -25,13 +25,13 @@ export default function UsersPage() {
   const [updateModalOpen, setUpdateModalOpen] = useState(false);
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<UsersType | null>(null);
-  const [loadingDelete, setLoadingDelete] = useState(false);
-  const { deleteUserAsync } = useUsers();
+  const { deleteUserAsync, deleteUserMutation } = useUsers();
 
   const [params, setParams] = useState({
     search: searchParams.get('search') || '',
     page: searchParams.get('page') || '1',
     role: searchParams.get('role') || '',
+    status: searchParams.get('status') || '',
   });
   const [searchQuery, setSearchQuery] = useState(
     searchParams.get('search') || '',
@@ -65,25 +65,22 @@ export default function UsersPage() {
 
   const handleDeleteUser = async () => {
     if (!selectedUser) return;
-    setLoadingDelete(true);
 
     toast.promise(deleteUserAsync(selectedUser.id), {
       loading: 'Deleting user...',
       success: () => {
-        setLoadingDelete(false);
         setConfirmModalOpen(false);
         return 'User deleted successfully';
       },
       error: (err) => {
-        setLoadingDelete(false);
         return getErrorMessage(err);
       },
     });
   };
 
   return (
-    <div className='space-y-6 w-full md:w-5/6 lg:w-4/5 mx-auto px-4 py-6'>
-      <div className='flex items-center justify-between gap-4 border-b pb-4'>
+    <div className='space-y-5 w-full md:w-5/6 lg:w-4/5 mx-auto px-4 py-6'>
+      <div className='flex flex-col md:flex-row md:items-center justify-between gap-4 border-b pb-4'>
         <div className='space-y-1'>
           <h1 className='text-2xl font-bold tracking-tight text-foreground'>
             Users
@@ -141,7 +138,7 @@ export default function UsersPage() {
         title={`Are you sure you want to delete ${selectedUser?.name || 'this user'}?`}
         isOpen={confirmModalOpen}
         setIsOpen={setConfirmModalOpen}
-        loading={loadingDelete}
+        loading={deleteUserMutation.isPending}
         onClick={handleDeleteUser}
       />
     </div>

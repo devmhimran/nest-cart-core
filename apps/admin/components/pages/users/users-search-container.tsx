@@ -20,6 +20,7 @@ interface ParamsProps {
   search: string;
   page: string;
   role: string;
+  status: string;
 }
 
 interface UsersSearchContainerProps {
@@ -37,6 +38,12 @@ const userRole = [
   { value: 'MODERATOR', label: 'Moderator' },
 ];
 
+const status = [
+  { value: '', label: 'All Statuses' },
+  { value: 'ACTIVE', label: 'Active' },
+  { value: 'INACTIVE', label: 'Inactive' },
+];
+
 export function UsersSearchContainer({
   searchQuery,
   setSearchQuery,
@@ -45,7 +52,7 @@ export function UsersSearchContainer({
   debounced,
 }: UsersSearchContainerProps) {
   return (
-    <Card>
+    <Card className='gap-4 py-4'>
       <CardHeader>
         <CardTitle>Search</CardTitle>
       </CardHeader>
@@ -70,12 +77,32 @@ export function UsersSearchContainer({
               setParams((prev) => ({ ...prev, page: '1', role: value ?? '' }))
             }
           >
-            <SelectTrigger className='w-full md:w-40'>
-              <SelectValue placeholder='Role' />
+            <SelectTrigger className='w-full md:w-44 shadow-none'>
+              <SelectValue placeholder='User Role' />
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>
                 {userRole.map((item) => (
+                  <SelectItem key={item.value} value={item.value}>
+                    {item.label}
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+          <Select
+            items={status}
+            value={params.status}
+            onValueChange={(value) =>
+              setParams((prev) => ({ ...prev, page: '1', status: value ?? '' }))
+            }
+          >
+            <SelectTrigger className='w-full md:w-40 shadow-none'>
+              <SelectValue placeholder='Status' />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                {status.map((item) => (
                   <SelectItem key={item.value} value={item.value}>
                     {item.label}
                   </SelectItem>
@@ -109,6 +136,21 @@ export function UsersSearchContainer({
                   setParams((prev) => ({
                     ...prev,
                     role: '',
+                  }));
+                }}
+              >
+                <X className='w-4 h-4 cursor-pointer' />
+              </span>
+            </Badge>
+          )}
+          {params.status && (
+            <Badge variant='outline'>
+              {status.find((item) => item.value === params.status)?.label}{' '}
+              <span
+                onClick={() => {
+                  setParams((prev) => ({
+                    ...prev,
+                    status: '',
                   }));
                 }}
               >

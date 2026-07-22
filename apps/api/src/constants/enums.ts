@@ -45,3 +45,8 @@ export enum EntityType {
   SUB_CATEGORY = 8,
   MEDIA = 9,
 }
+
+export enum UserStatusInput {
+  ACTIVE = 'ACTIVE',
+  INACTIVE = 'INACTIVE',
+}
