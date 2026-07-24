@@ -18,11 +18,13 @@ import { CustomersModule } from '../customers/customers.module';
 import { CategoriesModule } from '../categories/categories.module';
 import { PromoCodesModule } from '../promo-codes/promo-codes.module';
 import { SubCategoriesModule } from '../sub-category/sub-categories.module';
+import { ChatModule } from '../chat/chat.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
     AuthModule,
+    ChatModule,
     UserModule,
     SizesModule,
     MediaModule,
