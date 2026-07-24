@@ -7,12 +7,13 @@ import {
   Delete,
   Res,
 } from '@nestjs/common';
+import type { Response } from 'express';
+
 import { ChatService } from './chat.service';
 import { CreateChatDto } from './dto/create-chat.dto';
 import type { AuthUser } from '../auth/auth.interface';
-import { AuthCtx } from '../user/decorators/user.decorator';
 import { SendMessageDto } from './dto/send-message.dto';
-import type { Response } from 'express';
+import { AuthCtx } from '../user/decorators/user.decorator';
 
 @Controller('chat')
 export class ChatController {
@@ -46,14 +47,12 @@ export class ChatController {
     @Body() dto: SendMessageDto,
     @Res() res: Response,
   ) {
-    // 1. Set SSE & Stream headers manually
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
-    res.setHeader('X-Accel-Buffering', 'no'); // Prevents Nginx from buffering stream chunks
+    res.setHeader('X-Accel-Buffering', 'no');
     res.flushHeaders();
 
-    // 2. Delegate streaming logic to the service
     await this.chatService.sendMessageStream(user.id, chatId, dto, res);
   }
 

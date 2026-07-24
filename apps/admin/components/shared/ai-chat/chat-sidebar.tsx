@@ -5,6 +5,7 @@ import { XIcon, BotIcon } from 'lucide-react';
 import { Button, Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui';
 import { ChatContainer } from './chat-container';
 import { ChatHistory } from './chat-history';
+import { useState } from 'react';
 
 interface ChatSidebarProps {
   open: boolean;
@@ -12,6 +13,26 @@ interface ChatSidebarProps {
 }
 
 export function ChatSidebar({ open, onClose }: ChatSidebarProps) {
+  // 1. Keep track of current selected chat & active tab
+  const [activeChatId, setActiveChatId] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<'chat' | 'history'>('chat');
+
+  // Callback when user creates a brand new chat
+  const handleChatCreated = (newChatId: string) => {
+    setActiveChatId(newChatId);
+  };
+
+  // Callback when user selects a past chat from History tab
+  const handleSelectChatFromHistory = (chatId: string) => {
+    setActiveChatId(chatId);
+    setActiveTab('chat'); // Automatically switch back to chat view
+  };
+
+  // Callback when user clicks "+ New Chat"
+  const handleNewChat = () => {
+    setActiveChatId(null);
+    setActiveTab('chat');
+  };
   return (
     <aside
       className={`relative flex flex-col h-full border-l bg-background transition-all duration-300 ease-in-out ${
@@ -47,8 +68,12 @@ export function ChatSidebar({ open, onClose }: ChatSidebarProps) {
           </Button>
         </div>
 
-        {/* Tabs - Added flex & flex-1 */}
-        <Tabs defaultValue='chat' className='p-2 flex flex-col flex-1 min-h-0'>
+        {/* Tabs */}
+        <Tabs
+          value={activeTab}
+          onValueChange={(val) => setActiveTab(val as 'chat' | 'history')}
+          className='p-2 flex flex-col flex-1 min-h-0'
+        >
           <TabsList className='w-full shrink-0'>
             <TabsTrigger value='chat' className='w-full'>
               Chat
@@ -58,18 +83,28 @@ export function ChatSidebar({ open, onClose }: ChatSidebarProps) {
             </TabsTrigger>
           </TabsList>
 
-          {/* TabsContent - Added flex-1 flex flex-col min-h-0 */}
+          {/* Chat Tab Content */}
           <TabsContent
             value='chat'
             className='flex-1 flex flex-col min-h-0 mt-2 data-[state=inactive]:hidden'
           >
-            <ChatContainer />
+            {/* PASS PROPS HERE */}
+            <ChatContainer
+              chatId={activeChatId}
+              onChatCreated={handleChatCreated}
+            />
           </TabsContent>
+
+          {/* History Tab Content */}
           <TabsContent
             value='history'
             className='flex-1 flex flex-col min-h-0 mt-2 data-[state=inactive]:hidden'
           >
-            <ChatHistory />
+            <ChatHistory
+            // activeChatId={activeChatId}
+            // onSelectChat={handleSelectChatFromHistory}
+            // onNewChat={handleNewChat}
+            />
           </TabsContent>
         </Tabs>
       </div>

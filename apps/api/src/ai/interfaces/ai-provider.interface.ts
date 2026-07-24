@@ -24,11 +24,8 @@ export interface AiResponse {
 }
 
 export interface IAiProvider {
-  /**
-   * Generates a structured response based on message history and system prompts.
-   * Must handle provider-specific errors and map structured outputs consistently.
-   */
   generateResponse(history: AiChatMessage[]): Promise<AiResponse>;
+  generateResponseStream(history: AiChatMessage[]): AsyncIterable<string>;
 }
 
 export const AI_PROVIDER_STRATEGY = 'AI_PROVIDER_STRATEGY';

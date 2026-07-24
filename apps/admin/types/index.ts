@@ -7,3 +7,4 @@ export * from './promo-code';
 export * from './media-library';
 export * from './categories';
 export * from './sub-categories';
+export * from './chat';

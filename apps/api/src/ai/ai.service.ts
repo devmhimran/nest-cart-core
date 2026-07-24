@@ -16,15 +16,21 @@ export class AiService {
     private readonly aiProvider: IAiProvider,
   ) {}
 
-  /**
-   * Delegates completion generation to the injected AI strategy.
-   * ChatService calls this method without knowing whether LM Studio or Gemini is active.
-   */
   async generateResponse(history: AiChatMessage[]): Promise<AiResponse> {
     this.logger.debug(
-      `Delegating generation request with ${history.length} messages to active AI provider strategy.`,
+      `Delegating batch generation request with ${history.length} messages to active AI provider strategy.`,
     );
 
     return this.aiProvider.generateResponse(history);
+  }
+
+  async *generateResponseStream(
+    history: AiChatMessage[],
+  ): AsyncIterable<string> {
+    this.logger.debug(
+      `Delegating stream request with ${history.length} messages to active AI provider strategy.`,
+    );
+
+    yield* this.aiProvider.generateResponseStream(history);
   }
 }

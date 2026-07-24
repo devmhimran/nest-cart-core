@@ -2,6 +2,7 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
+  Logger,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { AiService } from '../ai/ai.service';
@@ -17,13 +18,9 @@ import {
 } from '../ai/interfaces/ai-provider.interface';
 import type { Response } from 'express';
 
-interface StreamChunk {
-  text?: string;
-  metadata?: Record<string, unknown>;
-}
-
 @Injectable()
 export class ChatService {
+  private readonly logger = new Logger(ChatService.name);
   constructor(
     private readonly prisma: PrismaService,
     private readonly aiService: AiService,
@@ -105,7 +102,6 @@ export class ChatService {
     });
 
     if (!session) {
-      // Send error frame and close response stream
       res.write(
         `data: ${JSON.stringify({
           type: 'error',
@@ -144,31 +140,24 @@ export class ChatService {
     }));
     history.push({ role: MessageRole.USER, content: dto.content });
 
-    // 3. Stream from AI Provider
-    let fullContent = '';
-    let metadata: Record<string, any> | undefined;
+    let rawAccumulatedJson = '';
 
     try {
-      const stream = (await this.aiService.generateResponse(
-        history,
-      )) as unknown as AsyncIterable<string | StreamChunk>;
+      const stream = this.aiService.generateResponseStream(history);
 
-      for await (const rawChunk of stream) {
-        // If your AI provider returns object chunks containing metadata alongside text tokens:
-        if (typeof rawChunk === 'string') {
-          fullContent += rawChunk;
+      for await (const chunk of stream) {
+        if (typeof chunk === 'string') {
+          rawAccumulatedJson += chunk;
+
+          // Stream raw tokens to the client
           res.write(
-            `data: ${JSON.stringify({ type: 'token', content: rawChunk })}\n\n`,
-          );
-        } else if (rawChunk?.text) {
-          fullContent += rawChunk.text;
-          if (rawChunk.metadata) metadata = rawChunk.metadata;
-          res.write(
-            `data: ${JSON.stringify({ type: 'token', content: rawChunk.text })}\n\n`,
+            `data: ${JSON.stringify({ type: 'token', content: chunk })}\n\n`,
           );
         }
       }
-    } catch {
+    } catch (error) {
+      this.logger.error('Error during AI streaming:', error);
+
       await this.prisma.chatMessage.create({
         data: {
           chatSessionId: chatId,
@@ -188,20 +177,41 @@ export class ChatService {
       return;
     }
 
-    // 4. Save assistant message after full response stream finishes
+    let finalContent = rawAccumulatedJson;
+    let metadata: Record<string, unknown> = { type: 'text' };
+
+    try {
+      const sanitized = rawAccumulatedJson
+        .replace(/^```json\s*/i, '')
+        .replace(/^```\s*/i, '')
+        .replace(/\s*```$/, '')
+        .trim();
+
+      const parsed = JSON.parse(sanitized) as {
+        message?: string;
+        metadata?: Record<string, unknown>;
+      };
+
+      if (parsed && typeof parsed === 'object' && parsed.message) {
+        finalContent = parsed.message;
+        if (parsed.metadata) {
+          metadata = parsed.metadata;
+        }
+      }
+    } catch {
+      finalContent = rawAccumulatedJson;
+    }
+
     const assistantMessage = await this.prisma.chatMessage.create({
       data: {
         chatSessionId: chatId,
         role: MessageRole.ASSISTANT,
-        content: fullContent,
-        metadata: metadata
-          ? (metadata as unknown as Prisma.InputJsonValue)
-          : Prisma.JsonNull,
+        content: finalContent,
+        metadata: metadata as unknown as Prisma.InputJsonValue,
         status: MessageStatus.COMPLETED,
       },
     });
 
-    // 5. Update session timing and initial title
     const isFirstExchange = session.messages.length === 0;
     const computedTitle = isFirstExchange
       ? dto.content.slice(0, 30) + (dto.content.length > 30 ? '...' : '')
@@ -215,7 +225,6 @@ export class ChatService {
       },
     });
 
-    // Signal stream end and pass final assistant message
     res.write(
       `data: ${JSON.stringify({
         type: 'done',
@@ -225,7 +234,6 @@ export class ChatService {
 
     res.end();
   }
-
   async updateProposalStatus(
     userId: string,
     chatId: string,
