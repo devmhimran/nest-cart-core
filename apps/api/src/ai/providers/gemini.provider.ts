@@ -16,6 +16,7 @@ import {
   IAiProvider,
 } from '../interfaces/ai-provider.interface';
 import { getSystemPrompt } from '../prompts/crud-system.prompt';
+import { MessageRole } from '../../constants/enums';
 
 interface ParsedResponse {
   message: string;
@@ -80,7 +81,7 @@ export class GeminiProvider implements IAiProvider {
    */
   private mapHistoryToGeminiContents(history: AiChatMessage[]): Content[] {
     return history.map((msg) => ({
-      role: msg.role === 'assistant' ? 'model' : 'user',
+      role: msg.role === MessageRole.ASSISTANT ? 'model' : 'user',
       parts: [{ text: msg.content }],
     }));
   }

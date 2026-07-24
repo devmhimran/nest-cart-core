@@ -2,7 +2,6 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
-  InternalServerErrorException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { AiService } from '../ai/ai.service';
@@ -14,9 +13,14 @@ import { Prisma } from '../../generated/prisma/client';
 import { MessageRole, MessageStatus } from '../constants/enums';
 import {
   AiChatMessage,
-  AiResponse,
   AiResponseMetadata,
 } from '../ai/interfaces/ai-provider.interface';
+import type { Response } from 'express';
+
+interface StreamChunk {
+  text?: string;
+  metadata?: Record<string, unknown>;
+}
 
 @Injectable()
 export class ChatService {
@@ -25,11 +29,7 @@ export class ChatService {
     private readonly aiService: AiService,
   ) {}
 
-  /**
-   * Initializes a new chat session for an authenticated user.
-   * Optionally persists an initial message and triggers the AI response flow.
-   */
-  async createConversation(userId: string, dto: CreateChatDto) {
+  async createConversation(userId: string, dto: CreateChatDto, res?: Response) {
     const session = await this.prisma.chatSession.create({
       data: {
         userId,
@@ -39,17 +39,22 @@ export class ChatService {
     });
 
     if (dto.initialMessage) {
-      return this.sendMessage(userId, session.id, {
-        content: dto.initialMessage,
-      });
+      if (!res) {
+        throw new Error('Response object is required for streaming');
+      }
+      return this.sendMessageStream(
+        userId,
+        session.id,
+        {
+          content: dto.initialMessage,
+        },
+        res,
+      );
     }
 
     return session;
   }
 
-  /**
-   * Retrieves all chat sessions for a specific user, sorted by last active time.
-   */
   async getConversations(userId: string) {
     return this.prisma.chatSession.findMany({
       where: { userId },
@@ -67,9 +72,6 @@ export class ChatService {
     });
   }
 
-  /**
-   * Retrieves a single chat session with ordered message history.
-   */
   async getConversation(userId: string, chatId: string) {
     const conversation = await this.prisma.chatSession.findFirst({
       where: { id: chatId, userId },
@@ -87,16 +89,12 @@ export class ChatService {
     return conversation;
   }
 
-  /**
-   * Main messaging flow:
-   * 1. Validates ownership
-   * 2. Persists User message
-   * 3. Fetches history & converts to AiChatMessage[]
-   * 4. Sends history to AiService
-   * 5. Persists Assistant response
-   * 6. Updates session timestamp & auto-titles initial chats
-   */
-  async sendMessage(userId: string, chatId: string, dto: SendMessageDto) {
+  async sendMessageStream(
+    userId: string,
+    chatId: string,
+    dto: SendMessageDto,
+    res: Response,
+  ): Promise<void> {
     const session = await this.prisma.chatSession.findFirst({
       where: { id: chatId, userId },
       include: {
@@ -107,10 +105,18 @@ export class ChatService {
     });
 
     if (!session) {
-      throw new NotFoundException('Conversation not found');
+      // Send error frame and close response stream
+      res.write(
+        `data: ${JSON.stringify({
+          type: 'error',
+          message: 'Conversation not found',
+        })}\n\n`,
+      );
+      res.end();
+      return;
     }
 
-    // 1. Save User Message
+    // 1. Save user message immediately
     const userMessage = await this.prisma.chatMessage.create({
       data: {
         chatSessionId: chatId,
@@ -120,21 +126,49 @@ export class ChatService {
       },
     });
 
-    // 2. Map existing DB history to generic AI provider format
+    // Notify client about created user message
+    res.write(
+      `data: ${JSON.stringify({
+        type: 'user_message_created',
+        userMessage,
+      })}\n\n`,
+    );
+
+    // 2. Prepare message history
     const history: AiChatMessage[] = session.messages.map((msg) => ({
-      role: msg.role === 'USER' ? 'user' : 'assistant',
+      role:
+        (msg.role as MessageRole) === MessageRole.USER
+          ? MessageRole.USER
+          : MessageRole.ASSISTANT,
       content: msg.content,
     }));
+    history.push({ role: MessageRole.USER, content: dto.content });
 
-    // Append current user query to execution history
-    history.push({ role: 'user', content: dto.content });
+    // 3. Stream from AI Provider
+    let fullContent = '';
+    let metadata: Record<string, any> | undefined;
 
-    // 3. Delegate to provider-agnostic AiService
-    let aiResponse: AiResponse;
     try {
-      aiResponse = await this.aiService.generateResponse(history);
+      const stream = (await this.aiService.generateResponse(
+        history,
+      )) as unknown as AsyncIterable<string | StreamChunk>;
+
+      for await (const rawChunk of stream) {
+        // If your AI provider returns object chunks containing metadata alongside text tokens:
+        if (typeof rawChunk === 'string') {
+          fullContent += rawChunk;
+          res.write(
+            `data: ${JSON.stringify({ type: 'token', content: rawChunk })}\n\n`,
+          );
+        } else if (rawChunk?.text) {
+          fullContent += rawChunk.text;
+          if (rawChunk.metadata) metadata = rawChunk.metadata;
+          res.write(
+            `data: ${JSON.stringify({ type: 'token', content: rawChunk.text })}\n\n`,
+          );
+        }
+      }
     } catch {
-      // Save failed assistant message marker for continuity
       await this.prisma.chatMessage.create({
         data: {
           chatSessionId: chatId,
@@ -143,31 +177,36 @@ export class ChatService {
           status: MessageStatus.FAILED,
         },
       });
-      throw new InternalServerErrorException(
-        'Failed to process request with AI provider',
+
+      res.write(
+        `data: ${JSON.stringify({
+          type: 'error',
+          message: 'Failed to process request with AI provider',
+        })}\n\n`,
       );
+      res.end();
+      return;
     }
 
-    // 4. Save Assistant Message
+    // 4. Save assistant message after full response stream finishes
     const assistantMessage = await this.prisma.chatMessage.create({
       data: {
         chatSessionId: chatId,
         role: MessageRole.ASSISTANT,
-        content: aiResponse.message,
-        metadata: aiResponse.metadata
-          ? (aiResponse.metadata as unknown as Prisma.InputJsonValue)
+        content: fullContent,
+        metadata: metadata
+          ? (metadata as unknown as Prisma.InputJsonValue)
           : Prisma.JsonNull,
         status: MessageStatus.COMPLETED,
       },
     });
 
-    // 5. Generate dynamic title if this is the first exchange
+    // 5. Update session timing and initial title
     const isFirstExchange = session.messages.length === 0;
     const computedTitle = isFirstExchange
       ? dto.content.slice(0, 30) + (dto.content.length > 30 ? '...' : '')
       : session.title;
 
-    // 6. Update session metadata
     await this.prisma.chatSession.update({
       where: { id: chatId },
       data: {
@@ -176,15 +215,17 @@ export class ChatService {
       },
     });
 
-    return {
-      userMessage,
-      assistantMessage,
-    };
+    // Signal stream end and pass final assistant message
+    res.write(
+      `data: ${JSON.stringify({
+        type: 'done',
+        assistantMessage,
+      })}\n\n`,
+    );
+
+    res.end();
   }
 
-  /**
-   * Updates proposal state inside a message's metadata after client-side CRUD execution.
-   */
   async updateProposalStatus(
     userId: string,
     chatId: string,
@@ -211,7 +252,6 @@ export class ChatService {
       );
     }
 
-    // Update proposal status nested inside JSON metadata
     const updatedProposal = {
       ...currentMetadata.proposal,
       status: dto.status,
@@ -232,9 +272,6 @@ export class ChatService {
     });
   }
 
-  /**
-   * Deletes a conversation session and cascades deletion of all contained messages.
-   */
   async deleteConversation(userId: string, chatId: string) {
     const conversation = await this.prisma.chatSession.findFirst({
       where: { id: chatId, userId },

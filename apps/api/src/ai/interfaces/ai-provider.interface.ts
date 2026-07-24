@@ -1,5 +1,7 @@
+import { MessageRole } from '../../constants/enums';
+
 export interface AiChatMessage {
-  role: 'system' | 'user' | 'assistant';
+  role: MessageRole;
   content: string;
 }
 
