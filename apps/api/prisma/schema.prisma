@@ -32,7 +32,7 @@ model User {
   mediaUploaded MediaLibrary[] @relation("MediaUploadedBy")
   notifications Notification[]
   auditLogs     AuditLog[]
-  chatSession ChatSession[]
+  chatSession   ChatSession[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -108,25 +108,38 @@ model CustomerProfile {
 
 // --- CHAT SESSION ---
 model ChatSession {
-  id        String        @id @default(cuid())
-  userId    String
-  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  title     String?       
-  messages  ChatMessage[]
-  createdAt DateTime      @default(now())
-  updatedAt DateTime      @updatedAt
+  id String @id @default(cuid())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  title String?
+
+  lastMessageAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  messages ChatMessage[]
 
   @@map("chat_session")
 }
 
 model ChatMessage {
-  id            String      @id @default(cuid())
+  id String @id @default(cuid())
+
   chatSessionId String
   chatSession   ChatSession @relation(fields: [chatSessionId], references: [id], onDelete: Cascade)
-  role          String      // 'user' | 'assistant' | 'tool'
-  content       String      @db.Text
-  toolCalls     Json?       // Stores pending proposals or tool results
-  createdAt     DateTime    @default(now())
+
+  role MessageRole
+
+  content String @db.Text
+
+  metadata Json?
+
+  status MessageStatus @default(COMPLETED)
+
+  createdAt DateTime @default(now())
 
   @@map("chat_message")
 }
@@ -392,4 +405,17 @@ model PromoCode {
   updatedAt DateTime @updatedAt
 
   @@map("promo_code")
+}
+
+enum MessageRole {
+  USER
+  ASSISTANT
+  TOOL
+  SYSTEM
+}
+
+enum MessageStatus {
+  PENDING
+  COMPLETED
+  FAILED
 }
