@@ -50,3 +50,16 @@ export enum UserStatusInput {
   ACTIVE = 'ACTIVE',
   INACTIVE = 'INACTIVE',
 }
+
+export enum MessageRole {
+  USER = 'USER',
+  ASSISTANT = 'ASSISTANT',
+  TOOL = 'TOOL',
+  SYSTEM = 'SYSTEM',
+}
+
+export enum MessageStatus {
+  PENDING = 'PENDING',
+  COMPLETED = 'COMPLETED',
+  FAILED = 'FAILED',
+}
