@@ -9,7 +9,7 @@ import {
   MessageScrollerProvider,
 } from '@repo/ui';
 import { ArrowUpIcon } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
 import { ChatMessageScroller } from './chat-message-scroller';
 import { ChatContainerEmptyState } from './chat-container-empty-state';
 
@@ -154,13 +154,21 @@ export function ChatContainer({
     }
   };
 
-  useEffect(() => {
-    if (!viewportRef.current) return;
-    const { scrollTop, scrollHeight, clientHeight } = viewportRef.current;
+  useLayoutEffect(() => {
+    const viewport = viewportRef.current;
+    if (!viewport) return;
+
+    const { scrollTop, scrollHeight, clientHeight } = viewport;
     const isNearBottom = scrollHeight - scrollTop - clientHeight < 150;
 
     if (isNearBottom) {
-      scrollToBottom();
+      const raf = requestAnimationFrame(() => {
+        viewport.scrollTo({
+          top: viewport.scrollHeight,
+          behavior: 'auto',
+        });
+      });
+      return () => cancelAnimationFrame(raf);
     } else {
       setShowScrollDown(true);
     }
