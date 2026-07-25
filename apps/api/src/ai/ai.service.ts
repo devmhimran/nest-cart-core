@@ -1,10 +1,10 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import {
-  AI_PROVIDER_STRATEGY,
-  AiChatMessage,
-  AiResponse,
-} from './interfaces/ai-provider.interface';
 
+import {
+  AiResponse,
+  AiChatMessage,
+  AI_PROVIDER_STRATEGY,
+} from './interfaces/ai-provider.interface';
 import type { IAiProvider } from './interfaces/ai-provider.interface';
 
 @Injectable()

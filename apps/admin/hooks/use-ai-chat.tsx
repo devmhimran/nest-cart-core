@@ -1,12 +1,30 @@
 'use client';
 
 import { chatApi } from '@/api';
+import { getQueryClient } from '@/lib/react-query';
 import { AiChatConversation, Response } from '@/types';
-import { keepPreviousData, useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useMutation, useQuery } from '@tanstack/react-query';
+
+const queryClient = getQueryClient();
+
+export function useAiChatOptions() {
+  const deleteConversationMutation = useMutation({
+    mutationFn: async (id: string) => await chatApi.deleteConversation(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['conversations'] });
+    },
+  });
+
+  return {
+    deleteConversationMutation,
+    deleteConversation: deleteConversationMutation.mutate,
+    deleteConversationMutationAsync: deleteConversationMutation.mutateAsync,
+  };
+}
 
 export function useGetAiChat(options?: string) {
   const fetchAiChatsMutation = useQuery<Response<AiChatConversation[]>>({
-    queryKey: ['colors', options],
+    queryKey: ['conversations', options],
     queryFn: async () => {
       const res = await chatApi
         .getConversations()

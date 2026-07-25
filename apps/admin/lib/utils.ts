@@ -88,3 +88,20 @@ export const requirements = [
     test: (val?: string) => /[^a-zA-Z0-9]/.test(val || ''),
   },
 ];
+
+export const formatRelativeTime = (isoString: string) => {
+  if (!isoString) return '';
+  const date = new Date(isoString);
+  const now = new Date();
+  const diffInHours = Math.floor(
+    (now.getTime() - date.getTime()) / (1000 * 60 * 60),
+  );
+
+  if (diffInHours < 1) return 'Just now';
+  if (diffInHours < 24) return `${diffInHours}h ago`;
+  if (diffInHours < 48) return 'Yesterday';
+  return date.toLocaleDateString(undefined, {
+    month: 'short',
+    day: 'numeric',
+  });
+};

@@ -65,5 +65,7 @@ export interface AiChatConversation {
   lastMessageAt: string;
   createdAt: string;
   updatedAt: string;
-  _count: number;
+  _count: {
+    messages?: number;
+  };
 }

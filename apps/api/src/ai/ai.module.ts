@@ -1,8 +1,9 @@
-import { Module, Provider, BadRequestException } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { Module, Provider, BadRequestException } from '@nestjs/common';
+
 import { AiService } from './ai.service';
-import { LMStudioProvider } from './providers/lmstudio.provider';
 import { GeminiProvider } from './providers/gemini.provider';
+import { LMStudioProvider } from './providers/lmstudio.provider';
 import {
   AI_PROVIDER_STRATEGY,
   IAiProvider,

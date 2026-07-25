@@ -107,4 +107,9 @@ export const chatApi = {
     const url = path;
     return api.get(url);
   },
+
+  deleteConversation: async (id: string) => {
+    const url = `${path}/${id}`;
+    return api.delete(url);
+  },
 };
