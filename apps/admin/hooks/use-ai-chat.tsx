@@ -27,7 +27,7 @@ export function useGetAiChat(options?: string) {
     queryKey: ['conversations', options],
     queryFn: async () => {
       const res = await chatApi
-        .getConversations()
+        .getConversations(options)
         .then((response) => response.data);
       return res;
     },

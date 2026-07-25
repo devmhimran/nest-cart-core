@@ -84,8 +84,6 @@ export class LMStudioProvider implements IAiProvider {
       'http://localhost:1234/v1';
     this.modelName =
       this.configService.get<string>('LMSTUDIO_MODEL') || 'local-model';
-
-    console.log({ url: this.configService.get<string>('LMSTUDIO_BASE_URL') });
   }
 
   async generateResponse(history: AiChatMessage[]): Promise<AiResponse> {

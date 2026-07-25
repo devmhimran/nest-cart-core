@@ -13,22 +13,18 @@ interface ChatSidebarProps {
 }
 
 export function ChatSidebar({ open, onClose }: ChatSidebarProps) {
-  // 1. Keep track of current selected chat & active tab
   const [activeChatId, setActiveChatId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'chat' | 'history'>('chat');
 
-  // Callback when user creates a brand new chat
   const handleChatCreated = (newChatId: string) => {
     setActiveChatId(newChatId);
   };
 
-  // Callback when user selects a past chat from History tab
   const handleSelectChatFromHistory = (chatId: string) => {
     setActiveChatId(chatId);
-    setActiveTab('chat'); // Automatically switch back to chat view
+    setActiveTab('chat');
   };
 
-  // Callback when user clicks "+ New Chat"
   const handleNewChat = () => {
     setActiveChatId(null);
     setActiveTab('chat');

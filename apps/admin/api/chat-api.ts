@@ -103,8 +103,8 @@ export const chatApi = {
     await handleStreamResponse(res, callbacks);
   },
 
-  getConversations: async () => {
-    const url = path;
+  getConversations: async (params?: string) => {
+    const url = path + (params ? `${params}` : '');
     return api.get(url);
   },
 

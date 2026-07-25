@@ -6,6 +6,7 @@ import {
   Param,
   Delete,
   Res,
+  Query,
 } from '@nestjs/common';
 import type { Response } from 'express';
 
@@ -14,6 +15,7 @@ import { CreateChatDto } from './dto/create-chat.dto';
 import type { AuthUser } from '../auth/auth.interface';
 import { SendMessageDto } from './dto/send-message.dto';
 import { AuthCtx } from '../user/decorators/user.decorator';
+import { PaginationQueryDto } from '../common/pagination/dto/pagination-query.dto';
 
 @Controller('chat')
 export class ChatController {
@@ -36,8 +38,11 @@ export class ChatController {
   }
 
   @Get()
-  getConversations(@AuthCtx() user: AuthUser) {
-    return this.chatService.getConversations(user.id);
+  getConversations(
+    @AuthCtx() user: AuthUser,
+    @Query() query: PaginationQueryDto,
+  ) {
+    return this.chatService.getConversations(user.id, query);
   }
 
   @Post(':id/messages')

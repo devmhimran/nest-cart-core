@@ -4,19 +4,23 @@ import { useState } from 'react';
 
 import { MessageSquare, Sparkles } from 'lucide-react';
 import { useGetAiChat } from '@/hooks/use-ai-chat';
-import { Badge, ScrollArea } from '@repo/ui';
+import { Badge, PaginationContainer, ScrollArea } from '@repo/ui';
 import { ChatHistoryCard } from './chat-history-card';
-import { AiChatConversation } from '@/types';
+import { generateQueryString } from '@repo/ui/lib/utils';
 
 export function ChatHistory() {
-  const { fetchAiChatsMutationData } = useGetAiChat();
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
-  const chats: AiChatConversation[] = Array.isArray(
-    fetchAiChatsMutationData?.data,
-  )
-    ? fetchAiChatsMutationData.data
-    : [];
+  const [params, setParams] = useState({
+    search: '',
+    page: '1',
+    limit: '20',
+  });
+
+  const queryString = generateQueryString(params);
+  const { fetchAiChatsMutationData } = useGetAiChat(queryString);
+
+  const chats = fetchAiChatsMutationData?.data.data ?? [];
 
   return (
     <aside className='w-full max-w-sm h-screen flex flex-col border-r bg-background/50 backdrop-blur-md overflow-hidden'>
@@ -33,7 +37,7 @@ export function ChatHistory() {
           variant='secondary'
           className='rounded-full px-2 py-0.5 text-xs font-normal'
         >
-          {chats.length}
+          {fetchAiChatsMutationData?.data.meta.total ?? 0}
         </Badge>
       </div>
 
@@ -64,6 +68,17 @@ export function ChatHistory() {
             </div>
           )}
         </ScrollArea>
+      </div>
+
+      <div className='border-t px-3 flex justify-center'>
+        <PaginationContainer
+          meta={fetchAiChatsMutationData?.data?.meta}
+          params={params}
+          setParams={setParams}
+          paginationContainerClassName='text-xs'
+          prevBtn={false}
+          nextBtn={false}
+        />
       </div>
     </aside>
   );

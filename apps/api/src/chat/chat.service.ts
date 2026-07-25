@@ -4,19 +4,21 @@ import {
   BadRequestException,
   Logger,
 } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
-import { AiService } from '../ai/ai.service';
-import { CreateChatDto } from './dto/create-chat.dto';
-import { SendMessageDto } from './dto/send-message.dto';
-import { UpdateProposalDto } from './dto/update-proposal.dto';
+import type { Response } from 'express';
 
-import { Prisma } from '../../generated/prisma/client';
-import { MessageRole, MessageStatus } from '../constants/enums';
 import {
   AiChatMessage,
   AiResponseMetadata,
 } from '../ai/interfaces/ai-provider.interface';
-import type { Response } from 'express';
+import { AiService } from '../ai/ai.service';
+import { CreateChatDto } from './dto/create-chat.dto';
+import { Prisma } from '../../generated/prisma/client';
+import { SendMessageDto } from './dto/send-message.dto';
+import { PrismaService } from '../prisma/prisma.service';
+import { paginate } from '../common/pagination/paginate.util';
+import { UpdateProposalDto } from './dto/update-proposal.dto';
+import { MessageRole, MessageStatus } from '../constants/enums';
+import { PaginationQueryDto } from '../common/pagination/dto/pagination-query.dto';
 
 @Injectable()
 export class ChatService {
@@ -52,10 +54,10 @@ export class ChatService {
     return session;
   }
 
-  async getConversations(userId: string) {
-    return this.prisma.chatSession.findMany({
+  async getConversations(userId: string, query: PaginationQueryDto) {
+    return paginate(this.prisma.chatSession, query, {
       where: { userId },
-      orderBy: { lastMessageAt: 'desc' },
+      orderBy: { id: 'desc' },
       select: {
         id: true,
         title: true,
