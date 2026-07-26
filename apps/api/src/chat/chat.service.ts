@@ -41,6 +41,14 @@ export class ChatService {
       if (!res) {
         throw new Error('Response object is required for streaming');
       }
+
+      res.write(
+        `data: ${JSON.stringify({
+          type: 'session_created',
+          session,
+        })}\n\n`,
+      );
+
       return this.sendMessageStream(
         userId,
         session.id,

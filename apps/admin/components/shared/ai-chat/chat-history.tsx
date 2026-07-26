@@ -1,16 +1,23 @@
 'use client';
 
 import { useState } from 'react';
-
-import { MessageSquare, Sparkles } from 'lucide-react';
+import { MessageSquare, Plus, Sparkles } from 'lucide-react';
 import { useGetAiChat } from '@/hooks/use-ai-chat';
-import { Badge, PaginationContainer, ScrollArea } from '@repo/ui';
+import { Badge, Button, PaginationContainer, ScrollArea } from '@repo/ui';
 import { ChatHistoryCard } from './chat-history-card';
 import { generateQueryString } from '@repo/ui/lib/utils';
 
-export function ChatHistory() {
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+interface ChatHistoryProps {
+  activeChatId?: string | null;
+  onSelectChat?: (id: string) => void;
+  onNewChat?: () => void;
+}
 
+export function ChatHistory({
+  activeChatId,
+  onSelectChat,
+  onNewChat,
+}: ChatHistoryProps) {
   const [params, setParams] = useState({
     search: '',
     page: '1',
@@ -23,22 +30,32 @@ export function ChatHistory() {
   const chats = fetchAiChatsMutationData?.data.data ?? [];
 
   return (
-    <aside className='w-full max-w-sm h-screen flex flex-col border-r bg-background/50 backdrop-blur-md overflow-hidden'>
-      <div className='p-4 border-b flex items-center justify-between shrink-0'>
-        <div className='flex items-center gap-2'>
-          <div className='p-1.5 rounded-lg bg-primary/10 text-primary'>
+    <aside className='w-full max-w-sm h-full flex flex-col border-r bg-background/50 backdrop-blur-md overflow-hidden'>
+      <div className='p-3 border-b flex items-center justify-between shrink-0 gap-2'>
+        <div className='flex items-center gap-2 min-w-0'>
+          <div className='p-1.5 rounded-lg bg-primary/10 text-primary shrink-0'>
             <Sparkles className='h-4 w-4' />
           </div>
-          <span className='font-semibold text-sm text-foreground'>
+          <span className='font-semibold text-xs text-foreground truncate'>
             Recent Chats
           </span>
+          <Badge
+            variant='secondary'
+            className='rounded-full px-1.5 py-0.5 text-[10px] font-normal shrink-0'
+          >
+            {fetchAiChatsMutationData?.data?.meta?.total ?? 0}
+          </Badge>
         </div>
-        <Badge
-          variant='secondary'
-          className='rounded-full px-2 py-0.5 text-xs font-normal'
+
+        <Button
+          variant='outline'
+          size='sm'
+          onClick={onNewChat}
+          className='h-7 px-2 text-xs gap-1 shrink-0'
         >
-          {fetchAiChatsMutationData?.data.meta.total ?? 0}
-        </Badge>
+          <Plus className='h-3.5 w-3.5' />
+          New
+        </Button>
       </div>
 
       <div className='flex-1 min-h-0'>
@@ -52,16 +69,17 @@ export function ChatHistory() {
               </p>
             </div>
           ) : (
-            <div className='space-y-1.5 pr-3'>
+            <div className='space-y-1.5 pr-2'>
               {chats.map((chat) => {
-                const isSelected = selectedId === chat.id;
+                const isSelected = activeChatId === chat.id;
 
                 return (
                   <ChatHistoryCard
                     key={chat.id}
                     chat={chat}
                     isSelected={isSelected}
-                    onSelect={(id) => setSelectedId(id as string)}
+                    onSelect={(id) => onSelectChat?.(id as string)}
+                    onDeleteSelected={onNewChat}
                   />
                 );
               })}
@@ -70,7 +88,7 @@ export function ChatHistory() {
         </ScrollArea>
       </div>
 
-      <div className='border-t px-3 flex justify-center'>
+      <div className='border-t px-3 flex justify-center py-1'>
         <PaginationContainer
           meta={fetchAiChatsMutationData?.data?.meta}
           params={params}

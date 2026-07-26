@@ -11,7 +11,7 @@ export interface ChatHistoryCardProps {
   chat: AiChatConversation;
   isSelected?: boolean;
   onSelect?: (id: string | number) => void;
-
+  onDeleteSelected?: () => void;
   formatRelativeTime?: (date?: string | Date) => string;
 }
 
@@ -19,6 +19,7 @@ export function ChatHistoryCard({
   chat,
   isSelected = false,
   onSelect,
+  onDeleteSelected,
 }: ChatHistoryCardProps) {
   const [conversation, setConversation] = useState<AiChatConversation | null>(
     null,
@@ -34,32 +35,25 @@ export function ChatHistoryCard({
 
   const timeString = formatRelativeTime(chat.lastMessageAt || chat.updatedAt);
 
-  const handleDeleteConversationIntent = (value: AiChatConversation) => {
+  const handleDeleteConversationIntent = (
+    e: React.MouseEvent,
+    value: AiChatConversation,
+  ) => {
+    e.stopPropagation();
     setConfirmModal(true);
     setConversation(value);
   };
 
   const handleDeleteConversation = async () => {
-    // if (!sizeName) return;
-    // setLoadingDelete(true);
-    // toast.promise(deleteSizeAsync(sizeName), {
-    //   loading: 'Deleting size...',
-    //   success: () => {
-    //     setLoadingDelete(false);
-    //     setConfirmModal(false);
-    //     return 'Successfully size deleted';
-    //   },
-    //   error: (err) => {
-    //     setLoadingDelete(false);
-    //     return getErrorMessage(err);
-    //   },
-    // });
     if (!conversation) return;
 
     toast.promise(deleteConversationMutationAsync(conversation.id), {
       loading: 'Deleting conversation...',
       success: () => {
         setConfirmModal(false);
+        if (isSelected) {
+          onDeleteSelected?.();
+        }
         return 'Successfully conversation deleted';
       },
       error: (err) => {
@@ -102,7 +96,7 @@ export function ChatHistoryCard({
         variant='ghost'
         size='icon-sm'
         className='h-7 w-7 p-0'
-        onClick={() => handleDeleteConversationIntent(chat)}
+        onClick={(e) => handleDeleteConversationIntent(e, chat)}
       >
         <Trash2 className='h-3.5 w-3.5 text-red-600' />
       </Button>

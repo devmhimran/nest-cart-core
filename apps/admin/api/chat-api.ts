@@ -33,7 +33,6 @@ async function handleStreamResponse(
     buffer += decoder.decode(value, { stream: true });
     const lines = buffer.split('\n\n');
 
-    // Keep the last incomplete fragment in the buffer
     buffer = lines.pop() || '';
 
     for (const line of lines) {
@@ -59,9 +58,7 @@ async function handleStreamResponse(
               callbacks.onError?.(data.message);
               break;
           }
-        } catch {
-          // Skip malformed frame
-        }
+        } catch {}
       }
     }
   }
@@ -75,7 +72,7 @@ export const chatApi = {
     const res = await fetch(`${baseUrl}/chat`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      credentials: 'include', // Better Auth uses cookies
+      credentials: 'include',
       body: JSON.stringify(data),
     });
 
@@ -96,7 +93,7 @@ export const chatApi = {
     const res = await fetch(`${baseUrl}/chat/${chatId}/messages`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      credentials: 'include', // Better Auth uses cookies
+      credentials: 'include',
       body: JSON.stringify({ content }),
     });
 
@@ -105,6 +102,11 @@ export const chatApi = {
 
   getConversations: async (params?: string) => {
     const url = path + (params ? `${params}` : '');
+    return api.get(url);
+  },
+
+  getConversation: async (id: string) => {
+    const url = `${path}/${id}`;
     return api.get(url);
   },
 

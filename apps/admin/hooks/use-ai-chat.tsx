@@ -38,3 +38,20 @@ export function useGetAiChat(options?: string) {
     fetchAiChatsMutationData: fetchAiChatsMutation.data,
   };
 }
+
+export function useGetConversation(chatId: string | null) {
+  const fetchConversationQuery = useQuery({
+    queryKey: ['conversation', chatId],
+    queryFn: async () => {
+      if (!chatId) return null;
+      const res = await chatApi.getConversation(chatId).then((r) => r.data);
+      return res?.data ?? res;
+    },
+    enabled: !!chatId,
+  });
+
+  return {
+    fetchConversationQuery,
+    conversationData: fetchConversationQuery.data,
+  };
+}
