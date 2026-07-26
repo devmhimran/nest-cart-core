@@ -86,6 +86,50 @@ export class LMStudioProvider implements IAiProvider {
       this.configService.get<string>('LMSTUDIO_MODEL') || 'local-model';
   }
 
+  private readonly responseFormatSchema = {
+    type: 'json_schema',
+    json_schema: {
+      name: 'ai_response_schema',
+      strict: true,
+      schema: {
+        type: 'object',
+        properties: {
+          message: { type: 'string' },
+          metadata: {
+            type: 'object',
+            properties: {
+              type: { type: 'string', enum: ['proposal', 'text'] },
+              proposal: {
+                type: ['object', 'null'], // Allow null when metadata.type is "text"
+                properties: {
+                  entity: { type: 'string' },
+                  action: {
+                    type: 'string',
+                    enum: ['create', 'update', 'delete'],
+                  },
+                  status: { type: 'string' },
+                  data: {
+                    type: 'array',
+                    items: {
+                      type: 'object',
+                      additionalProperties: true,
+                    },
+                  },
+                },
+                required: ['entity', 'action', 'status', 'data'],
+                additionalProperties: false,
+              },
+            },
+            required: ['type', 'proposal'], // Must list both fields under required for strict mode
+            additionalProperties: false,
+          },
+        },
+        required: ['message', 'metadata'],
+        additionalProperties: false,
+      },
+    },
+  };
+
   async generateResponse(history: AiChatMessage[]): Promise<AiResponse> {
     const messages = this.formatMessages(history);
 
@@ -99,49 +143,7 @@ export class LMStudioProvider implements IAiProvider {
           model: this.modelName,
           messages,
           temperature: 0.1,
-          response_format: {
-            type: 'json_schema',
-            json_schema: {
-              name: 'ai_response_schema',
-              strict: true,
-              schema: {
-                type: 'object',
-                properties: {
-                  message: { type: 'string' },
-                  metadata: {
-                    type: 'object',
-                    properties: {
-                      type: { type: 'string', enum: ['proposal', 'text'] },
-                      proposal: {
-                        type: 'object',
-                        properties: {
-                          entity: { type: 'string' },
-                          action: {
-                            type: 'string',
-                            enum: ['create', 'update', 'delete'],
-                          },
-                          status: { type: 'string' },
-                          data: {
-                            type: 'array',
-                            items: {
-                              type: 'object',
-                              additionalProperties: true,
-                            },
-                          },
-                        },
-                        required: ['entity', 'action', 'status', 'data'],
-                        additionalProperties: false,
-                      },
-                    },
-                    required: ['type'],
-                    additionalProperties: false,
-                  },
-                },
-                required: ['message', 'metadata'],
-                additionalProperties: false,
-              },
-            },
-          },
+          response_format: this.responseFormatSchema,
         }),
       });
 
@@ -189,6 +191,7 @@ export class LMStudioProvider implements IAiProvider {
           messages,
           temperature: 0.1,
           stream: true,
+          response_format: this.responseFormatSchema, // FIXED: Added schema constraint to streaming!
         }),
       });
     } catch (error) {

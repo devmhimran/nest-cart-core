@@ -79,6 +79,7 @@ export function ChatMessageScroller({
               </div>
             );
           })}
+          <ScrollIntoView dependency={messages.length} />
         </MessageScrollerContent>
       </MessageScrollerViewport>
 
@@ -92,7 +93,6 @@ export function ChatMessageScroller({
           <ArrowDownIcon className='h-4 w-4' />
         </button>
       )}
-      <ScrollIntoView dependency={messages.length} />
     </MessageScroller>
   );
 }
