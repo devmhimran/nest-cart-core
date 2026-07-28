@@ -62,40 +62,6 @@ export class ChatService {
     return session;
   }
 
-  async getConversations(userId: string, query: PaginationQueryDto) {
-    return paginate(this.prisma.chatSession, query, {
-      where: { userId },
-      orderBy: { id: 'desc' },
-      select: {
-        id: true,
-        title: true,
-        lastMessageAt: true,
-        createdAt: true,
-        updatedAt: true,
-        _count: {
-          select: { messages: true },
-        },
-      },
-    });
-  }
-
-  async getConversation(userId: string, chatId: string) {
-    const conversation = await this.prisma.chatSession.findFirst({
-      where: { id: chatId, userId },
-      include: {
-        messages: {
-          orderBy: { createdAt: 'asc' },
-        },
-      },
-    });
-
-    if (!conversation) {
-      throw new NotFoundException('Conversation not found');
-    }
-
-    return conversation;
-  }
-
   async sendMessageStream(
     userId: string,
     chatId: string,
@@ -244,6 +210,41 @@ export class ChatService {
 
     res.end();
   }
+
+  async getConversations(userId: string, query: PaginationQueryDto) {
+    return paginate(this.prisma.chatSession, query, {
+      where: { userId },
+      orderBy: { id: 'desc' },
+      select: {
+        id: true,
+        title: true,
+        lastMessageAt: true,
+        createdAt: true,
+        updatedAt: true,
+        _count: {
+          select: { messages: true },
+        },
+      },
+    });
+  }
+
+  async getConversation(userId: string, chatId: string) {
+    const conversation = await this.prisma.chatSession.findFirst({
+      where: { id: chatId, userId },
+      include: {
+        messages: {
+          orderBy: { createdAt: 'asc' },
+        },
+      },
+    });
+
+    if (!conversation) {
+      throw new NotFoundException('Conversation not found');
+    }
+
+    return conversation;
+  }
+
   async updateProposalStatus(
     userId: string,
     chatId: string,

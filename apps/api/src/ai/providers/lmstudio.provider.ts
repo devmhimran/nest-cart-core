@@ -39,16 +39,18 @@ export class LMStudioProvider implements IAiProvider {
   private readonly baseUrl: string;
   private readonly modelName: string;
 
-  private formatMessages(history: AiChatMessage[]) {
+  private formatMessages(
+    history: AiChatMessage[],
+    systemPromptOverride?: string,
+  ) {
     const formattedHistory = history.map((msg) => ({
       role: String(msg.role).toLowerCase() as 'user' | 'assistant' | 'system',
       content: msg.content,
     }));
 
-    return [
-      { role: 'system', content: getSystemPrompt() },
-      ...formattedHistory,
-    ];
+    const systemContent = systemPromptOverride || getSystemPrompt();
+
+    return [{ role: 'system', content: systemContent }, ...formattedHistory];
   }
 
   private parseJsonResponse(rawText: string): AiResponse {
@@ -100,7 +102,7 @@ export class LMStudioProvider implements IAiProvider {
             properties: {
               type: { type: 'string', enum: ['proposal', 'text'] },
               proposal: {
-                type: ['object', 'null'], // Allow null when metadata.type is "text"
+                type: ['object', 'null'],
                 properties: {
                   entity: { type: 'string' },
                   action: {
@@ -120,7 +122,7 @@ export class LMStudioProvider implements IAiProvider {
                 additionalProperties: false,
               },
             },
-            required: ['type', 'proposal'], // Must list both fields under required for strict mode
+            required: ['type', 'proposal'],
             additionalProperties: false,
           },
         },
@@ -130,8 +132,11 @@ export class LMStudioProvider implements IAiProvider {
     },
   };
 
-  async generateResponse(history: AiChatMessage[]): Promise<AiResponse> {
-    const messages = this.formatMessages(history);
+  async generateResponse(
+    history: AiChatMessage[],
+    systemPrompt?: string,
+  ): Promise<AiResponse> {
+    const messages = this.formatMessages(history, systemPrompt);
 
     try {
       const response = await fetch(`${this.baseUrl}/chat/completions`, {
@@ -176,8 +181,9 @@ export class LMStudioProvider implements IAiProvider {
 
   async *generateResponseStream(
     history: AiChatMessage[],
+    systemPrompt?: string,
   ): AsyncIterable<string> {
-    const messages = this.formatMessages(history);
+    const messages = this.formatMessages(history, systemPrompt);
 
     let response: Response;
     try {
