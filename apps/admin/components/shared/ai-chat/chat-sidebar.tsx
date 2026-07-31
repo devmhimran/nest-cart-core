@@ -1,10 +1,17 @@
 'use client';
 
-import { XIcon, BotIcon } from 'lucide-react';
+import { toast } from 'sonner';
+import { useEffect, useState } from 'react';
+import { XIcon, BotIcon, PlusIcon } from 'lucide-react';
 
-import { Button, Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui';
-import { ChatContainer } from './chat-container';
+import {
+  getSavedActiveChat,
+  saveActiveChat,
+  updateActiveChatTimestamp,
+} from '@/lib/chat-session';
 import { ChatHistory } from './chat-history';
+import { ChatContainer } from './chat-container';
+import { Button, Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui';
 
 interface ChatSidebarProps {
   open: boolean;
@@ -12,6 +19,56 @@ interface ChatSidebarProps {
 }
 
 export function ChatSidebar({ open, onClose }: ChatSidebarProps) {
+  const [activeChatId, setActiveChatId] = useState<string | null>(() => {
+    const saved = getSavedActiveChat();
+    if (saved.expired || !saved.chatId) return null;
+    return saved.chatId;
+  });
+  const [activeTab, setActiveTab] = useState<'chat' | 'history'>('chat');
+
+  useEffect(() => {
+    if (open) {
+      queueMicrotask(() => {
+        const saved = getSavedActiveChat();
+        if (saved.expired) {
+          toast.info(
+            'Previous chat session expired after 3 hours. Started a new chat.',
+          );
+          setActiveChatId(null);
+        } else if (saved.chatId) {
+          setActiveChatId(saved.chatId);
+          updateActiveChatTimestamp();
+        } else {
+          setActiveChatId(null);
+        }
+      });
+    }
+  }, [open]);
+
+  const handleClose = () => {
+    if (activeChatId) {
+      updateActiveChatTimestamp();
+    }
+    onClose();
+  };
+
+  const handleChatCreated = (newChatId: string) => {
+    setActiveChatId(newChatId);
+    saveActiveChat(newChatId);
+  };
+
+  const handleSelectChatFromHistory = (chatId: string) => {
+    setActiveChatId(chatId);
+    saveActiveChat(chatId);
+    setActiveTab('chat');
+  };
+
+  const handleNewChat = () => {
+    setActiveChatId(null);
+    saveActiveChat(null);
+    setActiveTab('chat');
+  };
+
   return (
     <aside
       className={`relative flex flex-col h-full border-l bg-background transition-all duration-300 ease-in-out ${
@@ -37,18 +94,47 @@ export function ChatSidebar({ open, onClose }: ChatSidebarProps) {
             </div>
           </div>
 
-          <Button
-            variant='ghost'
-            size='icon'
-            className='h-7 w-7'
-            onClick={onClose}
-          >
-            <XIcon className='h-4 w-4' />
-          </Button>
+          <div className='flex items-center gap-1'>
+            {activeChatId && (
+              <Button
+                variant='ghost'
+                size='icon'
+                className='h-7 w-7 text-muted-foreground hover:text-foreground'
+                onClick={handleNewChat}
+                title='Start New Conversation'
+              >
+                <PlusIcon className='h-4 w-4' />
+              </Button>
+            )}
+            <Button
+              variant='ghost'
+              size='icon'
+              className='h-7 w-7'
+              onClick={handleClose}
+            >
+              <XIcon className='h-4 w-4' />
+            </Button>
+          </div>
         </div>
 
-        {/* Tabs - Added flex & flex-1 */}
-        <Tabs defaultValue='chat' className='p-2 flex flex-col flex-1 min-h-0'>
+        {/* Tabs */}
+        <Tabs
+          value={activeTab}
+          onValueChange={(val) => {
+            const nextTab = val as 'chat' | 'history';
+            if (nextTab === 'chat') {
+              const saved = getSavedActiveChat();
+              if (saved.expired) {
+                toast.info(
+                  'Previous session expired after 3 hours. Started a new chat.',
+                );
+                setActiveChatId(null);
+              }
+            }
+            setActiveTab(nextTab);
+          }}
+          className='p-2 flex flex-col flex-1 min-h-0'
+        >
           <TabsList className='w-full shrink-0'>
             <TabsTrigger value='chat' className='w-full'>
               Chat
@@ -58,18 +144,27 @@ export function ChatSidebar({ open, onClose }: ChatSidebarProps) {
             </TabsTrigger>
           </TabsList>
 
-          {/* TabsContent - Added flex-1 flex flex-col min-h-0 */}
+          {/* Chat Tab Content */}
           <TabsContent
             value='chat'
             className='flex-1 flex flex-col min-h-0 mt-2 data-[state=inactive]:hidden'
           >
-            <ChatContainer />
+            <ChatContainer
+              chatId={activeChatId}
+              onChatCreated={handleChatCreated}
+            />
           </TabsContent>
+
+          {/* History Tab Content */}
           <TabsContent
             value='history'
             className='flex-1 flex flex-col min-h-0 mt-2 data-[state=inactive]:hidden'
           >
-            <ChatHistory />
+            <ChatHistory
+              activeChatId={activeChatId}
+              onSelectChat={handleSelectChatFromHistory}
+              onNewChat={handleNewChat}
+            />
           </TabsContent>
         </Tabs>
       </div>

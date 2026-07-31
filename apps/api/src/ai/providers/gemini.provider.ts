@@ -9,14 +9,15 @@ import {
   Content,
   GenerateContentResult,
 } from '@google/generative-ai';
+
 import {
   AiChatMessage,
   AiResponse,
   AiResponseMetadata,
   IAiProvider,
 } from '../interfaces/ai-provider.interface';
-import { getSystemPrompt } from '../prompts/crud-system.prompt';
 import { MessageRole } from '../../constants/enums';
+import { getSystemPrompt } from '../prompts/crud-system.prompt';
 
 interface ParsedResponse {
   message: string;
@@ -75,10 +76,43 @@ export class GeminiProvider implements IAiProvider {
     }
   }
 
-  /**
-   * Converts generic AiChatMessage[] to Gemini's expected Content[] structure.
-   * Merges consecutive system or user roles as required by Gemini syntax rules.
-   */
+  async *generateResponseStream(
+    history: AiChatMessage[],
+  ): AsyncIterable<string> {
+    try {
+      const model = this.aiClient.getGenerativeModel({
+        model: this.modelName,
+        systemInstruction: getSystemPrompt(),
+        generationConfig: {
+          responseMimeType: 'application/json',
+          temperature: 0.2,
+        },
+      });
+
+      const formattedContents: Content[] =
+        this.mapHistoryToGeminiContents(history);
+
+      const streamingResult = await model.generateContentStream({
+        contents: formattedContents,
+      });
+
+      for await (const chunk of streamingResult.stream) {
+        const text = chunk.text();
+        if (text) {
+          yield text;
+        }
+      }
+    } catch (error) {
+      this.logger.error(
+        'Failed to stream AI response via Gemini Provider',
+        error instanceof Error ? error.stack : undefined,
+      );
+      throw new InternalServerErrorException(
+        'Gemini provider streaming failed.',
+      );
+    }
+  }
+
   private mapHistoryToGeminiContents(history: AiChatMessage[]): Content[] {
     return history.map((msg) => ({
       role: msg.role === MessageRole.ASSISTANT ? 'model' : 'user',
