@@ -5,9 +5,9 @@ import {
   AiChatMessage,
   AI_PROVIDER_STRATEGY,
 } from './interfaces/ai-provider.interface';
-import type { IAiProvider } from './interfaces/ai-provider.interface';
 import { PrismaService } from '../prisma/prisma.service';
 import { SYSTEM_PROMPT } from './prompts/crud-system.prompt';
+import type { IAiProvider } from './interfaces/ai-provider.interface';
 
 @Injectable()
 export class AiService {

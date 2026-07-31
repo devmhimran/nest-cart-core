@@ -1,13 +1,13 @@
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { Module, Provider, BadRequestException } from '@nestjs/common';
 
-import { AiService } from './ai.service';
-import { GeminiProvider } from './providers/gemini.provider';
-import { LMStudioProvider } from './providers/lmstudio.provider';
 import {
   AI_PROVIDER_STRATEGY,
   IAiProvider,
 } from './interfaces/ai-provider.interface';
+import { AiService } from './ai.service';
+import { GeminiProvider } from './providers/gemini.provider';
+import { LMStudioProvider } from './providers/lmstudio.provider';
 
 const AiProviderStrategyFactory: Provider = {
   provide: AI_PROVIDER_STRATEGY,

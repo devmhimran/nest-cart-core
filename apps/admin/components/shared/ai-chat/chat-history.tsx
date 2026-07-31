@@ -2,10 +2,11 @@
 
 import { useState } from 'react';
 import { MessageSquare, Plus, Sparkles } from 'lucide-react';
+
 import { useGetAiChat } from '@/hooks/use-ai-chat';
-import { Badge, Button, PaginationContainer, ScrollArea } from '@repo/ui';
 import { ChatHistoryCard } from './chat-history-card';
 import { generateQueryString } from '@repo/ui/lib/utils';
+import { Badge, Button, PaginationContainer, ScrollArea } from '@repo/ui';
 
 interface ChatHistoryProps {
   activeChatId?: string | null;

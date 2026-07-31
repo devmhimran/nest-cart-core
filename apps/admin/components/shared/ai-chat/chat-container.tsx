@@ -1,18 +1,19 @@
 'use client';
 
-import { chatApi } from '@/api';
-import { getQueryClient } from '@/lib/react-query';
-import { updateActiveChatTimestamp } from '@/lib/chat-session';
-import { ChatMessagePayload, Message } from '@/types';
+import { ArrowUpIcon, Loader2 } from 'lucide-react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+
 import {
   InputGroup,
   InputGroupAddon,
   InputGroupButton,
   MessageScrollerProvider,
 } from '@repo/ui';
-import { ArrowUpIcon, Loader2 } from 'lucide-react';
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { chatApi } from '@/api';
+import { getQueryClient } from '@/lib/react-query';
+import { ChatMessagePayload, Message } from '@/types';
 import { ChatMessageScroller } from './chat-message-scroller';
+import { updateActiveChatTimestamp } from '@/lib/chat-session';
 import { ChatContainerEmptyState } from './chat-container-empty-state';
 
 interface ChatContainerProps {

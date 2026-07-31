@@ -1,11 +1,11 @@
-import { Message, ProposalData } from '@/types';
 import {
   MessageScroller,
   MessageScrollerContent,
   MessageScrollerViewport,
 } from '@repo/ui';
-import { ProposalCard } from './proposal-card';
 import { ArrowDownIcon } from 'lucide-react';
+import { ProposalCard } from './proposal-card';
+import { Message, ProposalData } from '@/types';
 import { ScrollIntoView } from '../scroll-into-view';
 
 interface ChatMessageScrollerProps {

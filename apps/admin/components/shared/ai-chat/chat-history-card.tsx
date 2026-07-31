@@ -1,11 +1,12 @@
-import { useAiChatOptions } from '@/hooks/use-ai-chat';
-import { formatRelativeTime } from '@/lib/utils';
+import { toast } from 'sonner';
+import { useState } from 'react';
+import { MessageSquare, Trash2 } from 'lucide-react';
+
 import { AiChatConversation } from '@/types';
 import { Button, ConfirmModal } from '@repo/ui';
+import { formatRelativeTime } from '@/lib/utils';
 import { getErrorMessage } from '@repo/ui/lib/utils';
-import { MessageSquare, Trash2 } from 'lucide-react';
-import { useState } from 'react';
-import { toast } from 'sonner';
+import { useAiChatOptions } from '@/hooks/use-ai-chat';
 
 export interface ChatHistoryCardProps {
   chat: AiChatConversation;

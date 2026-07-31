@@ -9,14 +9,15 @@ import {
   Content,
   GenerateContentResult,
 } from '@google/generative-ai';
+
 import {
   AiChatMessage,
   AiResponse,
   AiResponseMetadata,
   IAiProvider,
 } from '../interfaces/ai-provider.interface';
-import { getSystemPrompt } from '../prompts/crud-system.prompt';
 import { MessageRole } from '../../constants/enums';
+import { getSystemPrompt } from '../prompts/crud-system.prompt';
 
 interface ParsedResponse {
   message: string;

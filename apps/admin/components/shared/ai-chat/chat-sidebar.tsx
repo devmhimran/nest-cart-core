@@ -1,16 +1,17 @@
 'use client';
 
+import { toast } from 'sonner';
 import { useEffect, useState } from 'react';
 import { XIcon, BotIcon, PlusIcon } from 'lucide-react';
-import { Button, Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui';
-import { ChatContainer } from './chat-container';
-import { ChatHistory } from './chat-history';
+
 import {
   getSavedActiveChat,
   saveActiveChat,
   updateActiveChatTimestamp,
 } from '@/lib/chat-session';
-import { toast } from 'sonner';
+import { ChatHistory } from './chat-history';
+import { ChatContainer } from './chat-container';
+import { Button, Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui';
 
 interface ChatSidebarProps {
   open: boolean;

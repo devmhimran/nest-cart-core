@@ -1,5 +1,6 @@
-import { ProposalData } from '@/types';
 import { useState } from 'react';
+
+import { ProposalData } from '@/types';
 
 interface ProposalCardProps {
   proposal: ProposalData;

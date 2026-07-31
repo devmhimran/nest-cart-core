@@ -1,4 +1,12 @@
 'use client';
+import {
+  Sparkles,
+  MessageSquarePlus,
+  ShoppingBag,
+  BarChart3,
+  Package,
+  Users,
+} from 'lucide-react';
 
 import {
   Empty,
@@ -8,14 +16,6 @@ import {
   EmptyTitle,
   Button,
 } from '@repo/ui';
-import {
-  Sparkles,
-  MessageSquarePlus,
-  ShoppingBag,
-  BarChart3,
-  Package,
-  Users,
-} from 'lucide-react';
 
 interface ChatContainerEmptyStateProps {
   onStartConversation?: () => void;
