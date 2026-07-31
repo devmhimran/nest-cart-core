@@ -1,3 +1,10 @@
+export interface ProductVariantEntity {
+  colorId?: number;
+  sizeId?: number;
+  price: number;
+  stock?: number;
+}
+
 export interface BaseEntityItem {
   id?: number | string;
   // Category / SubCategory / Color / Size / Product
@@ -29,12 +36,7 @@ export interface BaseEntityItem {
   metaKeywords?: string;
   isNew?: boolean;
   isActive?: boolean;
-  variants?: Array<{
-    colorId?: number;
-    sizeId?: number;
-    price: number;
-    stock?: number;
-  }>;
+  variants?: Array<ProductVariantEntity>;
   // Flexible index signature for unexpected keys
   [key: string]: unknown;
 }

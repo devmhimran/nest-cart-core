@@ -73,7 +73,10 @@ export function ChatMessageScroller({
                   msg.metadata?.type === 'proposal' &&
                   msg.metadata?.proposal && (
                     <div className='animate-slide-up-fade w-full max-w-[85%] mt-1.5'>
-                      <ProposalCard proposal={msg.metadata.proposal} />
+                      <ProposalCard
+                        proposal={msg.metadata.proposal}
+                        onConfirm={handleProposalConfirm}
+                      />
                     </div>
                   )}
               </div>
