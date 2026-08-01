@@ -1,8 +1,19 @@
 import { MessageRole } from '../../constants/enums';
 
+export interface AiToolCall {
+  id: string;
+  type: 'function';
+  function: {
+    name: string;
+    arguments: string;
+  };
+}
+
 export interface AiChatMessage {
   role: MessageRole;
   content: string;
+  tool_calls?: AiToolCall[];
+  tool_call_id?: string;
 }
 
 export interface AiProposalData {

@@ -88,7 +88,6 @@ export class ChatService {
       return;
     }
 
-    // 1. Save user message immediately
     const userMessage = await this.prisma.chatMessage.create({
       data: {
         chatSessionId: chatId,
@@ -98,7 +97,6 @@ export class ChatService {
       },
     });
 
-    // Notify client about created user message
     res.write(
       `data: ${JSON.stringify({
         type: 'user_message_created',
@@ -106,7 +104,6 @@ export class ChatService {
       })}\n\n`,
     );
 
-    // 2. Prepare message history
     const history: AiChatMessage[] = session.messages.map((msg) => ({
       role:
         (msg.role as MessageRole) === MessageRole.USER

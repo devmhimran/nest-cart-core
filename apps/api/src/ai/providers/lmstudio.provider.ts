@@ -9,14 +9,19 @@ import {
   AiChatMessage,
   AiResponse,
   AiResponseMetadata,
+  AiToolCall,
   IAiProvider,
 } from '../interfaces/ai-provider.interface';
 import { getSystemPrompt } from '../prompts/crud-system.prompt';
+import { AiToolHandlerService } from '../ai-tool-handler.service';
+import { MessageRole } from '../../constants/enums';
+import { AI_TOOLS } from '../ai-tools.definitions';
 
 interface OpenAiChatCompletionResponse {
   choices: {
     message: {
-      content: string;
+      content: string | null;
+      tool_calls?: AiToolCall[];
     };
   }[];
 }
@@ -40,13 +45,30 @@ export class LMStudioProvider implements IAiProvider {
   private readonly baseUrl: string;
   private readonly modelName: string;
 
+  constructor(
+    private readonly configService: ConfigService,
+    private readonly toolHandler: AiToolHandlerService,
+  ) {
+    this.baseUrl =
+      this.configService.get<string>('LMSTUDIO_BASE_URL') ||
+      'http://localhost:1234/v1';
+    this.modelName =
+      this.configService.get<string>('LMSTUDIO_MODEL') || 'local-model';
+  }
+
   private formatMessages(
     history: AiChatMessage[],
     systemPromptOverride?: string,
   ) {
     const formattedHistory = history.map((msg) => ({
-      role: String(msg.role).toLowerCase() as 'user' | 'assistant' | 'system',
-      content: msg.content,
+      role: String(msg.role).toLowerCase() as
+        | 'user'
+        | 'assistant'
+        | 'system'
+        | 'tool',
+      content: msg.content ?? '',
+      ...(msg.tool_call_id ? { tool_call_id: msg.tool_call_id } : {}),
+      ...(msg.tool_calls ? { tool_calls: msg.tool_calls } : {}),
     }));
 
     const systemContent = systemPromptOverride || getSystemPrompt();
@@ -71,22 +93,13 @@ export class LMStudioProvider implements IAiProvider {
         };
       }
     } catch {
-      // If the local model still outputs raw string text instead of JSON,
-      // silently wrap it into Format B so your frontend doesn't break.
+      // Fallback if parsing fails
     }
 
     return {
       message: sanitized,
       metadata: { type: 'text' },
     };
-  }
-
-  constructor(private readonly configService: ConfigService) {
-    this.baseUrl =
-      this.configService.get<string>('LMSTUDIO_BASE_URL') ||
-      'http://localhost:1234/v1';
-    this.modelName =
-      this.configService.get<string>('LMSTUDIO_MODEL') || 'local-model';
   }
 
   private readonly responseFormatSchema = {
@@ -136,39 +149,78 @@ export class LMStudioProvider implements IAiProvider {
   async generateResponse(
     history: AiChatMessage[],
     systemPrompt?: string,
+    hasExecutedTools = false,
   ): Promise<AiResponse> {
     const messages = this.formatMessages(history, systemPrompt);
 
     try {
+      const payload: Record<string, any> = {
+        model: this.modelName,
+        messages,
+        temperature: 0.1,
+      };
+
+      if (!hasExecutedTools) {
+        payload.tools = AI_TOOLS;
+        payload.tool_choice = 'auto';
+      } else {
+        payload.response_format = this.responseFormatSchema;
+      }
+
       const response = await fetch(`${this.baseUrl}/chat/completions`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: this.modelName,
-          messages,
-          temperature: 0.1,
-          response_format: this.responseFormatSchema,
-        }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
       });
 
       if (!response.ok) {
         const errorText = await response.text();
         this.logger.error(
-          `LM Studio API Error (${response.status}):${errorText}`,
+          `LM Studio API Error (${response.status}): ${errorText}`,
         );
         throw new Error(`LM Studio HTTP Error: ${response.status}`);
       }
 
       const data = (await response.json()) as OpenAiChatCompletionResponse;
-      const rawContent = data.choices?.[0]?.message?.content;
+      const choice = data.choices?.[0]?.message;
 
-      if (!rawContent) {
+      if (choice?.tool_calls && choice.tool_calls.length > 0) {
+        this.logger.debug(
+          `Executing ${choice.tool_calls.length} tool calls...`,
+        );
+
+        history.push({
+          role: MessageRole.ASSISTANT,
+          content: choice.content || '',
+          tool_calls: choice.tool_calls,
+        });
+
+        for (const toolCall of choice.tool_calls) {
+          const toolName = toolCall.function.name;
+          const toolArgs = JSON.parse(toolCall.function.arguments || '{}') as {
+            query: string;
+          };
+
+          const result = await this.toolHandler.handleToolCall(
+            toolName,
+            toolArgs,
+          );
+
+          history.push({
+            role: MessageRole.TOOL,
+            tool_call_id: toolCall.id,
+            content: JSON.stringify(result),
+          });
+        }
+
+        return this.generateResponse(history, systemPrompt, true);
+      }
+
+      if (!choice?.content) {
         throw new Error('Empty response received from LM Studio provider');
       }
 
-      return this.parseJsonResponse(rawContent);
+      return this.parseJsonResponse(choice.content);
     } catch (error: unknown) {
       this.logger.error(
         'Failed to generate AI response via LM Studio',
@@ -186,19 +238,74 @@ export class LMStudioProvider implements IAiProvider {
   ): AsyncIterable<string> {
     const messages = this.formatMessages(history, systemPrompt);
 
+    let preCheckResponse: Response;
+    try {
+      preCheckResponse = await fetch(`${this.baseUrl}/chat/completions`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: this.modelName,
+          messages,
+          tools: AI_TOOLS,
+          temperature: 0.1,
+          stream: false,
+        }),
+      });
+    } catch (error) {
+      this.logger.error('Failed to communicate with LM Studio', error);
+      throw new InternalServerErrorException('LM Studio connection failed');
+    }
+
+    if (preCheckResponse.ok) {
+      const data =
+        (await preCheckResponse.json()) as OpenAiChatCompletionResponse;
+      const choice = data.choices?.[0]?.message;
+
+      if (choice?.tool_calls && choice.tool_calls.length > 0) {
+        this.logger.debug(
+          `[Stream] Tool call detected. Executing ${choice.tool_calls.length} tools first.`,
+        );
+
+        history.push({
+          role: MessageRole.ASSISTANT,
+          content: choice.content || '',
+          tool_calls: choice.tool_calls,
+        });
+
+        for (const toolCall of choice.tool_calls) {
+          const toolName = toolCall.function.name;
+          const toolArgs = JSON.parse(toolCall.function.arguments || '{}') as {
+            query: string;
+          };
+
+          const result = await this.toolHandler.handleToolCall(
+            toolName,
+            toolArgs,
+          );
+
+          history.push({
+            role: MessageRole.TOOL,
+            tool_call_id: toolCall.id,
+            content: JSON.stringify(result),
+          });
+        }
+
+        yield* this.generateResponseStream(history, systemPrompt);
+        return;
+      }
+    }
+
     let response: Response;
     try {
       response = await fetch(`${this.baseUrl}/chat/completions`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           model: this.modelName,
-          messages,
+          messages: this.formatMessages(history, systemPrompt),
           temperature: 0.1,
           stream: true,
-          response_format: this.responseFormatSchema, // FIXED: Added schema constraint to streaming!
+          response_format: this.responseFormatSchema,
         }),
       });
     } catch (error) {
@@ -239,7 +346,7 @@ export class LMStudioProvider implements IAiProvider {
               yield token;
             }
           } catch {
-            // Ignore incomplete chunks in buffer
+            // Ignore partial buffer chunks
           }
         }
       }
