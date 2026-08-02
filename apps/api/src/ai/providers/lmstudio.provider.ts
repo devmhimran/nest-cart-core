@@ -114,7 +114,7 @@ export class LMStudioProvider implements IAiProvider {
           metadata: {
             type: 'object',
             properties: {
-              type: { type: 'string', enum: ['proposal', 'text'] },
+              type: { type: 'string', enum: ['proposal', 'text', 'read'] },
               proposal: {
                 type: ['object', 'null'],
                 properties: {
@@ -135,8 +135,23 @@ export class LMStudioProvider implements IAiProvider {
                 required: ['entity', 'action', 'status', 'data'],
                 additionalProperties: false,
               },
+              read: {
+                type: ['object', 'null'],
+                properties: {
+                  entity: { type: 'string' },
+                  data: {
+                    type: 'array',
+                    items: {
+                      type: 'object',
+                      additionalProperties: true,
+                    },
+                  },
+                },
+                required: ['entity', 'data'],
+                additionalProperties: false,
+              },
             },
-            required: ['type', 'proposal'],
+            required: ['type'],
             additionalProperties: false,
           },
         },
