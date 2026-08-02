@@ -1,3 +1,11 @@
+export type EntityType =
+  | 'category'
+  | 'subCategory'
+  | 'color'
+  | 'size'
+  | 'promoCode'
+  | 'product';
+
 export interface ProductVariantEntity {
   colorId?: number;
   sizeId?: number;
@@ -42,21 +50,21 @@ export interface BaseEntityItem {
 }
 
 export interface ProposalData {
-  entity:
-    | 'category'
-    | 'subCategory'
-    | 'color'
-    | 'size'
-    | 'promoCode'
-    | 'product';
+  entity: EntityType;
   action: 'create' | 'update' | 'delete';
   status: string;
+  data: BaseEntityItem[];
+}
+
+export interface ReadData {
+  entity: EntityType;
   data: BaseEntityItem[];
 }
 
 export interface AiMetadata {
   type?: 'proposal' | 'text' | string;
   proposal?: ProposalData;
+  read?: ReadData;
 }
 
 export interface Message {

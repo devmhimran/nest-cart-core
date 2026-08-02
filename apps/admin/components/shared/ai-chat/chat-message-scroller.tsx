@@ -1,9 +1,11 @@
+import { ArrowDownIcon } from 'lucide-react';
+
 import {
   MessageScroller,
   MessageScrollerContent,
   MessageScrollerViewport,
 } from '@repo/ui';
-import { ArrowDownIcon } from 'lucide-react';
+import { ReadCard } from './read-card';
 import { ProposalCard } from './proposal-card';
 import { Message, ProposalData } from '@/types';
 import { ScrollIntoView } from '../scroll-into-view';
@@ -77,6 +79,14 @@ export function ChatMessageScroller({
                         proposal={msg.metadata.proposal}
                         onConfirm={handleProposalConfirm}
                       />
+                    </div>
+                  )}
+
+                {msg.role === 'assistant' &&
+                  msg.metadata?.type === 'read' &&
+                  msg.metadata?.read && (
+                    <div className='animate-slide-up-fade w-full max-w-[85%] mt-1.5'>
+                      <ReadCard read={msg.metadata.read} />
                     </div>
                   )}
               </div>
