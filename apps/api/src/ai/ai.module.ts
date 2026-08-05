@@ -8,6 +8,7 @@ import {
 import { AiService } from './ai.service';
 import { GeminiProvider } from './providers/gemini.provider';
 import { LMStudioProvider } from './providers/lmstudio.provider';
+import { AiToolHandlerService } from './ai-tool-handler.service';
 
 const AiProviderStrategyFactory: Provider = {
   provide: AI_PROVIDER_STRATEGY,
@@ -41,8 +42,9 @@ const AiProviderStrategyFactory: Provider = {
     LMStudioProvider,
     GeminiProvider,
     AiProviderStrategyFactory,
+    AiToolHandlerService,
     AiService,
   ],
-  exports: [AiService],
+  exports: [AiService, AiToolHandlerService],
 })
 export class AiModule {}

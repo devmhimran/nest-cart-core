@@ -1,8 +1,19 @@
 import { MessageRole } from '../../constants/enums';
 
+export interface AiToolCall {
+  id: string;
+  type: 'function';
+  function: {
+    name: string;
+    arguments: string;
+  };
+}
+
 export interface AiChatMessage {
   role: MessageRole;
   content: string;
+  tool_calls?: AiToolCall[];
+  tool_call_id?: string;
 }
 
 export interface AiProposalData {
@@ -13,8 +24,12 @@ export interface AiProposalData {
 }
 
 export interface AiResponseMetadata {
-  type: 'proposal' | 'text';
+  type: 'proposal' | 'text' | 'read';
   proposal?: AiProposalData;
+  read?: {
+    entity: string;
+    data: Record<string, any>[];
+  };
   [key: string]: any;
 }
 
@@ -27,6 +42,7 @@ export interface IAiProvider {
   generateResponse(
     history: AiChatMessage[],
     dynamicSystemPrompt?: string,
+    hasExecutedTools?: boolean,
   ): Promise<AiResponse>;
   generateResponseStream(
     history: AiChatMessage[],

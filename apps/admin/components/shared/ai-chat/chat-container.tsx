@@ -283,7 +283,7 @@ export function ChatContainer({ chatId, onChatCreated }: ChatContainerProps) {
               }}
               placeholder='Type a message...'
               rows={2}
-              className='w-full resize-none bg-transparent px-3 py-2 text-xs focus:outline-none placeholder:text-muted-foreground'
+              className='w-full h-20 resize-none bg-transparent px-3 py-2 text-xs focus:outline-none placeholder:text-muted-foreground'
             />
             <InputGroupAddon align='block-end' className='p-1 pt-0'>
               <InputGroupButton
