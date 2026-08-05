@@ -16,6 +16,11 @@ import { getSystemPrompt } from '../prompts/crud-system.prompt';
 import { AiToolHandlerService } from '../ai-tool-handler.service';
 import { MessageRole } from '../../constants/enums';
 import { AI_TOOLS } from '../ai-tools.definitions';
+import {
+  backfillProposalFromToolResults,
+  enforceReadDataFromToolResults,
+} from '../ai-response-backfill.util';
+import { resolveToolAlias } from '../ai-tool-alias-resolver.util';
 
 interface OpenAiChatCompletionResponse {
   choices: {
@@ -76,6 +81,52 @@ export class LMStudioProvider implements IAiProvider {
     return [{ role: 'system', content: systemContent }, ...formattedHistory];
   }
 
+  private readonly responseFormatSchema = {
+    type: 'json_schema',
+    json_schema: {
+      name: 'ai_response_schema',
+      schema: {
+        type: 'object',
+        properties: {
+          message: { type: 'string' },
+          metadata: {
+            type: 'object',
+            properties: {
+              type: { type: 'string', enum: ['proposal', 'text', 'read'] },
+              proposal: {
+                type: 'object',
+                properties: {
+                  entity: { type: 'string' },
+                  action: {
+                    type: 'string',
+                    enum: ['create', 'update', 'delete'],
+                  },
+                  status: { type: 'string' },
+                  data: {
+                    type: 'array',
+                    items: { type: 'object' },
+                  },
+                },
+              },
+              read: {
+                type: 'object',
+                properties: {
+                  entity: { type: 'string' },
+                  data: {
+                    type: 'array',
+                    items: { type: 'object' },
+                  },
+                },
+              },
+            },
+            required: ['type'],
+          },
+        },
+        required: ['message', 'metadata'],
+      },
+    },
+  };
+
   private parseJsonResponse(rawText: string): AiResponse {
     const sanitized = rawText
       .replace(/^```json\s*/i, '')
@@ -93,7 +144,7 @@ export class LMStudioProvider implements IAiProvider {
         };
       }
     } catch {
-      // Fallback if parsing fails
+      this.logger.warn(`Failed to parse AI JSON response: ${rawText}`);
     }
 
     return {
@@ -102,69 +153,24 @@ export class LMStudioProvider implements IAiProvider {
     };
   }
 
-  private readonly responseFormatSchema = {
-    type: 'json_schema',
-    json_schema: {
-      name: 'ai_response_schema',
-      strict: true,
-      schema: {
-        type: 'object',
-        properties: {
-          message: { type: 'string' },
-          metadata: {
-            type: 'object',
-            properties: {
-              type: { type: 'string', enum: ['proposal', 'text', 'read'] },
-              proposal: {
-                type: ['object', 'null'],
-                properties: {
-                  entity: { type: 'string' },
-                  action: {
-                    type: 'string',
-                    enum: ['create', 'update', 'delete'],
-                  },
-                  status: { type: 'string' },
-                  data: {
-                    type: 'array',
-                    items: {
-                      type: 'object',
-                      additionalProperties: true,
-                    },
-                  },
-                },
-                required: ['entity', 'action', 'status', 'data'],
-                additionalProperties: false,
-              },
-              read: {
-                type: ['object', 'null'],
-                properties: {
-                  entity: { type: 'string' },
-                  data: {
-                    type: 'array',
-                    items: {
-                      type: 'object',
-                      additionalProperties: true,
-                    },
-                  },
-                },
-                required: ['entity', 'data'],
-                additionalProperties: false,
-              },
-            },
-            required: ['type'],
-            additionalProperties: false,
-          },
-        },
-        required: ['message', 'metadata'],
-        additionalProperties: false,
-      },
-    },
-  };
+  private readonly CRUD_INTENT_REGEX =
+    /\b(create|add|insert|generate|make|update|edit|change|set|modify|delete|remove|list|show|find|get|search|view|give|display|provide|tell|print|retrieve|pull|fetch)\b/i;
+
+  private requiresToolLookup(history: AiChatMessage[]): boolean {
+    const lastUserMsg = [...history]
+      .reverse()
+      .find((m) => String(m.role).toLowerCase() === 'user');
+    return (
+      !!lastUserMsg?.content &&
+      this.CRUD_INTENT_REGEX.test(String(lastUserMsg.content))
+    );
+  }
 
   async generateResponse(
     history: AiChatMessage[],
     systemPrompt?: string,
     hasExecutedTools = false,
+    forceToolChoice = false,
   ): Promise<AiResponse> {
     const messages = this.formatMessages(history, systemPrompt);
 
@@ -172,12 +178,12 @@ export class LMStudioProvider implements IAiProvider {
       const payload: Record<string, any> = {
         model: this.modelName,
         messages,
-        temperature: 0.1,
+        temperature: 0.0,
       };
 
       if (!hasExecutedTools) {
         payload.tools = AI_TOOLS;
-        payload.tool_choice = 'auto';
+        payload.tool_choice = forceToolChoice ? 'required' : 'auto';
       } else {
         payload.response_format = this.responseFormatSchema;
       }
@@ -216,9 +222,15 @@ export class LMStudioProvider implements IAiProvider {
             query: string;
           };
 
+          this.logger.debug(
+            `[Non-Stream] Tool: ${toolName}, args: ${JSON.stringify(toolArgs)}`,
+          );
           const result = await this.toolHandler.handleToolCall(
             toolName,
             toolArgs,
+          );
+          this.logger.debug(
+            `[Non-Stream] Result: ${JSON.stringify(result).substring(0, 500)}`,
           );
 
           history.push({
@@ -231,11 +243,27 @@ export class LMStudioProvider implements IAiProvider {
         return this.generateResponse(history, systemPrompt, true);
       }
 
+      if (
+        !hasExecutedTools &&
+        !forceToolChoice &&
+        this.requiresToolLookup(history)
+      ) {
+        this.logger.warn(
+          'Model skipped tool calls on a lookup-shaped request. Retrying with tool_choice="required".',
+        );
+        return this.generateResponse(history, systemPrompt, false, true);
+      }
+
       if (!choice?.content) {
         throw new Error('Empty response received from LM Studio provider');
       }
 
-      return this.parseJsonResponse(choice.content);
+      const parsedResponse = this.parseJsonResponse(choice.content);
+      const backfilled = backfillProposalFromToolResults(
+        parsedResponse,
+        history,
+      );
+      return enforceReadDataFromToolResults(backfilled, history);
     } catch (error: unknown) {
       this.logger.error(
         'Failed to generate AI response via LM Studio',
@@ -250,28 +278,39 @@ export class LMStudioProvider implements IAiProvider {
   async *generateResponseStream(
     history: AiChatMessage[],
     systemPrompt?: string,
+    hasExecutedTools = false,
+    forceToolChoice = false,
   ): AsyncIterable<string> {
-    const messages = this.formatMessages(history, systemPrompt);
+    if (!hasExecutedTools) {
+      const messages = this.formatMessages(history, systemPrompt);
 
-    let preCheckResponse: Response;
-    try {
-      preCheckResponse = await fetch(`${this.baseUrl}/chat/completions`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          model: this.modelName,
-          messages,
-          tools: AI_TOOLS,
-          temperature: 0.1,
-          stream: false,
-        }),
-      });
-    } catch (error) {
-      this.logger.error('Failed to communicate with LM Studio', error);
-      throw new InternalServerErrorException('LM Studio connection failed');
-    }
+      let preCheckResponse: Response;
+      try {
+        preCheckResponse = await fetch(`${this.baseUrl}/chat/completions`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            model: this.modelName,
+            messages,
+            tools: AI_TOOLS,
+            tool_choice: forceToolChoice ? 'required' : 'auto',
+            temperature: 0.0,
+            stream: false,
+          }),
+        });
+      } catch (error) {
+        this.logger.error('Failed to communicate with LM Studio', error);
+        throw new InternalServerErrorException('LM Studio connection failed');
+      }
 
-    if (preCheckResponse.ok) {
+      if (!preCheckResponse.ok) {
+        const errorText = await preCheckResponse.text();
+        this.logger.error(
+          `LM Studio Precheck Error (${preCheckResponse.status}): ${errorText}`,
+        );
+        throw new InternalServerErrorException('LM Studio precheck failed');
+      }
+
       const data =
         (await preCheckResponse.json()) as OpenAiChatCompletionResponse;
       const choice = data.choices?.[0]?.message;
@@ -287,15 +326,57 @@ export class LMStudioProvider implements IAiProvider {
           tool_calls: choice.tool_calls,
         });
 
+        const knownToolNames = new Set(AI_TOOLS.map((t) => t.function.name));
+
         for (const toolCall of choice.tool_calls) {
           const toolName = toolCall.function.name;
           const toolArgs = JSON.parse(toolCall.function.arguments || '{}') as {
             query: string;
           };
 
+          this.logger.debug(
+            `[Stream] Tool: ${toolName}, args: ${JSON.stringify(toolArgs)}`,
+          );
+
+          if (!knownToolNames.has(toolName)) {
+            const resolvedName = resolveToolAlias(toolName);
+
+            if (resolvedName) {
+              this.logger.warn(
+                `[Stream] Model called unknown tool "${toolName}" — auto-resolved to "${resolvedName}".`,
+              );
+              const result = await this.toolHandler.handleToolCall(
+                resolvedName,
+                toolArgs,
+              );
+              history.push({
+                role: MessageRole.TOOL,
+                tool_call_id: toolCall.id,
+                content: JSON.stringify(result),
+              });
+              continue;
+            }
+
+            this.logger.warn(
+              `[Stream] Model called undefined tool "${toolName}" with no resolvable alias.`,
+            );
+            history.push({
+              role: MessageRole.TOOL,
+              tool_call_id: toolCall.id,
+              content: JSON.stringify({
+                error: `Unknown tool "${toolName}". Valid tools are: ${[...knownToolNames].join(', ')}. To update or delete an entity, first call the matching search_ tool to resolve its real id, then respond directly with a Format A JSON proposal — do not call an update/delete tool, none exists.`,
+              }),
+            });
+            continue;
+          }
+
           const result = await this.toolHandler.handleToolCall(
             toolName,
             toolArgs,
+          );
+
+          this.logger.debug(
+            `[Stream] Result: ${JSON.stringify(result).substring(0, 500)}`,
           );
 
           history.push({
@@ -305,7 +386,15 @@ export class LMStudioProvider implements IAiProvider {
           });
         }
 
-        yield* this.generateResponseStream(history, systemPrompt);
+        yield* this.generateResponseStream(history, systemPrompt, true);
+        return;
+      }
+
+      if (!forceToolChoice && this.requiresToolLookup(history)) {
+        this.logger.warn(
+          '[Stream] Model skipped tool calls on a lookup-shaped request. Retrying precheck with tool_choice="required".',
+        );
+        yield* this.generateResponseStream(history, systemPrompt, false, true);
         return;
       }
     }
@@ -318,7 +407,7 @@ export class LMStudioProvider implements IAiProvider {
         body: JSON.stringify({
           model: this.modelName,
           messages: this.formatMessages(history, systemPrompt),
-          temperature: 0.1,
+          temperature: 0.0,
           stream: true,
           response_format: this.responseFormatSchema,
         }),

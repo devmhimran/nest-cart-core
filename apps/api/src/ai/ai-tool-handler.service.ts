@@ -1,20 +1,35 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class AiToolHandlerService {
+  private readonly logger = new Logger(AiToolHandlerService.name);
+  private readonly DEFAULT_LIMIT = 15;
+
   constructor(private prisma: PrismaService) {}
 
   async handleToolCall(name: string, args: { query?: string }) {
+    this.logger.debug(`Tool called: ${name}, args: ${JSON.stringify(args)}`);
+
     switch (name) {
-      case 'search_categories_and_subcategories':
+      case 'search_categories':
         return this.searchCategories(args.query);
-      case 'search_colors_and_sizes':
-        return this.searchAttributes(args.query);
+
+      case 'search_subcategories':
+        return this.searchSubCategories(args.query);
+
+      case 'search_colors':
+        return this.searchColors(args.query);
+
+      case 'search_sizes':
+        return this.searchSizes(args.query);
+
       case 'search_products':
         return this.searchProducts(args.query);
+
       case 'search_promo_codes':
         return this.searchPromoCodes(args.query);
+
       default:
         throw new Error(`Unknown tool: ${name}`);
     }
@@ -29,7 +44,9 @@ export class AiToolHandlerService {
     ) {
       return {};
     }
-    const cleanQuery = query.trim();
+
+    const cleanQuery = query.trim().replace(/^["']|["']$/g, '');
+
     if (searchFields.length === 1) {
       return {
         [searchFields[0]]: {
@@ -38,6 +55,9 @@ export class AiToolHandlerService {
         },
       };
     }
+    this.logger.debug(
+      `Searching for "${cleanQuery}" in fields: ${searchFields.join(', ')}`,
+    );
     return {
       OR: searchFields.map((field) => ({
         [field]: { contains: cleanQuery, mode: 'insensitive' as const },
@@ -47,38 +67,97 @@ export class AiToolHandlerService {
 
   private async searchCategories(query?: string) {
     const filter = this.getSearchFilter(query, ['name', 'slug']);
-    const [categories, subCategories] = await Promise.all([
-      this.prisma.category.findMany({
-        where: {
-          ...filter,
-          isDelete: false,
-        },
-        select: { id: true, name: true, slug: true, imageId: true },
-      }),
-      this.prisma.subCategory.findMany({
-        where: {
-          ...filter,
-          isDelete: false,
-        },
-        select: { id: true, name: true, slug: true, categoryId: true },
-      }),
-    ]);
-    return { categories, subCategories };
+
+    const categories = await this.prisma.category.findMany({
+      where: {
+        ...filter,
+        isDelete: false,
+      },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        imageId: true,
+      },
+      take: this.DEFAULT_LIMIT,
+    });
+
+    return {
+      items: categories.map((category) => ({
+        ...category,
+        entityType: 'category',
+      })),
+      count: categories.length,
+    };
   }
 
-  private async searchAttributes(query?: string) {
+  private async searchSubCategories(query?: string) {
+    const filter = this.getSearchFilter(query, ['name', 'slug']);
+
+    const subCategories = await this.prisma.subCategory.findMany({
+      where: {
+        ...filter,
+        isDelete: false,
+      },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        categoryId: true,
+      },
+      take: this.DEFAULT_LIMIT,
+    });
+
+    return {
+      items: subCategories.map((subCategory) => ({
+        ...subCategory,
+        entityType: 'subCategory',
+      })),
+      count: subCategories.length,
+    };
+  }
+
+  private async searchColors(query?: string) {
+    const filter = this.getSearchFilter(query, ['name', 'hex']);
+
+    const colors = await this.prisma.color.findMany({
+      where: filter,
+      select: {
+        id: true,
+        name: true,
+        hex: true,
+      },
+      take: this.DEFAULT_LIMIT,
+    });
+
+    return {
+      items: colors.map((color) => ({
+        ...color,
+        entityType: 'color',
+      })),
+      count: colors.length,
+    };
+  }
+
+  private async searchSizes(query?: string) {
     const filter = this.getSearchFilter(query, ['name']);
-    const [colors, sizes] = await Promise.all([
-      this.prisma.color.findMany({
-        where: filter,
-        select: { id: true, name: true, hex: true },
-      }),
-      this.prisma.size.findMany({
-        where: filter,
-        select: { id: true, name: true },
-      }),
-    ]);
-    return { colors, sizes };
+
+    const sizes = await this.prisma.size.findMany({
+      where: filter,
+      select: {
+        id: true,
+        name: true,
+      },
+      take: this.DEFAULT_LIMIT,
+    });
+
+    return {
+      items: sizes.map((size) => ({
+        ...size,
+        entityType: 'size',
+      })),
+      count: sizes.length,
+    };
   }
 
   private async searchProducts(query?: string) {
@@ -101,12 +180,16 @@ export class AiToolHandlerService {
         categoryId: true,
         subCategoryId: true,
       },
+      take: this.DEFAULT_LIMIT,
     });
-    return { products };
+
+    const items = products.map((p) => ({ ...p, entityType: 'product' }));
+    return { items, count: items.length };
   }
 
   private async searchPromoCodes(query?: string) {
     const filter = this.getSearchFilter(query, ['code', 'title']);
+    this.logger.debug(`Promo code search filter: ${JSON.stringify(filter)}`);
     const promoCodes = await this.prisma.promoCode.findMany({
       where: filter,
       select: {
@@ -117,7 +200,11 @@ export class AiToolHandlerService {
         startDate: true,
         endDate: true,
       },
+      take: this.DEFAULT_LIMIT,
     });
-    return { promoCodes };
+
+    const items = promoCodes.map((p) => ({ ...p, entityType: 'promoCode' }));
+    this.logger.debug(`Promo code search results: ${items.length} found`);
+    return { items, count: items.length };
   }
 }

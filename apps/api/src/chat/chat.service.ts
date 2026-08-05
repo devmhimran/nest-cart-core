@@ -7,6 +7,10 @@ import {
 import type { Response } from 'express';
 
 import {
+  backfillProposalFromToolResults,
+  enforceReadDataFromToolResults,
+} from '../ai/ai-response-backfill.util';
+import {
   AiChatMessage,
   AiResponseMetadata,
 } from '../ai/interfaces/ai-provider.interface';
@@ -162,14 +166,20 @@ export class ChatService {
 
       const parsed = JSON.parse(sanitized) as {
         message?: string;
-        metadata?: Record<string, unknown>;
+        metadata?: AiResponseMetadata; // CHANGED — was Record<string, unknown>
       };
 
       if (parsed && typeof parsed === 'object' && parsed.message) {
-        finalContent = parsed.message;
-        if (parsed.metadata) {
-          metadata = parsed.metadata;
-        }
+        const backfilled = backfillProposalFromToolResults(
+          {
+            message: parsed.message,
+            metadata: parsed.metadata ?? { type: 'text' },
+          },
+          history,
+        );
+        const enforced = enforceReadDataFromToolResults(backfilled, history);
+        finalContent = enforced.message;
+        metadata = enforced.metadata ?? { type: 'text' };
       }
     } catch {
       finalContent = rawAccumulatedJson;
