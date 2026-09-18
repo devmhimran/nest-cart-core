@@ -37,6 +37,7 @@ export function backfillProposalFromToolResults(
     if (String(msg.role).toLowerCase() !== 'tool' || !msg.content) continue;
     try {
       const parsed: unknown = JSON.parse(msg.content);
+      console.log(`Parsed tool result: ${JSON.stringify(parsed)}`);
       if (
         parsed &&
         typeof parsed === 'object' &&
@@ -101,6 +102,7 @@ export function enforceReadDataFromToolResults(
 
   const toolResultItems: Record<string, unknown>[] = [];
   for (const msg of history) {
+    console.log({ history });
     if (String(msg.role).toLowerCase() !== 'tool' || !msg.content) continue;
     try {
       const parsed: unknown = JSON.parse(msg.content);

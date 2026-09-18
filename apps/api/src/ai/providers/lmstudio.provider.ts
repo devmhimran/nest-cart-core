@@ -173,12 +173,14 @@ export class LMStudioProvider implements IAiProvider {
     forceToolChoice = false,
   ): Promise<AiResponse> {
     const messages = this.formatMessages(history, systemPrompt);
-
+    this.logger.debug(
+      `Formatted messages for LM Studio: ${JSON.stringify(messages)}`,
+    );
     try {
       const payload: Record<string, any> = {
         model: this.modelName,
         messages,
-        temperature: 0.0,
+        temperature: 0.1,
       };
 
       if (!hasExecutedTools) {
@@ -294,7 +296,7 @@ export class LMStudioProvider implements IAiProvider {
             messages,
             tools: AI_TOOLS,
             tool_choice: forceToolChoice ? 'required' : 'auto',
-            temperature: 0.0,
+            temperature: 0.1,
             stream: false,
           }),
         });
@@ -407,7 +409,7 @@ export class LMStudioProvider implements IAiProvider {
         body: JSON.stringify({
           model: this.modelName,
           messages: this.formatMessages(history, systemPrompt),
-          temperature: 0.0,
+          temperature: 0.1,
           stream: true,
           response_format: this.responseFormatSchema,
         }),

@@ -23,10 +23,7 @@ async function bootstrap() {
   const betterAuthHandler = toNodeHandler(authInstance as any);
 
   app.use('/api/v1/auth', (req, res) => {
-    return betterAuthHandler(
-      req as unknown as IncomingMessage,
-      res as unknown as ServerResponse,
-    );
+    return betterAuthHandler(req as IncomingMessage, res as ServerResponse);
   });
 
   // Global settings
